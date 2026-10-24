@@ -13,8 +13,18 @@
   align-items: center;
   gap: var(--spacing-extra-small);
 }
+.agenda-mini__room {
+  display: inline-flex;
+  padding: 0;
+  border-radius: var(--radius-infinite);
+  transition: transform 120ms ease;
+}
+.agenda-mini__room:active { transform: scale(0.96); }
 .agenda-mini__body {
   display: flex;
+  width: 100%;
+  padding: 0;
+  text-align: left;
   align-items: center;
   gap: var(--spacing-small);
 }

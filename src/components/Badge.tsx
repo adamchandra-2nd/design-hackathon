@@ -4,6 +4,8 @@ import "./Badge.css";
 type BadgeProps = {
   type: "live" | "now" | "on-air" | "room" | "next" | "done" | "hadir" | "pic" | "complete" | "plus-one";
   children: React.ReactNode;
+  /** Trailing arrow: the tag is tappable and takes you somewhere. */
+  arrow?: boolean;
 };
 
 const withDot = new Set(["live", "now", "on-air", "hadir", "complete"]);
@@ -21,12 +23,13 @@ const clayOf: Record<BadgeProps["type"], string> = {
 };
 
 /** Figma: Badge — pill, 28px tall. */
-export function Badge({ type, children }: BadgeProps) {
+export function Badge({ type, children, arrow }: BadgeProps) {
   return (
     <span className={`badge badge--${type} ${clayOf[type]} t-p-h5-bold`}>
       {withDot.has(type) && <span className="badge__dot" />}
       {type === "room" && <Icon name="MapPin" size={16} />}
       <span>{children}</span>
+      {arrow && <Icon name="ChevronRight" size={16} />}
     </span>
   );
 }

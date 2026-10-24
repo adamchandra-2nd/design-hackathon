@@ -6,18 +6,29 @@ type AgendaMiniProps = {
   room: string;
   title: string;
   next: string;
+  /** The guest is already in the event's room. */
+  here: boolean;
   onClick?: () => void;
+  onGoToRoom?: () => void;
 };
 
 /** Figma: Agenda Mini (Type=Now) — floating live-agenda summary, glass. Tags on top, then icon + title + next. */
-export function AgendaMini({ room, title, next, onClick }: AgendaMiniProps) {
+export function AgendaMini({ room, title, next, here, onClick, onGoToRoom }: AgendaMiniProps) {
   return (
-    <button type="button" className="agenda-mini glass" onClick={onClick}>
+    <div className="agenda-mini glass">
       <span className="agenda-mini__tags">
         <Badge type="now">Sekarang</Badge>
-        <Badge type="room">{room}</Badge>
+        {here ? (
+          <Badge type="room">Kamu di sini</Badge>
+        ) : (
+          <button type="button" className="agenda-mini__room" onClick={onGoToRoom} aria-label={`Pindah ke ${room}`}>
+            <Badge type="room" arrow>
+              {room}
+            </Badge>
+          </button>
+        )}
       </span>
-      <span className="agenda-mini__body">
+      <button type="button" className="agenda-mini__body" onClick={onClick}>
         <span className="agenda-mini__icon clay clay-accent">
           <Icon name="Sparkle" size={20} />
         </span>
@@ -28,7 +39,7 @@ export function AgendaMini({ room, title, next, onClick }: AgendaMiniProps) {
           </span>
         </span>
         <Icon name="ChevronRight" />
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }
