@@ -3,49 +3,15 @@
   align-items: center;
   gap: var(--spacing-small);
   height: 44px;
-  /* Name tag hugs the left edge; dots keep the regular inset on the right */
+  /* Room tag hugs the left edge; dots keep the regular inset on the right */
   padding: 0 var(--padding-mid-medium) 0 var(--padding-small);
   border-radius: var(--radius-infinite);
 }
-/* Name + LIVE tags sit closer together (8px) than the tags-to-dots gap (12px) */
+/* Room + LIVE tags sit closer together (8px) than the tags-to-dots gap (12px) */
 .room-indicator__tags {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-extra-small);
-}
-/* Room name wrapped in a white clay tag so it reads first */
-.room-indicator__name {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-extra-small);
-  height: 28px;
-  padding: 0 var(--padding-medium) 0 var(--padding-small);
-  border-radius: var(--radius-infinite);
-  background: var(--white);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-.room-indicator__name svg {
-  color: var(--orange-splash);
-}
-/* LIVE in a red clay tag */
-.room-indicator__live {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-extra-small);
-  height: 28px;
-  padding: 0 var(--padding-medium) 0 var(--padding-small);
-  border-radius: var(--radius-infinite);
-  background: var(--error);
-  color: var(--text-on-accent);
-}
-.room-indicator__live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-infinite);
-  background: var(--text-on-accent);
-  animation: live-pulse 1.6s ease-in-out infinite;
 }
 .room-indicator__dots {
   display: inline-flex;
@@ -62,12 +28,4 @@
 .room-indicator__dot.is-active {
   width: 16px;
   background: var(--orange-splash);
-}
-
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .room-indicator__live-dot { animation: none; }
 }

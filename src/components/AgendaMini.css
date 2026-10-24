@@ -1,13 +1,24 @@
 .agenda-mini {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-medium);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-small);
   width: 100%;
-  padding: var(--padding-mid-medium) var(--padding-large);
+  padding: var(--padding-mid-medium);
   border-radius: var(--radius-large);
   text-align: left;
 }
-.agenda-mini__pulse {
+.agenda-mini__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+}
+.agenda-mini__body {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+}
+.agenda-mini__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -25,5 +36,5 @@
   flex: 1;
   min-width: 0;
 }
-.agenda-mini__eyebrow { color: var(--text-grey-300); text-transform: uppercase; }
-.agenda-mini__next { color: var(--text-grey-200); }
+.agenda-mini__next { color: var(--text-grey-300); }
+.agenda-mini__next .t-p-h5-bold { color: var(--text-grey-100); }

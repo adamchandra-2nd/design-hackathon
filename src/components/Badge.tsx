@@ -1,13 +1,16 @@
+import { Icon } from "./Icon";
 import "./Badge.css";
 
 type BadgeProps = {
-  type: "live" | "next" | "done" | "hadir" | "pic" | "complete" | "plus-one";
+  type: "live" | "on-air" | "room" | "next" | "done" | "hadir" | "pic" | "complete" | "plus-one";
   children: React.ReactNode;
 };
 
-const withDot = new Set(["live", "hadir", "complete"]);
+const withDot = new Set(["live", "on-air", "hadir", "complete"]);
 const clayOf: Record<BadgeProps["type"], string> = {
   live: "clay clay-accent",
+  "on-air": "clay clay-accent",
+  room: "clay clay-light",
   hadir: "clay clay-accent",
   pic: "clay clay-accent",
   "plus-one": "clay clay-accent",
@@ -21,6 +24,7 @@ export function Badge({ type, children }: BadgeProps) {
   return (
     <span className={`badge badge--${type} ${clayOf[type]} t-p-h5-bold`}>
       {withDot.has(type) && <span className="badge__dot" />}
+      {type === "room" && <Icon name="MapPin" size={16} />}
       <span>{children}</span>
     </span>
   );

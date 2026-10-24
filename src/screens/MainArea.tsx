@@ -75,9 +75,9 @@ export function MainArea() {
       <div className="main-area__top">
         <RoomHeader name="David" kenalanCount={3} kenalanTarget={5} />
         <AgendaMini
-          eyebrow="Sekarang · Ruang Omakase"
+          room="Ruang Omakase"
           title="Talkshow"
-          next="Berikutnya: Pengenalan kantor"
+          next="Pengenalan kantor"
           onClick={() => setTab("agenda")}
         />
       </div>
