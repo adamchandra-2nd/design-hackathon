@@ -17,7 +17,7 @@ export function RoomIndicator({ name, index, total, live }: RoomIndicatorProps) 
         {name}
       </span>
       {live && (
-        <span className="room-indicator__live t-p-h5-bold">
+        <span className="room-indicator__live clay clay-accent t-p-h5-bold">
           <span className="room-indicator__live-dot" />
           LIVE
         </span>

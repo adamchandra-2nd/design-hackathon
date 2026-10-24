@@ -23,17 +23,22 @@
 .room-indicator__name svg {
   color: var(--orange-splash);
 }
+/* LIVE in a red clay tag */
 .room-indicator__live {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-extra-small);
-  color: var(--orange-splash);
+  height: 28px;
+  padding: 0 var(--padding-medium) 0 var(--padding-small);
+  border-radius: var(--radius-infinite);
+  background: var(--error);
+  color: var(--text-on-accent);
 }
 .room-indicator__live-dot {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-infinite);
-  background: var(--orange-splash);
+  background: var(--text-on-accent);
   animation: live-pulse 1.6s ease-in-out infinite;
 }
 .room-indicator__dots {
