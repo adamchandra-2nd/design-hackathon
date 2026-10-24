@@ -7,7 +7,7 @@
   padding: 0 var(--padding-mid-medium) 0 var(--padding-small);
   border-radius: var(--radius-infinite);
 }
-/* Room name wrapped in a dark clay tag so it reads first */
+/* Room name wrapped in an orange clay tag so it reads first */
 .room-indicator__name {
   display: inline-flex;
   align-items: center;
@@ -15,12 +15,9 @@
   height: 28px;
   padding: 0 var(--padding-medium) 0 var(--padding-small);
   border-radius: var(--radius-infinite);
-  background: var(--ink);
-  color: var(--text-inverse);
+  background: var(--orange-splash);
+  color: var(--text-on-accent);
   white-space: nowrap;
-}
-.room-indicator__name svg {
-  color: var(--amber);
 }
 .room-indicator__live {
   display: inline-flex;
