@@ -76,11 +76,11 @@ button {
   opacity: 0.1;
 }
 
-/* Ink surfaces: light bottom glow (as tuned on Button Primary) */
+/* Ink surfaces: thin, soft light glow along the bottom edge */
 .clay-dark {
   box-shadow:
-    inset 0 4px 6px rgba(255, 255, 255, 0.16),
-    inset 0 -5px 9px rgba(219, 219, 219, 0.5);
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 5px rgba(219, 219, 219, 0.34);
 }
 /* Grey 100 surfaces keep the dark bottom shade */
 .clay-grey {
