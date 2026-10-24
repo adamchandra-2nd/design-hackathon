@@ -48,6 +48,19 @@
 .badge--sent,
 .badge--read,
 .badge--answered { padding: 0 var(--padding-medium) 0 var(--padding-small); }
-.badge--sent { background: var(--status-sent-bg); color: var(--status-sent); }
-.badge--read { background: var(--status-read-bg); color: var(--status-read); }
-.badge--answered { background: var(--status-answered-bg); color: var(--status-answered); }
+/* Clay: white top highlight + a soft bottom shade tinted with each status colour */
+.badge--sent {
+  background: var(--status-sent-bg);
+  color: var(--status-sent);
+  box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(91, 102, 118, 0.22);
+}
+.badge--read {
+  background: var(--status-read-bg);
+  color: var(--status-read);
+  box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(47, 111, 219, 0.22);
+}
+.badge--answered {
+  background: var(--status-answered-bg);
+  color: var(--status-answered);
+  box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(78, 138, 62, 0.24);
+}

@@ -20,9 +20,9 @@ const clayOf: Record<BadgeProps["type"], string> = {
   complete: "clay clay-dark",
   next: "",
   done: "",
-  sent: "",
-  read: "",
-  answered: "",
+  sent: "clay clay-light",
+  read: "clay clay-light",
+  answered: "clay clay-light",
 };
 
 /** Message-status tags lead with a chat-style tick. */
