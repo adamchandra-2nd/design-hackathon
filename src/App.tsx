@@ -10,6 +10,7 @@ import { COUNTDOWN_ENABLED, DEMO_NOW, KENALAN_TARGET } from "./config";
 import { AGENDA, currentItem, eventEndedAt } from "./data/agenda";
 import { SAMPLE_QUESTIONS, type AskedQuestion } from "./data/questions";
 import { ROOMS, roomIndexById } from "./data/rooms";
+import { AdminApp } from "./admin/AdminApp";
 import { AskScreen } from "./screens/AskScreen";
 import { EventFeedback } from "./screens/EventFeedback";
 import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
@@ -181,6 +182,9 @@ export default function App() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+  // Admin (desktop) lives under #admin… links; everything else is the guest app.
+  const token = window.location.hash.slice(1);
+  if (token.startsWith("admin")) return <AdminApp key={epoch} token={token} />;
   return <Flow key={epoch} />;
 }
 

@@ -22,6 +22,10 @@ Prototype codes (replace with backend checks): door code `1108`, committee PIN `
 
 Set `COUNTDOWN_ENABLED = false` in `src/config.ts` for Test Day ("Ya" goes straight to "Mulai masuk Potara").
 
+## Admin side (desktop)
+
+Open `#admin-login` (email `admin@potara.id`, PIN `123456`) or `#admin` to skip sign-in. Same design system as the guest app; layout is an Ink sidebar + top bar + panels for 1440×900. Screens: Dashboard, Rundown (5 room columns, drag to move, drag the bottom edge to resize, click to edit), Pengumuman (with phone preview), Daftar tamu (manual check-in), Hadiah (committee PIN), Feedback (per event + final, anonymous), Pengaturan. Every admin case is listed under "Admin (desktop)" in `#review`. CSV export lives in `src/admin/csv.ts` so it's easy to remove.
+
 ## Buttons
 
 Primary = Orange Splash (main action) · Secondary = Ink · Tertiary = white (back / cancel) · Danger = red. No text-only buttons.
