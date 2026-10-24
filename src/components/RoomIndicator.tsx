@@ -12,7 +12,7 @@ type RoomIndicatorProps = {
 export function RoomIndicator({ name, index, total, live }: RoomIndicatorProps) {
   return (
     <div className="room-indicator glass" aria-live="polite">
-      <span className="room-indicator__name clay clay-accent t-p-h5-bold">
+      <span className="room-indicator__name clay clay-light t-p-h5-bold">
         <Icon name="MapPin" size={16} />
         {name}
       </span>
