@@ -20,11 +20,11 @@ export function RoomHeader({ name, kenalanCount, kenalanTarget, onKenalan }: Roo
       </div>
       <button
         type="button"
-        className="room-header__chip room-header__kenalan glass"
+        className="room-header__chip room-header__kenalan clay clay-accent"
         aria-label={`Kenalan ${kenalanCount} dari ${kenalanTarget}`}
         onClick={onKenalan}
       >
-        <span className="room-header__kenalan-icon clay clay-accent">
+        <span className="room-header__kenalan-icon clay clay-light">
           <Icon name="UserPlus" size={16} />
         </span>
         <span className="room-header__kenalan-body">

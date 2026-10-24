@@ -23,8 +23,3 @@
   background: var(--orange-splash);
   color: var(--text-on-accent);
 }
-.nav-item--locked {
-  color: var(--text-grey-300);
-  opacity: 0.6;
-  cursor: default;
-}

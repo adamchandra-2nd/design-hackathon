@@ -12,7 +12,10 @@
 .room-header__profile {
   padding: var(--padding-small) var(--padding-large) var(--padding-small) var(--padding-small);
 }
+/* Orange so the Kenalan feature always stands out from the other floating chips */
 .room-header__kenalan {
+  background: var(--orange-splash);
+  color: var(--text-on-accent);
   padding: var(--padding-medium) var(--padding-mid-medium) var(--padding-medium) var(--padding-medium);
 }
 .room-header__kenalan-icon {
@@ -22,8 +25,8 @@
   width: 28px;
   height: 28px;
   border-radius: var(--radius-infinite);
-  background: var(--amber);
-  color: var(--text-on-accent);
+  background: var(--white);
+  color: var(--orange-splash);
 }
 .room-header__kenalan-body {
   display: flex;
@@ -36,18 +39,18 @@
   align-items: center;
   justify-content: space-between;
 }
-.room-header__kenalan-label { color: var(--text-grey-200); }
+.room-header__kenalan-label { opacity: 0.85; }
 /* Progress toward the 5-kenalan reward */
 .room-header__bar {
   height: 4px;
   border-radius: var(--radius-infinite);
-  background: var(--background-texture);
+  background: rgba(255, 255, 255, 0.3);
   overflow: hidden;
 }
 .room-header__bar-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--amber);
+  background: var(--white);
   transition: width 300ms ease;
 }

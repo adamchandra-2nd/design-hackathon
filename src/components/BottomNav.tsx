@@ -15,7 +15,7 @@ type BottomNavProps = {
   active: NavTab;
   feedbackLocked?: boolean;
   onChange: (tab: NavTab) => void;
-  /** Tapping the locked Feedback tab explains why it is locked instead of doing nothing. */
+  /** Feedback looks like any other tab; before it opens, tapping it explains when it will. */
   onLockedTap?: () => void;
 };
 
@@ -30,10 +30,9 @@ export function BottomNav({ active, feedbackLocked, onChange, onLockedTap }: Bot
           <button
             key={tab.id}
             type="button"
-            className={`nav-item clay ${isActive ? "nav-item--active clay-accent" : "clay-grey"}${locked ? " nav-item--locked" : ""}`}
+            className={`nav-item clay ${isActive ? "nav-item--active clay-accent" : "clay-grey"}`}
             aria-current={isActive ? "page" : undefined}
-            aria-label={locked ? `${tab.label} (terkunci)` : tab.label}
-            aria-disabled={locked || undefined}
+            aria-label={tab.label}
             onClick={() => (locked ? onLockedTap?.() : onChange(tab.id))}
           >
             <Icon name={tab.icon} />
