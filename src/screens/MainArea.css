@@ -1,0 +1,104 @@
+.main-area {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  background: var(--background-primary);
+}
+
+/* ---------- Layer 1: rooms ---------- */
+.room-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  /* Placeholder for Nanda's room illustration: Cream + contour texture (Figma: Background/Contour) */
+  background-color: var(--background-primary);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='390' height='844' fill='none' stroke='%23101010' stroke-opacity='0.07' stroke-width='1.2'><path d='M-40 120C60 60 140 200 230 140S400 80 440 170'/><path d='M-40 196C60 136 140 276 230 216S400 156 440 246'/><path d='M-40 272C60 212 140 352 230 292S400 232 440 322'/><path d='M-40 348C60 288 140 428 230 368S400 308 440 398'/><path d='M-40 424C60 364 140 504 230 444S400 384 440 474'/><ellipse cx='300' cy='640' rx='39' ry='30'/><ellipse cx='300' cy='640' rx='73' ry='56'/><ellipse cx='300' cy='640' rx='107' ry='82'/><ellipse cx='300' cy='640' rx='140' ry='108'/></svg>");
+  background-size: cover;
+  background-position: center;
+}
+.room__label {
+  position: absolute;
+  top: 46%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--text-grey-500);
+  letter-spacing: 0.04em;
+  opacity: 0;
+}
+.room__floor {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 38%;
+  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+  background: var(--background-texture);
+}
+
+/* ---------- Layer 2: floating actions ---------- */
+.main-area__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small);
+  padding: max(var(--padding-mid-medium), env(safe-area-inset-top)) var(--padding-mid-medium) 0;
+  z-index: 2;
+}
+
+.main-area__toast {
+  position: absolute;
+  top: max(var(--padding-mid-medium), env(safe-area-inset-top));
+  left: var(--padding-mid-medium);
+  right: var(--padding-mid-medium);
+  z-index: 4;
+}
+
+.main-area__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-extra-large);
+  padding-top: 120px;
+  pointer-events: none;
+  z-index: 1;
+}
+.main-area__stage > * {
+  pointer-events: auto;
+}
+
+.main-area__edge {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.main-area__edge--left { left: var(--padding-mid-medium); }
+.main-area__edge--right { right: var(--padding-mid-medium); }
+
+.main-area__bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(var(--padding-extra-large), env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  z-index: 3;
+}

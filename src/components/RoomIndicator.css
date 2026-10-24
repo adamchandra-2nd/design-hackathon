@@ -1,0 +1,29 @@
+.room-indicator {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+  padding: var(--padding-medium) var(--padding-extra-large);
+  border-radius: var(--radius-infinite);
+}
+.room-indicator__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+}
+.room-indicator__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+}
+.room-indicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-infinite);
+  background: var(--text-grey-600);
+  transition: width 200ms ease, background 200ms ease;
+}
+.room-indicator__dot.is-active {
+  width: 24px;
+  background: var(--orange-splash);
+}

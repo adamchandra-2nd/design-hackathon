@@ -1,0 +1,27 @@
+.room-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.room-header__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+  border-radius: var(--radius-infinite);
+}
+.room-header__profile {
+  padding: var(--padding-small) var(--padding-large) var(--padding-small) var(--padding-small);
+}
+.room-header__kenalan {
+  padding: var(--padding-medium) var(--padding-mid-medium) var(--padding-medium) var(--padding-medium);
+}
+.room-header__kenalan-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-infinite);
+  background: var(--amber);
+  color: var(--text-on-accent);
+}

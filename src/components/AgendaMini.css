@@ -1,0 +1,29 @@
+.agenda-mini {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-medium);
+  width: 100%;
+  padding: var(--padding-mid-medium) var(--padding-large);
+  border-radius: var(--radius-large);
+  text-align: left;
+}
+.agenda-mini__pulse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-infinite);
+  background: var(--orange-splash);
+  color: var(--text-on-accent);
+}
+.agenda-mini__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-extra-small);
+  flex: 1;
+  min-width: 0;
+}
+.agenda-mini__eyebrow { color: var(--text-grey-300); text-transform: uppercase; }
+.agenda-mini__next { color: var(--text-grey-200); }
