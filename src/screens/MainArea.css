@@ -78,8 +78,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-extra-large);
   padding-top: 120px;
+  padding-bottom: 120px;
   pointer-events: none;
   z-index: 1;
 }
@@ -93,6 +93,8 @@
   right: 0;
   bottom: max(var(--padding-extra-large), env(safe-area-inset-bottom));
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-small);
   z-index: 3;
 }

@@ -88,15 +88,10 @@ export function MainArea() {
 
       <div className="main-area__stage">
         <Character />
-        <RoomIndicator
-          name={room.name}
-          index={roomIndex}
-          total={ROOMS.length}
-          live={room.id === LIVE_ROOM_ID}
-        />
       </div>
 
       <div className="main-area__bottom">
+        <RoomIndicator name={room.name} index={roomIndex} total={ROOMS.length} live={room.id === LIVE_ROOM_ID} />
         <BottomNav active={tab} feedbackLocked onChange={setTab} />
       </div>
     </main>

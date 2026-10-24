@@ -1,15 +1,26 @@
 .room-indicator {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--spacing-extra-small);
-  padding: var(--padding-medium) var(--padding-extra-large);
+  gap: var(--spacing-small);
+  height: 40px;
+  padding: 0 var(--padding-mid-medium);
   border-radius: var(--radius-infinite);
 }
-.room-indicator__title {
+.room-indicator__name {
+  white-space: nowrap;
+}
+.room-indicator__live {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-extra-small);
+  color: var(--orange-splash);
+}
+.room-indicator__live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-infinite);
+  background: var(--orange-splash);
+  animation: live-pulse 1.6s ease-in-out infinite;
 }
 .room-indicator__dots {
   display: inline-flex;
@@ -17,13 +28,21 @@
   gap: var(--spacing-extra-small);
 }
 .room-indicator__dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: var(--radius-infinite);
   background: var(--text-grey-600);
   transition: width 200ms ease, background 200ms ease;
 }
 .room-indicator__dot.is-active {
-  width: 24px;
+  width: 16px;
   background: var(--orange-splash);
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-indicator__live-dot { animation: none; }
 }
