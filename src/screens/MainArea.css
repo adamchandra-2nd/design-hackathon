@@ -17,6 +17,9 @@
   display: flex;
   transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.room-track.is-dragging {
+  transition: none;
+}
 .room {
   position: relative;
   flex: 0 0 100%;
@@ -83,15 +86,6 @@
 .main-area__stage > * {
   pointer-events: auto;
 }
-
-.main-area__edge {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-.main-area__edge--left { left: var(--padding-mid-medium); }
-.main-area__edge--right { right: var(--padding-mid-medium); }
 
 .main-area__bottom {
   position: absolute;

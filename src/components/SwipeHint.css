@@ -1,9 +1,0 @@
-.swipe-hint {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-infinite);
-}
-.swipe-hint:active { transform: scale(0.94); }
