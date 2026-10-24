@@ -1,4 +1,5 @@
 import { Badge } from "../components/Badge";
+import { Button } from "../components/Button";
 import { Icon } from "../components/Icon";
 import { EVENT } from "../config";
 import { AGENDA, DAY_END, DAY_START, formatTime, statusAt, type AgendaStatus } from "../data/agenda";
@@ -24,10 +25,11 @@ type Props = {
   ended: boolean;
   onGoToRoom: (roomIndex: number) => void;
   onFeedback: () => void;
+  onAsk: () => void;
 };
 
 /** Agenda as a day timeline: hour column on the left, cards sized by duration, and a live "now" line. */
-export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRoom, onFeedback }: Props) {
+export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRoom, onFeedback, onAsk }: Props) {
   const status = statusAt(now);
   const y = (min: number) => (min - DAY_START) * PX;
   const showNow = now >= DAY_START && now <= DAY_END;
@@ -98,6 +100,11 @@ export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRo
                 )}
                 {!compact && <span className="agenda-card__time">{formatTime(item.start)}–{formatTime(item.end)}</span>}
               </span>
+              {s === "now" && (
+                <Button size="small" style="tertiary" icon="Message" onClick={onAsk}>
+                  Tanya pembicara
+                </Button>
+              )}
             </article>
           );
         })}

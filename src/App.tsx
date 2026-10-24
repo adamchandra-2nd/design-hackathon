@@ -7,7 +7,10 @@ import type { RewardState } from "./components/RoomHeader";
 import { SystemState } from "./components/SystemState";
 import { Toast, ToastIcon } from "./components/Toast";
 import { COUNTDOWN_ENABLED, DEMO_NOW, KENALAN_TARGET } from "./config";
-import { eventEndedAt } from "./data/agenda";
+import { AGENDA, currentItem, eventEndedAt } from "./data/agenda";
+import { SAMPLE_QUESTIONS, type AskedQuestion } from "./data/questions";
+import { ROOMS, roomIndexById } from "./data/rooms";
+import { AskScreen } from "./screens/AskScreen";
 import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
 import { EMPTY_OUTFIT, type Outfit } from "./data/outfits";
 import { AgendaScreen } from "./screens/AgendaScreen";
@@ -28,7 +31,7 @@ import { Thanks } from "./screens/Thanks";
 import { Voucher } from "./screens/Voucher";
 
 type Stage = "rsvp" | "thanks" | "countdown" | "start" | "checkin" | "door" | "narasi" | "customize" | "app" | "review";
-type Overlay = { type: "guest"; id: string } | { type: "myqr" } | { type: "voucher" } | { type: "reward" } | null;
+type Overlay = { type: "guest"; id: string } | { type: "myqr" } | { type: "voucher" } | { type: "reward" } | { type: "ask"; eventId: string } | null;
 
 type AppState = {
   stage: Stage;
@@ -48,6 +51,9 @@ type AppState = {
   guestsPresent: boolean;
   changedId?: string;
   offline: boolean;
+  questions: AskedQuestion[];
+  askClosed: boolean;
+  askOffline: boolean;
   system: "loading" | "error" | "offline" | null;
   overlay: Overlay;
 };
@@ -68,6 +74,9 @@ const INITIAL: AppState = {
   mainScenario: "intro",
   guestsPresent: true,
   offline: false,
+  questions: SAMPLE_QUESTIONS,
+  askClosed: false,
+  askOffline: false,
   system: null,
   overlay: null,
 };
@@ -113,6 +122,10 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   "kenalan-selesai": { ...APP, tab: "kenalan", collected: FIVE, rewardClaimed: true },
   feedback: { ...APP, tab: "feedback", now: DEMO_NOW.ended },
   "memory-card": { ...APP, tab: "feedback", now: DEMO_NOW.ended, feedbackSent: true },
+  tanya: { ...APP, overlay: { type: "ask", eventId: "talkshow" } },
+  "tanya-kosong": { ...APP, questions: [], overlay: { type: "ask", eventId: "talkshow" } },
+  "tanya-ditutup": { ...APP, askClosed: true, overlay: { type: "ask", eventId: "talkshow" } },
+  "tanya-gagal": { ...APP, askOffline: true, overlay: { type: "ask", eventId: "talkshow" } },
   memuat: { system: "loading" },
   error: { system: "error" },
   offline: { system: "offline" },
@@ -120,7 +133,7 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
 
 const STORAGE_KEY = "hmd-progress-v2";
 /** Only real progress is saved, so reopening the app resumes where the guest left off. */
-const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent"];
+const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent", "questions"];
 
 function load(): AppState {
   const token = window.location.hash.slice(1);
@@ -199,9 +212,9 @@ function Flow() {
     case "customize":
       return (
         <Customize
-          initialName={state.name}
+          name={state.name}
           initialOutfit={state.outfit}
-          onConfirm={(name, outfit) => set({ name, outfit, stage: "app", tab: "ruangan", roomIndex: 0, mainScenario: "intro" })}
+          onConfirm={(outfit) => set({ outfit, stage: "app", tab: "ruangan", roomIndex: 0, mainScenario: "intro" })}
         />
       );
   }
@@ -215,23 +228,48 @@ function Flow() {
   const onTab = (tab: NavTab) => set({ tab, overlay: null });
   const goToRoom = (roomIndex: number) => set({ tab: "ruangan", roomIndex, visited: [...new Set([...state.visited, roomIndex])], overlay: null });
   const openReward = () => set({ tab: "kenalan", overlay: { type: "voucher" } });
+  const live = ended ? undefined : currentItem(state.now);
+  const openAsk = () => live && set({ overlay: { type: "ask", eventId: live.id } });
+  const askEvent = state.overlay?.type === "ask" ? AGENDA.find((a) => a.id === (state.overlay as { eventId: string }).eventId) : undefined;
+  const askScreen = askEvent && (
+    <AskScreen
+      event={askEvent}
+      roomName={ROOMS[roomIndexById(askEvent.roomId)].name}
+      questions={state.questions.filter((q) => q.eventId === askEvent.id)}
+      closed={state.askClosed}
+      offline={state.askOffline}
+      onBack={() => set({ overlay: null })}
+      onSend={(text, anonymous) =>
+        set({
+          questions: [
+            ...state.questions,
+            { id: `q${Date.now()}`, eventId: askEvent.id, text, author: anonymous ? null : state.name, mine: true, status: "terkirim", at: state.now },
+          ],
+        })
+      }
+    />
+  );
 
   if (state.tab === "ruangan") {
     return (
-      <MainArea
-        name={state.name}
-        kenalanCount={count}
-        reward={reward}
-        roomIndex={state.roomIndex}
-        onRoomChange={(roomIndex) => set({ roomIndex, visited: [...new Set([...state.visited, roomIndex])] })}
-        onTab={onTab}
-        now={state.now}
-        ended={ended}
-        offline={state.offline}
-        scenario={state.mainScenario}
-        onScenarioPlayed={onScenarioPlayed}
-        onOpenReward={openReward}
-      />
+      <>
+        <MainArea
+          name={state.name}
+          kenalanCount={count}
+          reward={reward}
+          roomIndex={state.roomIndex}
+          onRoomChange={(roomIndex) => set({ roomIndex, visited: [...new Set([...state.visited, roomIndex])] })}
+          onTab={onTab}
+          now={state.now}
+          ended={ended}
+          offline={state.offline}
+          scenario={state.mainScenario}
+          onScenarioPlayed={onScenarioPlayed}
+          onOpenReward={openReward}
+          onAsk={openAsk}
+        />
+        {askScreen}
+      </>
     );
   }
 
@@ -256,6 +294,7 @@ function Flow() {
           ended={ended}
           onGoToRoom={goToRoom}
           onFeedback={() => onTab("feedback")}
+          onAsk={openAsk}
         />
       )}
       {state.tab === "kenalan" && (
@@ -309,6 +348,7 @@ function Flow() {
           onClaimed={() => set({ rewardClaimed: true })}
         />
       )}
+      {askScreen}
       {overlay?.type === "myqr" && <MyQr name={state.name} onClose={() => set({ overlay: null })} />}
       {overlay?.type === "reward" && (
         <Dialog

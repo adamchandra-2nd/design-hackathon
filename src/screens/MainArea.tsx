@@ -38,6 +38,7 @@ type MainAreaProps = {
   scenario: MainScenario;
   onScenarioPlayed: () => void;
   onOpenReward: () => void;
+  onAsk: () => void;
 };
 
 /** Main area: the character stands in the middle of a Potara room; every action floats on top. */
@@ -54,6 +55,7 @@ export function MainArea({
   scenario,
   onScenarioPlayed,
   onOpenReward,
+  onAsk,
 }: MainAreaProps) {
   const [toast, setToast] = useState<ToastSpec | null>(null);
   const [toastClosing, setToastClosing] = useState(false);
@@ -243,6 +245,7 @@ export function MainArea({
       here={roomIndex === liveRoom}
       onClick={() => onTab("agenda")}
       onGoToRoom={() => goTo(liveRoom)}
+      onAsk={onAsk}
     />
   ) : upcoming ? (
     <AgendaMini

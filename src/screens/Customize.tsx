@@ -2,23 +2,21 @@ import { useState } from "react";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
 import { Icon } from "../components/Icon";
-import { TextField } from "../components/TextField";
 import { OUTFIT_CATEGORIES, outfitSummary, type Outfit, type OutfitCategory } from "../data/outfits";
 import { ROOMS } from "../data/rooms";
 import "./Customize.css";
 
 type Props = {
-  initialName: string;
+  /** From the invitation; guests can't rename themselves. */
+  name: string;
   initialOutfit: Outfit;
-  onConfirm: (name: string, outfit: Outfit) => void;
+  onConfirm: (outfit: Outfit) => void;
 };
 
 /** Character customisation: outfit only (the dragon stays orange). Confirming here marks the guest "hadir". */
-export function Customize({ initialName, initialOutfit, onConfirm }: Props) {
-  const [name, setName] = useState(initialName);
+export function Customize({ name, initialOutfit, onConfirm }: Props) {
   const [outfit, setOutfit] = useState<Outfit>(initialOutfit);
   const [cat, setCat] = useState<OutfitCategory>("baju");
-  const trimmed = name.trim();
   const category = OUTFIT_CATEGORIES.find((c) => c.id === cat)!;
   const worn = outfitSummary(outfit);
 
@@ -30,17 +28,11 @@ export function Customize({ initialName, initialOutfit, onConfirm }: Props) {
       <div className="flow__top">
         <section className="panel glass">
           <h1 className="t-display-h6 panel__title">Buat karaktermu</h1>
-          <TextField
-            label="Nama panggilan"
-            value={name}
-            onChange={setName}
-            maxLength={16}
-            error={trimmed ? undefined : "Isi nama panggilanmu dulu ya."}
-          />
+          <p className="t-p-h5 panel__body">Pilih pakaian untuk karaktermu, {name}.</p>
         </section>
       </div>
       <div className="flow__stage">
-        <Character say={worn.length ? `Pakai ${worn.join(", ")}!` : trimmed ? `Halo, aku ${trimmed}!` : undefined} />
+        <Character say={worn.length ? `Pakai ${worn.join(", ")}!` : `Halo, aku ${name}!`} />
       </div>
       <div className="flow__bottom">
         <section className="panel glass customize__panel">
@@ -85,7 +77,7 @@ export function Customize({ initialName, initialOutfit, onConfirm }: Props) {
             })}
           </div>
         </section>
-        <Button block disabled={!trimmed} onClick={() => onConfirm(trimmed, outfit)}>
+        <Button block onClick={() => onConfirm(outfit)}>
           Selesai, aku masuk!
         </Button>
       </div>

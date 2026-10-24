@@ -188,3 +188,14 @@
   padding: 0 var(--padding-large);
   border-radius: var(--radius-infinite);
 }
+
+/* Full-screen step that sits above any tab (main area included) */
+.overlay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--background-primary);
+}

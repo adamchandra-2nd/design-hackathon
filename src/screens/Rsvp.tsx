@@ -26,7 +26,7 @@ export function Rsvp({ onYes, onNo }: RsvpProps) {
         <Button block onClick={onYes}>
           Ya, aku hadir
         </Button>
-        <Button block style="danger" onClick={() => setConfirmNo(true)}>
+        <Button block style="secondary" onClick={() => setConfirmNo(true)}>
           Tidak bisa hadir
         </Button>
       </div>

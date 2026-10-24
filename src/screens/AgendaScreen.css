@@ -24,6 +24,7 @@
   gap: var(--spacing-extra-small);
   overflow: hidden;
 }
+.timeline__event .btn { align-self: flex-start; margin-top: auto; }
 .timeline__event.is-compact { padding: var(--padding-medium) var(--padding-mid-medium); }
 .agenda-card__tags { display: flex; flex-wrap: wrap; gap: var(--spacing-extra-small); }
 .agenda-card__title {

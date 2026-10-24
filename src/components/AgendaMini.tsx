@@ -4,7 +4,17 @@ import { Icon } from "./Icon";
 import "./AgendaMini.css";
 
 type AgendaMiniProps =
-  | { type: "now"; title: string; next?: string; room: string; here: boolean; onClick: () => void; onGoToRoom: () => void }
+  | {
+      type: "now";
+      title: string;
+      next?: string;
+      room: string;
+      here: boolean;
+      onClick: () => void;
+      onGoToRoom: () => void;
+      /** Ask the speaker through the app (any live event). */
+      onAsk: () => void;
+    }
   | { type: "between"; title: string; minutesLeft: number; room: string; here: boolean; onClick: () => void; onGoToRoom: () => void }
   | { type: "ended"; onFeedback: () => void };
 
@@ -67,6 +77,11 @@ export function AgendaMini(props: AgendaMiniProps) {
         </span>
         <Icon name="ChevronRight" />
       </button>
+      {props.type === "now" && (
+        <Button block size="small" style="tertiary" icon="Message" onClick={props.onAsk}>
+          Tanya pembicara
+        </Button>
+      )}
     </div>
   );
 }
