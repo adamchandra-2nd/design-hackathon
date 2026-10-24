@@ -27,6 +27,8 @@
   /* Component / Supportive */
   --border: rgba(16, 16, 16, 0.1);
   --success: #4e8a3e;
+  /* Brighter success green for small marks on Ink surfaces (e.g. the "Sekarang" dot) */
+  --success-on-dark: #5fd35a;
   --error: #d93b2b;
 
   /* Radius */

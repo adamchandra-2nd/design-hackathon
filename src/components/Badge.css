@@ -30,7 +30,7 @@
 .badge--room { background: var(--white); color: var(--text-primary); border: 1px solid var(--border); }
 .badge--room svg { color: var(--orange-splash); }
 .badge--now { background: var(--ink); color: var(--text-inverse); }
-.badge--now .badge__dot { background: var(--success); }
+.badge--now .badge__dot { background: var(--success-on-dark); }
 .badge--on-air { background: var(--error); color: var(--text-on-accent); }
 .badge--live .badge__dot,
 .badge--now .badge__dot,
