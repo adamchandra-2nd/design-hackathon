@@ -2,12 +2,25 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-small);
-  height: 40px;
-  padding: 0 var(--padding-mid-medium);
+  height: 44px;
+  /* Name tag hugs the left edge; dots keep the regular inset on the right */
+  padding: 0 var(--padding-mid-medium) 0 var(--padding-small);
   border-radius: var(--radius-infinite);
 }
+/* Room name wrapped in a dark clay tag so it reads first */
 .room-indicator__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+  height: 28px;
+  padding: 0 var(--padding-medium) 0 var(--padding-small);
+  border-radius: var(--radius-infinite);
+  background: var(--ink);
+  color: var(--text-inverse);
   white-space: nowrap;
+}
+.room-indicator__name svg {
+  color: var(--amber);
 }
 .room-indicator__live {
   display: inline-flex;
