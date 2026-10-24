@@ -6,7 +6,7 @@ export function Character() {
   return (
     <div className="character">
       <span className="character__shadow" aria-hidden="true" />
-      <img className="character__img" src={dragonFront} alt="Karaktermu" width={199} height={320} draggable={false} />
+      <img className="character__img" src={dragonFront} alt="Karaktermu" width={211} height={340} draggable={false} />
     </div>
   );
 }

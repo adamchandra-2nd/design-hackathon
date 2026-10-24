@@ -57,9 +57,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-top: 120px;
-  padding-bottom: 120px;
+  /* Feet rest on the room floor, just above the room indicator + bottom nav. */
+  justify-content: flex-end;
+  padding-bottom: calc(max(var(--padding-extra-large), env(safe-area-inset-bottom)) + 136px);
   pointer-events: none;
   z-index: 1;
 }

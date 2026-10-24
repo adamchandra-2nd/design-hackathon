@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   width: 240px;
-  height: 320px;
+  height: 340px;
 }
 .character__img {
   position: relative;
@@ -11,32 +11,26 @@
   width: auto;
   user-select: none;
   -webkit-user-drag: none;
-  animation: character-idle 3.2s ease-in-out infinite;
+  /* Breathing idle anchored at the feet, so the character stays planted on the floor */
   transform-origin: 50% 100%;
+  animation: character-breathe 3.2s ease-in-out infinite;
 }
-/* Soft contact shadow on the floor, like the shadow in Nanda's renders */
+/* Contact shadow right under the feet */
 .character__shadow {
   position: absolute;
   left: 50%;
-  bottom: -6px;
-  width: 150px;
-  height: 18px;
+  bottom: -4px;
+  width: 170px;
+  height: 22px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: rgba(92, 61, 31, 0.16);
-  filter: blur(5px);
-  animation: shadow-idle 3.2s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgba(92, 52, 22, 0.32), rgba(92, 52, 22, 0.12) 60%, rgba(92, 52, 22, 0));
 }
 
-@keyframes character-idle {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-6px) scaleY(1.01); }
-}
-@keyframes shadow-idle {
-  0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
-  50% { transform: translateX(-50%) scale(0.9); opacity: 0.75; }
+@keyframes character-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(0.99, 1.015); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .character__img,
-  .character__shadow { animation: none; }
+  .character__img { animation: none; }
 }
