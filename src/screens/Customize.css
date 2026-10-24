@@ -1,3 +1,8 @@
+/* Taller outfit panel: zoom the yard a little so the porch floor sits right under the character's feet */
+.customize .flow__bg {
+  background-size: auto 125%;
+  background-position: center bottom;
+}
 .customize__panel { padding-bottom: var(--padding-mid-medium); }
 .customize__tabs {
   display: grid;

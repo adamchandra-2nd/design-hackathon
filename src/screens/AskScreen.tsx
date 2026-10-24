@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
+import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { TextField } from "../components/TextField";
 import { Toast, ToastIcon } from "../components/Toast";
@@ -25,17 +26,21 @@ type Props = {
   offline: boolean;
   onBack: () => void;
   onSend: (text: string, anonymous: boolean) => void;
+  /** Returns false when the MC read it first (no longer editable). */
+  onEdit: (id: string, text: string) => boolean;
+  onDelete: (id: string) => void;
 };
 
 /**
  * Ask the speaker through the app, so shy guests don't have to stand up. Questions show on the
  * Performance/MC screen; guests see everyone's questions (no votes, by design) and the status of their own.
  */
-export function AskScreen({ event, roomName, questions, closed, offline, onBack, onSend }: Props) {
+export function AskScreen({ event, roomName, questions, closed, offline, onBack, onSend, onEdit, onDelete }: Props) {
   const [text, setText] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [error, setError] = useState(false);
   const [sent, setSent] = useState(false);
+  const [deleting, setDeleting] = useState<AskedQuestion | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
   const mine = questions.filter((q) => q.mine).sort((a, b) => b.at - a.at);
@@ -96,12 +101,7 @@ export function AskScreen({ event, roomName, questions, closed, offline, onBack,
               error={error ? "Gagal terkirim. Cek koneksimu, lalu kirim lagi." : undefined}
               hint={`${text.length}/${QUESTION_MAX} karakter`}
             />
-            <Toggle
-              label="Kirim sebagai anonim"
-              hint="Namamu tidak tampil di layar MC dan di daftar tamu lain."
-              checked={anonymous}
-              onChange={setAnonymous}
-            />
+            <Toggle dark label="Kirim sebagai anonim" hint="Namamu tidak akan ditampilkan." checked={anonymous} onChange={setAnonymous} />
           </section>
         )}
 
@@ -111,7 +111,7 @@ export function AskScreen({ event, roomName, questions, closed, offline, onBack,
         ) : (
           <ul className="list ask__list">
             {mine.map((q) => (
-              <QuestionRow key={q.id} q={q} />
+              <QuestionRow key={q.id} q={q} onEdit={onEdit} onDelete={() => setDeleting(q)} />
             ))}
           </ul>
         )}
@@ -140,6 +140,32 @@ export function AskScreen({ event, roomName, questions, closed, offline, onBack,
         )}
       </div>
 
+      {deleting && (
+        <Dialog
+          title="Batalkan pertanyaan?"
+          onClose={() => setDeleting(null)}
+          actions={
+            <>
+              <Button
+                block
+                style="danger"
+                onClick={() => {
+                  onDelete(deleting.id);
+                  setDeleting(null);
+                }}
+              >
+                Ya, hapus
+              </Button>
+              <Button block style="tertiary" onClick={() => setDeleting(null)}>
+                Kembali
+              </Button>
+            </>
+          }
+        >
+          Pertanyaanmu akan dihapus dari layar MC.
+        </Dialog>
+      )}
+
       {sent && (
         <div className="page__toast">
           <Toast lead={<ToastIcon icon="Check" tone="accent" />} title="Terkirim ke MC" sub="Pantau statusnya di Pertanyaanku." />
@@ -149,18 +175,82 @@ export function AskScreen({ event, roomName, questions, closed, offline, onBack,
   );
 }
 
-function QuestionRow({ q }: { q: AskedQuestion }) {
+type RowProps = { q: AskedQuestion; onEdit?: (id: string, text: string) => boolean; onDelete?: () => void };
+
+/** One question. Your own can be edited or withdrawn only while it's still "Terkirim" (the MC hasn't read it). */
+function QuestionRow({ q, onEdit, onDelete }: RowProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(q.text);
+  const [tooLate, setTooLate] = useState(false);
   const s = STATUS[q.status];
+  const editable = q.mine && q.status === "terkirim";
+
+  const save = () => {
+    const ok = onEdit?.(q.id, draft.trim());
+    setEditing(false);
+    if (!ok) {
+      setDraft(q.text);
+      setTooLate(true);
+    }
+  };
+
   return (
     <li className="card ask__item">
       <span className="ask__item-head">
         <span className="t-p-h5-bold ask__author">{q.mine ? (q.author ? "Kamu" : "Kamu (anonim)") : (q.author ?? "Anonim")}</span>
-        <span className="t-p-h5 ask__time">{formatTime(q.at)}</span>
+        <span className="t-p-h5 ask__time">
+          {q.edited && "Diedit · "}
+          {formatTime(q.at)}
+        </span>
       </span>
-      <p className="t-p-h4 ask__text">{q.text}</p>
+      {editing ? (
+        <TextField
+          label="Ubah pertanyaan"
+          value={draft}
+          onChange={(v) => setDraft(v.slice(0, QUESTION_MAX))}
+          multiline
+          maxLength={QUESTION_MAX}
+          autoFocus
+        />
+      ) : (
+        <p className="t-p-h4 ask__text">{q.text}</p>
+      )}
       <span className="agenda-card__tags">
         <Badge type={s.type}>{s.label}</Badge>
       </span>
+      {tooLate && (
+        <span className="t-p-h5 ask__note ask__note--error" role="alert">
+          Keburu dibaca MC, jadi tidak bisa diubah.
+        </span>
+      )}
+      {q.mine && !editable && !tooLate && <span className="t-p-h5 ask__note">Sudah dibaca MC, tidak bisa diubah.</span>}
+      {editable &&
+        (editing ? (
+          <span className="ask__actions">
+            <Button
+              size="small"
+              style="tertiary"
+              onClick={() => {
+                setEditing(false);
+                setDraft(q.text);
+              }}
+            >
+              Batal
+            </Button>
+            <Button size="small" disabled={!draft.trim() || draft.trim() === q.text} onClick={save}>
+              Simpan
+            </Button>
+          </span>
+        ) : (
+          <span className="ask__actions">
+            <Button size="small" style="tertiary" onClick={() => setEditing(true)}>
+              Edit
+            </Button>
+            <Button size="small" style="danger" onClick={onDelete}>
+              Batal kirim
+            </Button>
+          </span>
+        ))}
     </li>
   );
 }

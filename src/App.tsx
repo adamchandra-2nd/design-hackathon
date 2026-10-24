@@ -60,6 +60,8 @@ type AppState = {
   feedbackOffline: boolean;
   askClosed: boolean;
   askOffline: boolean;
+  /** Review case: the MC reads the question while the guest is editing it. */
+  askRace: boolean;
   system: "loading" | "error" | "offline" | null;
   overlay: Overlay;
 };
@@ -86,6 +88,7 @@ const INITIAL: AppState = {
   feedbackOffline: false,
   askClosed: false,
   askOffline: false,
+  askRace: false,
   system: null,
   overlay: null,
 };
@@ -145,6 +148,7 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   "tanya-kosong": { ...APP, questions: [], overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-ditutup": { ...APP, askClosed: true, overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-gagal": { ...APP, askOffline: true, overlay: { type: "ask", eventId: "talkshow" } },
+  "tanya-keburu-dibaca": { ...APP, askRace: true, overlay: { type: "ask", eventId: "talkshow" } },
   "feedback-acara": { ...APP, now: TALKSHOW_DONE, roomIndex: 4 },
   "feedback-acara-gagal": { ...APP, now: TALKSHOW_DONE, roomIndex: 4, feedbackOffline: true },
   memuat: { system: "loading" },
@@ -260,6 +264,15 @@ function Flow() {
       closed={state.askClosed}
       offline={state.askOffline}
       onBack={() => set({ overlay: null })}
+      onEdit={(id, text) => {
+        if (state.askRace) {
+          set({ questions: state.questions.map((q) => (q.id === id ? { ...q, status: "dibaca" } : q)) });
+          return false;
+        }
+        set({ questions: state.questions.map((q) => (q.id === id ? { ...q, text, edited: true } : q)) });
+        return true;
+      }}
+      onDelete={(id) => set({ questions: state.questions.filter((q) => q.id !== id) })}
       onSend={(text, anonymous) =>
         set({
           questions: [

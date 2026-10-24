@@ -114,13 +114,20 @@ export function QuestionCard({ guest, savedNote, onBack, onCollected }: Props) {
           <span className="t-p-h3-bold">Kartu kenalan</span>
         </div>
 
-        <section className="card question__guest">
-          <Avatar initial={guest.name.charAt(0)} size="L" />
-          <div className="question__who">
-            <span className="t-display-h6">{guest.name}</span>
-            <span className="t-p-h5 guest-card__role">{guest.role}</span>
+        <section className="card">
+          {/* Tag row first, then the content row */}
+          {saved && (
+            <span className="agenda-card__tags">
+              <Badge type="hadir">Kartu didapat</Badge>
+            </span>
+          )}
+          <div className="question__guest">
+            <Avatar initial={guest.name.charAt(0)} size="L" />
+            <div className="question__who">
+              <span className="t-display-h6">{guest.name}</span>
+              <span className="t-p-h5 guest-card__role">{guest.role}</span>
+            </div>
           </div>
-          {saved && <Badge type="hadir">Kartu didapat</Badge>}
         </section>
 
         {/* The question is the hero of this screen */}

@@ -14,12 +14,21 @@
   transform: translateY(-50%);
 }
 .timeline__label { width: var(--hour-col); flex: none; color: var(--text-grey-400); }
-.timeline__rule { flex: 1; height: 1px; background: var(--border); }
-
-.timeline__event {
+.timeline__rule { flex: 1; height: 1px; background: rgba(16, 16, 16, 0.16); }
+/* Fainter half-hour line, starting at the events column */
+.timeline__half {
   position: absolute;
   left: calc(var(--hour-col) + var(--spacing-extra-small));
   right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(16, 16, 16, 0.1);
+}
+
+.timeline__event {
+  position: absolute;
+  left: calc(var(--hour-col) + var(--spacing-small));
+  /* Like Google Calendar, events leave a strip on the right so the hour lines stay visible */
+  right: var(--spacing-medium);
   z-index: 1;
   gap: var(--spacing-extra-small);
   overflow: hidden;

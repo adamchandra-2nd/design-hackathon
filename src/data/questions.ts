@@ -10,6 +10,7 @@ export type AskedQuestion = {
   status: QuestionStatus;
   /** Rundown clock minute it was sent. */
   at: number;
+  edited?: boolean;
 };
 
 export const SAMPLE_QUESTIONS: AskedQuestion[] = [

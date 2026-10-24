@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
+import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { OUTFIT_CATEGORIES, outfitSummary, type Outfit, type OutfitCategory } from "../data/outfits";
 import { ROOMS } from "../data/rooms";
 import "./Customize.css";
+
+const WARN_AFTER_MS = 3000;
 
 type Props = {
   /** From the invitation; guests can't rename themselves. */
@@ -20,6 +23,16 @@ export function Customize({ name, initialOutfit, onConfirm }: Props) {
   const category = OUTFIT_CATEGORIES.find((c) => c.id === cat)!;
   const worn = outfitSummary(outfit);
 
+  const [idle, setIdle] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+
+  // After a few quiet seconds, the character reminds the guest that the outfit is final.
+  useEffect(() => {
+    setIdle(false);
+    const t = window.setTimeout(() => setIdle(true), WARN_AFTER_MS);
+    return () => clearTimeout(t);
+  }, [outfit, cat]);
+
   const pick = (item: string | null) => setOutfit({ ...outfit, [cat]: item });
 
   return (
@@ -32,7 +45,7 @@ export function Customize({ name, initialOutfit, onConfirm }: Props) {
         </section>
       </div>
       <div className="flow__stage">
-        <Character say={worn.length ? `Pakai ${worn.join(", ")}!` : `Halo, aku ${name}!`} />
+        <Character say={idle ? "Pilih yang pas ya! Nanti nggak bisa ganti 🙈" : worn.length ? `Pakai ${worn.join(", ")}!` : `Halo, aku ${name}!`} />
       </div>
       <div className="flow__bottom">
         <section className="panel glass customize__panel">
@@ -77,10 +90,28 @@ export function Customize({ name, initialOutfit, onConfirm }: Props) {
             })}
           </div>
         </section>
-        <Button block onClick={() => onConfirm(outfit)}>
+        <Button block onClick={() => setConfirm(true)}>
           Selesai, aku masuk!
         </Button>
       </div>
+      {confirm && (
+        <Dialog
+          title="Yakin sama gayamu?"
+          onClose={() => setConfirm(false)}
+          actions={
+            <>
+              <Button block onClick={() => onConfirm(outfit)}>
+                Yakin, masuk!
+              </Button>
+              <Button block style="tertiary" onClick={() => setConfirm(false)}>
+                Pilih lagi
+              </Button>
+            </>
+          }
+        >
+          Nanti nggak bisa ganti baju lagi. Malu kalau ada yang lihat!
+        </Dialog>
+      )}
     </main>
   );
 }

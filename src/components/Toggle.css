@@ -28,3 +28,20 @@
 .toggle__input:checked + .toggle__track { background: var(--ink); }
 .toggle__input:checked + .toggle__track .toggle__thumb { transform: translateX(20px); }
 .toggle__input:focus-visible + .toggle__track { outline: 2px solid var(--orange-splash); outline-offset: 2px; }
+
+/* Dark variant: wrapped in an Ink container; "on" turns Orange Splash */
+.toggle--dark {
+  padding: var(--padding-medium) var(--padding-mid-medium);
+  border-radius: var(--radius-medium);
+  background: var(--ink);
+  color: var(--text-inverse);
+}
+.toggle--dark .toggle__hint {
+  color: var(--text-inverse);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toggle--dark .toggle__track { background: var(--text-grey-200); }
+.toggle--dark .toggle__input:checked + .toggle__track { background: var(--orange-splash); }

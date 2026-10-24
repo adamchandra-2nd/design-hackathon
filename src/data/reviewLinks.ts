@@ -53,10 +53,11 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
   {
     title: "Tanya pembicara",
     links: [
-      { token: "tanya", label: "Tanya pembicara", note: "Kirim (bisa anonim), status, pertanyaan tamu lain" },
+      { token: "tanya", label: "Tanya pembicara", note: "Kirim (bisa anonim), edit / batal kirim, status, pertanyaan tamu lain" },
       { token: "tanya-kosong", label: "Belum ada pertanyaan", note: "Empty state" },
       { token: "tanya-ditutup", label: "Sesi ditutup MC", note: "Tidak bisa kirim lagi" },
       { token: "tanya-gagal", label: "Gagal terkirim", note: "Offline saat kirim" },
+      { token: "tanya-keburu-dibaca", label: "Edit keburu dibaca", note: "Edit pertanyaanmu → MC sudah membacanya" },
     ],
   },
   {

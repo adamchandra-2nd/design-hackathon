@@ -9,6 +9,7 @@ import "./AgendaScreen.css";
 /** Pixels per minute: a 30-minute slot is ~108px, like Google Calendar's day view. */
 const PX = 3.6;
 const HOURS = Array.from({ length: (DAY_END - DAY_START) / 60 + 1 }, (_, i) => DAY_START + i * 60);
+const HALF_HOURS = HOURS.slice(0, -1).map((h) => h + 30);
 
 const STATUS: Record<AgendaStatus, { type: "now" | "next" | "done"; label: string } | null> = {
   now: { type: "now", label: "Sekarang" },
@@ -61,6 +62,9 @@ export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRo
             <span className="timeline__rule" />
           </div>
         ))}
+        {HALF_HOURS.map((h) => (
+          <span key={h} className="timeline__half" style={{ top: y(h) }} />
+        ))}
 
         {AGENDA.map((item) => {
           const s = status[item.id];
@@ -77,9 +81,13 @@ export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRo
             >
               {(tag || item.id === changedId) && (
                 <span className="agenda-card__tags">
-                  {tag && <Badge type={tag.type}>{tag.label}</Badge>}
+                  {/* A finished event you rated shows that instead of "Selesai" (the faded card already says it's over) */}
+                  {s === "done" && item.id in feedbackSent ? (
+                    <Badge type="hadir">Feedback terkirim</Badge>
+                  ) : (
+                    tag && <Badge type={tag.type}>{tag.label}</Badge>
+                  )}
                   {item.id === changedId && <Badge type="on-air">Diubah</Badge>}
-                  {s === "done" && item.id in feedbackSent && <Badge type="hadir">Feedback terkirim</Badge>}
                 </span>
               )}
               <h2 className="agenda-card__title">{item.title}</h2>

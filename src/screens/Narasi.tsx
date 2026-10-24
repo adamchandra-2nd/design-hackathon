@@ -1,52 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
-import { Dots } from "../components/Dots";
+import { Character } from "../components/Character";
+import { STORY } from "../data/story";
 import { ROOMS } from "../data/rooms";
 import "./Narasi.css";
 
-const SLIDES = [
-  {
-    room: 0,
-    title: "Selamat datang di rumah baru Potara!",
-    body: "Hari ini kami resmi pindahan. Terima kasih sudah datang merayakannya bareng kami.",
-  },
-  {
-    room: 1,
-    title: "Jelajahi 5 ruangan",
-    body: "Geser layar ke kiri atau kanan untuk pindah ruangan. Tiap ruangan punya ceritanya sendiri.",
-  },
-  {
-    room: 3,
-    title: "Kenalan, kumpulkan kartu",
-    body: "Sapa tamu lain dan tanyakan pertanyaan di kartunya. Kumpulkan 5 kartu untuk dapat hadiah.",
-  },
-  {
-    room: 4,
-    title: "Ikuti acaranya",
-    body: "Saat acara dimulai, kami kabari dulu lalu antar kamu ke ruangannya.",
-  },
-];
+/** Each chapter plays for this long before moving on, like Instagram Stories. */
+const CHAPTER_MS = 6500;
 
-/** Story slides after the door: tap anywhere to continue, skip any time. */
+/**
+ * Potara's story told as short chapters: Stories-style progress, tap right/left to move,
+ * the character narrating, and a closing chapter that leads into customisation.
+ */
 export function Narasi({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
-  const last = i === SLIDES.length - 1;
-  const slide = SLIDES[i];
-  const next = () => (last ? onDone() : setI(i + 1));
+  const last = i === STORY.length - 1;
+  const c = STORY[i];
+
+  useEffect(() => {
+    if (last) return;
+    const t = window.setTimeout(() => setI((n) => n + 1), CHAPTER_MS);
+    return () => clearTimeout(t);
+  }, [i, last]);
+
+  const onTap = (e: React.MouseEvent<HTMLElement>) => {
+    const left = e.clientX - e.currentTarget.getBoundingClientRect().left < e.currentTarget.clientWidth / 3;
+    if (left) setI(Math.max(0, i - 1));
+    else if (!last) setI(i + 1);
+  };
 
   return (
-    <main className="flow narasi" onClick={next}>
-      {SLIDES.map((s, idx) => (
+    <main className="flow narasi" onClick={onTap}>
+      {STORY.map((s, idx) => (
         <div
           key={idx}
           className={`flow__bg narasi__bg${idx === i ? " is-active" : ""}`}
           style={{ backgroundImage: `url(${ROOMS[s.room].image})` }}
         />
       ))}
+
       <div className="flow__top narasi__top">
-        <span className="narasi__dots">
-          <Dots index={i} total={SLIDES.length} label={`Slide ${i + 1} dari ${SLIDES.length}`} />
-        </span>
+        <div className="narasi__progress" aria-label={`Bab ${i + 1} dari ${STORY.length}`}>
+          {STORY.map((_, idx) => (
+            <span key={idx} className="narasi__seg">
+              <span
+                key={idx === i ? `on-${i}` : idx}
+                className={`narasi__fill${idx < i ? " is-done" : idx === i ? " is-playing" : ""}${idx === i && last ? " is-done" : ""}`}
+                style={{ animationDuration: `${CHAPTER_MS}ms` }}
+              />
+            </span>
+          ))}
+        </div>
         {!last && (
           <button
             type="button"
@@ -60,14 +65,18 @@ export function Narasi({ onDone }: { onDone: () => void }) {
           </button>
         )}
       </div>
-      <div className="flow__stage" />
+
+      <div className="flow__stage">
+        <Character key={i} say={c.say} />
+      </div>
+
       <div className="flow__bottom">
         <section key={i} className="panel glass narasi__panel">
-          <span className="t-p-h5-bold narasi__step">
-            {i + 1}/{SLIDES.length}
+          <span className="agenda-card__tags">
+            <Badge type="next">{c.chapter}</Badge>
           </span>
-          <h1 className="t-display-h6 panel__title">{slide.title}</h1>
-          <p className="t-p-h4 panel__body">{slide.body}</p>
+          <h1 className="t-display-h6 panel__title">{c.title}</h1>
+          <p className="t-p-h4 panel__body">{c.body}</p>
           {last ? (
             <div className="panel__actions">
               <Button block icon="ArrowRight" onClick={onDone}>
@@ -75,7 +84,7 @@ export function Narasi({ onDone }: { onDone: () => void }) {
               </Button>
             </div>
           ) : (
-            <span className="t-p-h5 narasi__hint">Tap di mana saja untuk lanjut</span>
+            <span className="t-p-h5 narasi__hint">Tap kanan untuk lanjut · kiri untuk kembali</span>
           )}
         </section>
       </div>

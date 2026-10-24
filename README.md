@@ -14,9 +14,9 @@ npm run build    # production build in dist/
 
 ## Guest flow (user view)
 
-RSVP → (Tidak → Terima kasih, can switch back) → Countdown → Mulai masuk Potara → Check-in (QR / kode pintu / panitia) → Pintu keycard → Narasi → Buat karakter (outfit only; the name comes from the invitation; confirming = hadir) → App: Ruangan · Agenda · Kenalan · Feedback (after the event) → Memory card.
+RSVP → (Tidak → Terima kasih, can switch back) → Countdown → Mulai masuk Potara → Check-in (QR / kode pintu / panitia) → Pintu keycard → Cerita Potara (Stories-style chapters; real history still to fill in `src/data/story.ts`) → Buat karakter (outfit only; the name comes from the invitation; confirming = hadir) → App: Ruangan · Agenda · Kenalan · Feedback (after the event) → Memory card.
 
-Open `#review` for a hub that links every screen and case (42 of them), including Tanya pembicara (`#tanya`, `#tanya-ditutup`, `#tanya-gagal`) and the required per-event feedback (`#feedback-acara`, `#feedback-acara-gagal`). Each case is also a direct hash link, e.g. `#check-in-kamera`, `#ruangan-jeda`, `#kenalan-hampir`, `#voucher`.
+Open `#review` for a hub that links every screen and case (43 of them), including Tanya pembicara (`#tanya`, `#tanya-ditutup`, `#tanya-gagal`) and the required per-event feedback (`#feedback-acara`, `#feedback-acara-gagal`). Each case is also a direct hash link, e.g. `#check-in-kamera`, `#ruangan-jeda`, `#kenalan-hampir`, `#voucher`.
 
 Prototype codes (replace with backend checks): door code `1108`, committee PIN `2026`, Nanda's kenalan code `1357`. Progress is saved in localStorage so reopening resumes where the guest left off.
 
