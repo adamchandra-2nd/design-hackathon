@@ -4,20 +4,28 @@ import "./RoomHeader.css";
 
 type RoomHeaderProps = {
   name: string;
+  characterHue?: number;
   kenalanCount: number;
   kenalanTarget: number;
   onKenalan?: () => void;
 };
 
+/** Figma: Room Header — profile chip on its own (pre-event screens). */
+export function ProfileChip({ name, characterHue }: { name: string; characterHue?: number }) {
+  return (
+    <div className="room-header__chip room-header__profile glass">
+      <Avatar initial={name.charAt(0)} size="M" characterHue={characterHue} />
+      <span className="t-p-h4-bold">{name}</span>
+    </div>
+  );
+}
+
 /** Figma: Room Header (Type=Event) — floating profile chip + Kenalan progress chip. */
-export function RoomHeader({ name, kenalanCount, kenalanTarget, onKenalan }: RoomHeaderProps) {
+export function RoomHeader({ name, characterHue, kenalanCount, kenalanTarget, onKenalan }: RoomHeaderProps) {
   const progress = Math.min(kenalanCount / kenalanTarget, 1);
   return (
     <header className="room-header">
-      <div className="room-header__chip room-header__profile glass">
-        <Avatar initial={name.charAt(0)} size="M" />
-        <span className="t-p-h4-bold">{name}</span>
-      </div>
+      <ProfileChip name={name} characterHue={characterHue} />
       <button
         type="button"
         className="room-header__chip room-header__kenalan clay clay-accent"

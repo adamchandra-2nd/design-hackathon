@@ -1,4 +1,5 @@
 import { Badge } from "./Badge";
+import { Dots } from "./Dots";
 import "./RoomIndicator.css";
 
 type RoomIndicatorProps = {
@@ -16,11 +17,7 @@ export function RoomIndicator({ name, index, total, live }: RoomIndicatorProps) 
         <Badge type="room">{name}</Badge>
         {live && <Badge type="on-air">LIVE</Badge>}
       </span>
-      <span className="room-indicator__dots" aria-label={`Ruangan ${index + 1} dari ${total}`}>
-        {Array.from({ length: total }, (_, i) => (
-          <span key={i} className={`room-indicator__dot${i === index ? " is-active" : ""}`} />
-        ))}
-      </span>
+      <Dots index={index} total={total} label={`Ruangan ${index + 1} dari ${total}`} />
     </div>
   );
 }

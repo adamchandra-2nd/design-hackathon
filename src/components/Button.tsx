@@ -8,17 +8,20 @@ type ButtonProps = {
   size?: "large" | "small";
   icon?: IconName;
   disabled?: boolean;
+  /** Stretch to the container width (stacked actions in a card). */
+  block?: boolean;
+  type?: "button" | "submit";
   onClick?: () => void;
 };
 
 const clayOf = { primary: "clay clay-dark", accent: "clay clay-accent", secondary: "clay clay-light", ghost: "" };
 
 /** Figma: Button — Style × Size × State. */
-export function Button({ children, style = "primary", size = "large", icon, disabled, onClick }: ButtonProps) {
+export function Button({ children, style = "primary", size = "large", icon, disabled, block, type = "button", onClick }: ButtonProps) {
   return (
     <button
-      type="button"
-      className={`btn btn--${style} btn--${size} ${disabled ? "" : clayOf[style]} ${size === "large" ? "t-p-h3-bold" : "t-p-h4-bold"}`}
+      type={type}
+      className={`btn btn--${style} btn--${size}${block ? " btn--block" : ""} ${disabled ? "" : clayOf[style]} ${size === "large" ? "t-p-h3-bold" : "t-p-h4-bold"}`}
       disabled={disabled}
       onClick={onClick}
     >

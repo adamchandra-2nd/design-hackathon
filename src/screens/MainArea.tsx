@@ -5,6 +5,7 @@ import { Character } from "../components/Character";
 import { RoomHeader } from "../components/RoomHeader";
 import { RoomIndicator } from "../components/RoomIndicator";
 import { Toast } from "../components/Toast";
+import { KENALAN_TARGET } from "../config";
 import { LIVE_ROOM_ID, ROOMS } from "../data/rooms";
 import "./MainArea.css";
 
@@ -21,11 +22,32 @@ type ToastState =
 
 const LIVE_INDEX = ROOMS.findIndex((r) => r.id === LIVE_ROOM_ID);
 
+type MainAreaProps = {
+  name: string;
+  hue: number;
+  kenalanCount: number;
+  roomIndex: number;
+  onRoomChange: (index: number) => void;
+  onTab: (tab: NavTab) => void;
+  feedbackLocked: boolean;
+  /** Run the demo timeline (guest arrives, event starts elsewhere) only on the first visit. */
+  playIntro: boolean;
+  onIntroPlayed: () => void;
+};
+
 /** Main area: the character stands in the middle of a Potara room; every action floats on top. */
-export function MainArea() {
-  // Demo: the guest starts at the front yard; the talkshow then starts in Ruang Omakase.
-  const [roomIndex, setRoomIndex] = useState(0);
-  const [tab, setTab] = useState<NavTab>("ruangan");
+export function MainArea({
+  name,
+  hue,
+  kenalanCount,
+  roomIndex,
+  onRoomChange,
+  onTab,
+  feedbackLocked,
+  playIntro,
+  onIntroPlayed,
+}: MainAreaProps) {
+  const setTab = onTab;
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastClosing, setToastClosing] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -49,7 +71,7 @@ export function MainArea() {
     toastTimers.current = [window.setTimeout(closeToast, ms)];
   };
 
-  const goTo = (i: number) => setRoomIndex(Math.max(0, Math.min(ROOMS.length - 1, i)));
+  const goTo = (i: number) => onRoomChange(Math.max(0, Math.min(ROOMS.length - 1, i)));
 
   // Event-start notice: count down, then move the guest to the event room unless they chose to stay.
   const startMoveNotice = (event: string, target: number) => {
@@ -72,6 +94,8 @@ export function MainArea() {
 
   // Demo timeline: a guest arrives, then the talkshow starts in another room.
   useEffect(() => {
+    if (!playIntro) return;
+    onIntroPlayed();
     const timers = [
       window.setTimeout(() => showToast({ kind: "hadir", name: "Nanda" }, 5000), 1200),
       window.setTimeout(() => startMoveNotice("Talkshow", LIVE_INDEX), 8000),
@@ -125,7 +149,13 @@ export function MainArea() {
 
       {/* Layer 2: floating actions */}
       <div className="main-area__top">
-        <RoomHeader name="David" kenalanCount={3} kenalanTarget={5} onKenalan={() => setTab("kenalan")} />
+        <RoomHeader
+          name={name}
+          characterHue={hue}
+          kenalanCount={kenalanCount}
+          kenalanTarget={KENALAN_TARGET}
+          onKenalan={() => setTab("kenalan")}
+        />
         <AgendaMini
           room={ROOMS[LIVE_INDEX].name}
           title="Talkshow"
@@ -164,14 +194,14 @@ export function MainArea() {
       </div>
 
       <div className="main-area__stage">
-        <Character />
+        <Character hue={hue} />
       </div>
 
       <div className="main-area__bottom">
         <RoomIndicator name={room.name} index={roomIndex} total={ROOMS.length} live={room.id === LIVE_ROOM_ID} />
         <BottomNav
-          active={tab}
-          feedbackLocked
+          active="ruangan"
+          feedbackLocked={feedbackLocked}
           onChange={setTab}
           onLockedTap={() => showToast({ kind: "feedback-locked" }, 3000)}
         />

@@ -1,0 +1,14 @@
+.agenda-list { margin: 0; padding: 0; list-style: none; }
+.agenda-card__tags { display: flex; flex-wrap: wrap; gap: var(--spacing-extra-small); }
+.agenda-card__body { display: flex; flex-direction: column; gap: var(--spacing-extra-small); }
+.agenda-card__title { margin: 0; text-wrap: balance; }
+.agenda-card__time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+  color: var(--text-grey-200);
+}
+.agenda-card__time svg { color: var(--text-grey-300); }
+/* What's on now gets the single orange accent on the page */
+.agenda-card--now { border: 2px solid var(--orange-splash); }
+.agenda-card--done { opacity: 0.6; }

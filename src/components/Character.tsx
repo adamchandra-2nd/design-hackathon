@@ -6,8 +6,15 @@ import "./Character.css";
 const LINES = ["Halo!", "Yuk kenalan sama tamu lain!", "Hehe, geli!", "Jangan lupa cek agenda ya!", "Seru banget di sini!"];
 const BUBBLE_MS = 2200;
 
+type CharacterProps = {
+  /** Colour hue shift chosen in customisation. */
+  hue?: number;
+  /** A line the character keeps saying (e.g. on RSVP). Tap reactions still override it briefly. */
+  say?: string;
+};
+
 /** Figma: Illustration/Character — Nanda's dragon mascot (front view). Tap for a reaction. */
-export function Character() {
+export function Character({ hue = 0, say }: CharacterProps) {
   const [line, setLine] = useState<string | null>(null);
   const [bounce, setBounce] = useState(0);
   const lineIndex = useRef(0);
@@ -22,11 +29,12 @@ export function Character() {
     timer.current = window.setTimeout(() => setLine(null), BUBBLE_MS);
   };
 
+  const shown = line ?? say;
   return (
     <button type="button" className="character" onClick={react} aria-label="Sapa karaktermu">
-      {line && (
-        <span key={line} className="character__bubble clay clay-light t-p-h4-bold" role="status">
-          {line}
+      {shown && (
+        <span key={shown} className="character__bubble clay clay-light t-p-h4-bold" role="status">
+          {shown}
         </span>
       )}
       <span className="character__shadow" aria-hidden="true" />
@@ -38,6 +46,7 @@ export function Character() {
         width={211}
         height={340}
         draggable={false}
+        style={hue ? { filter: `hue-rotate(${hue}deg)` } : undefined}
       />
     </button>
   );

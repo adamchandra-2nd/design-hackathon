@@ -8,6 +8,7 @@
   transition: transform 120ms ease;
 }
 .btn:active:not(:disabled) { transform: scale(0.97); }
+.btn--block { width: 100%; }
 .btn--large { height: 56px; padding: 0 var(--padding-extra-large); }
 .btn--small { height: 40px; padding: 0 var(--padding-large); }
 
