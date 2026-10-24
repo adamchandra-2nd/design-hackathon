@@ -62,10 +62,12 @@ export function MainArea() {
         style={{ transform: `translateX(calc(-${roomIndex * 100}% + ${dragX}px))` }}
       >
         {ROOMS.map((r) => (
-          <section key={r.id} className="room" aria-hidden={r.id !== room.id}>
-            <span className="room__label t-p-h5-bold">ILUSTRASI RUANGAN · {r.name.toUpperCase()}</span>
-            <span className="room__floor" />
-          </section>
+          <section
+            key={r.id}
+            className="room"
+            aria-hidden={r.id !== room.id}
+            style={{ backgroundImage: `url(${r.image})` }}
+          />
         ))}
       </div>
 
