@@ -9,6 +9,9 @@ import { LIVE_ROOM_ID, ROOMS } from "../data/rooms";
 import "./MainArea.css";
 
 const SWIPE_THRESHOLD = 60;
+const TOAST_CLOSE_MS = 200;
+
+type ToastState = { kind: "hadir"; name: string } | { kind: "feedback-locked" };
 const DRAG_START = 8;
 const EDGE_RESISTANCE = 0.3;
 
@@ -16,17 +19,30 @@ const EDGE_RESISTANCE = 0.3;
 export function MainArea() {
   const [roomIndex, setRoomIndex] = useState(() => ROOMS.findIndex((r) => r.id === LIVE_ROOM_ID));
   const [tab, setTab] = useState<NavTab>("ruangan");
-  const [toastVisible, setToastVisible] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [toastClosing, setToastClosing] = useState(false);
+  const toastTimers = useRef<number[]>([]);
   const [dragX, setDragX] = useState(0);
   const drag = useRef<{ x: number; y: number; active: boolean } | null>(null);
 
-  // Demo: another guest arrives shortly after opening, toast hides after 5s.
+  // Show a toast for `ms`, then scale it back out. A new toast replaces the current one.
+  const showToast = (next: ToastState, ms: number) => {
+    toastTimers.current.forEach(clearTimeout);
+    setToast(next);
+    setToastClosing(false);
+    toastTimers.current = [
+      window.setTimeout(() => setToastClosing(true), ms),
+      window.setTimeout(() => setToast(null), ms + TOAST_CLOSE_MS),
+    ];
+  };
+
+  // Demo: another guest arrives shortly after opening.
   useEffect(() => {
-    const show = setTimeout(() => setToastVisible(true), 1200);
-    const hide = setTimeout(() => setToastVisible(false), 6200);
+    const t = window.setTimeout(() => showToast({ kind: "hadir", name: "Nanda" }, 5000), 1200);
+    const timers = toastTimers.current;
     return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
+      clearTimeout(t);
+      timers.forEach(clearTimeout);
     };
   }, []);
 
@@ -73,20 +89,27 @@ export function MainArea() {
 
       {/* Layer 2: floating actions */}
       <div className="main-area__top">
-        <RoomHeader name="David" kenalanCount={3} kenalanTarget={5} />
+        <RoomHeader name="David" kenalanCount={3} kenalanTarget={5} onKenalan={() => setTab("kenalan")} />
         <AgendaMini
           room="Ruang Omakase"
           title="Talkshow"
           next="Pengenalan kantor"
           onClick={() => setTab("agenda")}
         />
+        {/* Notifications grow out from under the agenda card, clear of the character */}
+        {toast?.kind === "hadir" && (
+          <Toast type="hadir" name={toast.name} closing={toastClosing} onGreet={() => setTab("kenalan")} />
+        )}
+        {toast?.kind === "feedback-locked" && (
+          <Toast
+            type="info"
+            icon="Lock"
+            title="Feedback belum dibuka"
+            sub="Dibuka setelah acara selesai. Nikmati dulu acaranya!"
+            closing={toastClosing}
+          />
+        )}
       </div>
-
-      {toastVisible && (
-        <div className="main-area__toast">
-          <Toast name="Nanda" onGreet={() => setTab("kenalan")} />
-        </div>
-      )}
 
       <div className="main-area__stage">
         <Character />
@@ -94,7 +117,12 @@ export function MainArea() {
 
       <div className="main-area__bottom">
         <RoomIndicator name={room.name} index={roomIndex} total={ROOMS.length} live={room.id === LIVE_ROOM_ID} />
-        <BottomNav active={tab} feedbackLocked onChange={setTab} />
+        <BottomNav
+          active={tab}
+          feedbackLocked
+          onChange={setTab}
+          onLockedTap={() => showToast({ kind: "feedback-locked" }, 3000)}
+        />
       </div>
     </main>
   );

@@ -25,3 +25,29 @@
   background: var(--amber);
   color: var(--text-on-accent);
 }
+.room-header__kenalan-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-extra-small);
+  width: 96px;
+}
+.room-header__kenalan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.room-header__kenalan-label { color: var(--text-grey-200); }
+/* Progress toward the 5-kenalan reward */
+.room-header__bar {
+  height: 4px;
+  border-radius: var(--radius-infinite);
+  background: var(--background-texture);
+  overflow: hidden;
+}
+.room-header__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--amber);
+  transition: width 300ms ease;
+}

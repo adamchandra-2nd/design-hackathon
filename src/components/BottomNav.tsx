@@ -15,10 +15,12 @@ type BottomNavProps = {
   active: NavTab;
   feedbackLocked?: boolean;
   onChange: (tab: NavTab) => void;
+  /** Tapping the locked Feedback tab explains why it is locked instead of doing nothing. */
+  onLockedTap?: () => void;
 };
 
 /** Figma: Bottom Nav — floating Ink pill; active tab expands into an Orange Splash pill with label. */
-export function BottomNav({ active, feedbackLocked, onChange }: BottomNavProps) {
+export function BottomNav({ active, feedbackLocked, onChange, onLockedTap }: BottomNavProps) {
   return (
     <nav className="bottom-nav clay clay-dark" aria-label="Navigasi utama">
       {TABS.map((tab) => {
@@ -30,9 +32,9 @@ export function BottomNav({ active, feedbackLocked, onChange }: BottomNavProps) 
             type="button"
             className={`nav-item clay ${isActive ? "nav-item--active clay-accent" : "clay-grey"}${locked ? " nav-item--locked" : ""}`}
             aria-current={isActive ? "page" : undefined}
-            aria-label={tab.label}
-            disabled={locked}
-            onClick={() => onChange(tab.id)}
+            aria-label={locked ? `${tab.label} (terkunci)` : tab.label}
+            aria-disabled={locked || undefined}
+            onClick={() => (locked ? onLockedTap?.() : onChange(tab.id))}
           >
             <Icon name={tab.icon} />
             {isActive && <span className="t-p-h4-bold">{tab.label}</span>}

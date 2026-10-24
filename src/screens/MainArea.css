@@ -43,14 +43,6 @@
   z-index: 2;
 }
 
-.main-area__toast {
-  position: absolute;
-  top: max(var(--padding-mid-medium), env(safe-area-inset-top));
-  left: var(--padding-mid-medium);
-  right: var(--padding-mid-medium);
-  z-index: 4;
-}
-
 .main-area__stage {
   position: absolute;
   inset: 0;
