@@ -1,10 +1,17 @@
+import type { ReactNode } from "react";
 import { EVENT } from "../config";
 import { Badge } from "./Badge";
 import { Icon } from "./Icon";
 import "./EventCard.css";
 
+type EventCardProps = {
+  status?: ReactNode;
+  /** Extra content under the event meta (question, countdown…), kept in the same top card. */
+  children?: ReactNode;
+};
+
 /** Figma: Event Info — floating invite summary at the top of pre-event screens. */
-export function EventCard({ status }: { status?: React.ReactNode }) {
+export function EventCard({ status, children }: EventCardProps) {
   return (
     <section className="event-card panel glass">
       <span className="event-card__tags">
@@ -24,6 +31,7 @@ export function EventCard({ status }: { status?: React.ReactNode }) {
           </span>
         </span>
       </div>
+      {children && <div className="event-card__extra">{children}</div>}
     </section>
   );
 }

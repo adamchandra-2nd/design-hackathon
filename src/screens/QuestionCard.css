@@ -20,3 +20,14 @@
 .question__text { margin: 0; line-height: 1.35; text-wrap: balance; }
 .question__answer { margin: 0; line-height: 1.5; }
 .question__bottom > * { max-width: 398px; }
+.question__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-extra-small);
+  margin: 0;
+  padding-left: var(--padding-large);
+  color: var(--text-grey-200);
+  line-height: 1.5;
+}
+.question__scanner { display: flex; justify-content: center; padding: var(--padding-large) 0; }
+.question__scan-copy { text-align: center; }

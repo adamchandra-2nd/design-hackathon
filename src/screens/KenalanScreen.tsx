@@ -1,35 +1,48 @@
 import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
+import { Character } from "../components/Character";
+import { GuestCard } from "../components/GuestCard";
 import { Icon } from "../components/Icon";
+import type { RewardState } from "../components/RoomHeader";
 import { KENALAN_TARGET } from "../config";
 import { GUESTS, type Guest } from "../data/guests";
 import "./KenalanScreen.css";
 
 type Props = {
+  guests: Guest[];
   collected: Record<string, string>;
+  reward: RewardState;
   onOpenGuest: (guest: Guest) => void;
-  onShowReward: () => void;
+  onMyQr: () => void;
+  onReward: () => void;
 };
 
-/** Kenalan: progress toward the reward + guests who are here now. */
-export function KenalanScreen({ collected, onOpenGuest, onShowReward }: Props) {
-  const count = Object.keys(collected).length;
-  const complete = count >= KENALAN_TARGET;
-  const slots = Array.from({ length: KENALAN_TARGET }, (_, i) => GUESTS.find((g) => g.id === Object.keys(collected)[i]));
+/** Kenalan: progress toward the reward + guests who are here now, as character cards. */
+export function KenalanScreen({ guests, collected, reward, onOpenGuest, onMyQr, onReward }: Props) {
+  const ids = Object.keys(collected);
+  const count = ids.length;
+  const slots = Array.from({ length: KENALAN_TARGET }, (_, i) => GUESTS.find((g) => g.id === ids[i]));
 
   return (
     <div className="page__scroll screen-enter">
-      <header className="page__header">
-        <h1 className="t-display-h6 page__title">Kenalan</h1>
-        <p className="t-p-h5 page__sub">Sapa tamu yang hadir dan tanyakan pertanyaan di kartunya. Tidak ada jawaban yang salah.</p>
+      <header className="page__header kenalan__header">
+        <div className="kenalan__title-row">
+          <h1 className="t-display-h6 page__title">Kenalan</h1>
+          <Button size="small" style="secondary" icon="Scan" onClick={onMyQr}>
+            QR-ku
+          </Button>
+        </div>
+        <p className="t-p-h5 page__sub">Ngobrol dengan tamu, tanyakan pertanyaan di kartunya, lalu scan QR mereka untuk menyimpan kartu.</p>
       </header>
 
       {/* Figma: Kenalan Progress */}
       <section className="kenalan-progress clay clay-accent">
         <div className="kenalan-progress__head">
-          <span className="t-p-h4-bold">{complete ? "Semua kartu terkumpul!" : `${count} dari ${KENALAN_TARGET} kartu`}</span>
-          <Icon name="Gift" />
+          <span className="t-p-h4-bold">
+            {reward === "claimed" ? "Hadiah sudah diambil" : reward === "ready" ? "Hadiahmu menunggu!" : `${count} dari ${KENALAN_TARGET} kartu`}
+          </span>
+          <Icon name={reward === "claimed" ? "Check" : "Gift"} />
         </div>
         <div className="kenalan-progress__slots">
           {slots.map((g, i) => (
@@ -38,40 +51,38 @@ export function KenalanScreen({ collected, onOpenGuest, onShowReward }: Props) {
             </span>
           ))}
         </div>
-        {complete ? (
-          <Button block style="secondary" size="small" onClick={onShowReward}>
-            Lihat hadiahmu
-          </Button>
-        ) : (
+        {reward === "collecting" && (
           <span className="t-p-h5 kenalan-progress__hint">Kumpulkan {KENALAN_TARGET} kartu untuk dapat hadiah dari Potara.</span>
+        )}
+        {reward === "ready" && (
+          <Button block size="small" style="secondary" icon="Gift" onClick={onReward}>
+            Tukar hadiah
+          </Button>
+        )}
+        {reward === "claimed" && (
+          <span className="kenalan-progress__claimed">
+            <Badge type="complete">Lengkap</Badge>
+            <span className="t-p-h5">Terima kasih sudah seru-seruan bareng!</span>
+          </span>
         )}
       </section>
 
-      <h2 className="t-p-h5-bold section-label">Hadir sekarang · {GUESTS.length} tamu</h2>
-      <ul className="list guest-list">
-        {GUESTS.map((g) => {
-          const done = g.id in collected;
-          return (
-            <li key={g.id}>
-              <button type="button" className="card guest-card" onClick={() => onOpenGuest(g)}>
-                <Avatar initial={g.name.charAt(0)} />
-                <span className="guest-card__text">
-                  <span className="t-p-h4-bold">{g.name}</span>
-                  <span className="t-p-h5 guest-card__role">{g.role}</span>
-                </span>
-                {done ? (
-                  <Badge type="hadir">Kartu didapat</Badge>
-                ) : (
-                  <span className="guest-card__cta t-p-h5-bold">
-                    Kenalan
-                    <Icon name="ChevronRight" size={16} />
-                  </span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <h2 className="t-p-h5-bold section-label">Hadir sekarang · {guests.length} tamu</h2>
+      {guests.length === 0 ? (
+        <section className="card kenalan-empty">
+          <div className="kenalan-empty__art">
+            <Character say="Belum ada yang datang…" />
+          </div>
+          <h3 className="t-p-h3-bold panel__title">Kamu yang pertama hadir!</h3>
+          <p className="t-p-h5 panel__body">Kami kabari begitu tamu lain datang. Sambil menunggu, jelajahi ruangan dulu ya.</p>
+        </section>
+      ) : (
+        <div className="guest-grid">
+          {guests.map((g) => (
+            <GuestCard key={g.id} guest={g} collected={g.id in collected} onOpen={() => onOpenGuest(g)} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

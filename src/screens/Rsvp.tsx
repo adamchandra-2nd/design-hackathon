@@ -14,24 +14,21 @@ export function Rsvp({ onYes, onNo }: RsvpProps) {
     <main className="flow screen-enter">
       <div className="flow__bg" style={{ backgroundImage: `url(${ROOMS[0].image})` }} />
       <div className="flow__top">
-        <EventCard />
+        <EventCard>
+          <h2 className="t-p-h3-bold panel__title">Kamu bisa hadir?</h2>
+          <p className="t-p-h5 panel__body">Potara pindah rumah! Datang dan rayakan bareng kami di kantor baru.</p>
+        </EventCard>
       </div>
       <div className="flow__stage">
         <Character say="Kamu datang, kan?" />
       </div>
       <div className="flow__bottom">
-        <section className="panel glass">
-          <h2 className="t-p-h3-bold panel__title">Kamu bisa hadir?</h2>
-          <p className="t-p-h5 panel__body">Potara pindah rumah! Datang dan rayakan bareng kami di kantor baru.</p>
-          <div className="panel__actions">
-            <Button block onClick={onYes}>
-              Ya, aku hadir
-            </Button>
-            <Button block style="secondary" onClick={() => setConfirmNo(true)}>
-              Maaf, aku tidak bisa
-            </Button>
-          </div>
-        </section>
+        <Button block onClick={onYes}>
+          Ya, aku hadir
+        </Button>
+        <Button block style="danger" onClick={() => setConfirmNo(true)}>
+          Tidak bisa hadir
+        </Button>
       </div>
       {confirmNo && (
         <Dialog
@@ -39,10 +36,10 @@ export function Rsvp({ onYes, onNo }: RsvpProps) {
           onClose={() => setConfirmNo(false)}
           actions={
             <>
-              <Button block onClick={onNo}>
-                Ya, aku tidak bisa
+              <Button block style="danger" onClick={onNo}>
+                Ya, tidak bisa
               </Button>
-              <Button block style="ghost" onClick={() => setConfirmNo(false)}>
+              <Button block style="tertiary" onClick={() => setConfirmNo(false)}>
                 Kembali
               </Button>
             </>

@@ -70,7 +70,7 @@ export function Narasi({ onDone }: { onDone: () => void }) {
           <p className="t-p-h4 panel__body">{slide.body}</p>
           {last ? (
             <div className="panel__actions">
-              <Button block style="accent" icon="ArrowRight" onClick={onDone}>
+              <Button block icon="ArrowRight" onClick={onDone}>
                 Buat karaktermu
               </Button>
             </div>

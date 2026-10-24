@@ -7,6 +7,8 @@ type TextFieldProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   hint?: string;
+  /** Shown instead of the hint, with a red border. */
+  error?: string;
   multiline?: boolean;
   inputMode?: "text" | "numeric";
   maxLength?: number;
@@ -14,7 +16,7 @@ type TextFieldProps = {
 };
 
 /** Figma: Form/Text Field — label on top, field, optional hint. */
-export function TextField({ label, value, onChange, placeholder, hint, multiline, inputMode, maxLength, autoFocus }: TextFieldProps) {
+export function TextField({ label, value, onChange, placeholder, hint, error, multiline, inputMode, maxLength, autoFocus }: TextFieldProps) {
   const id = useId();
   return (
     <div className="field">
@@ -35,7 +37,8 @@ export function TextField({ label, value, onChange, placeholder, hint, multiline
       ) : (
         <input
           id={id}
-          className="field__input t-p-h3-bold"
+          className={`field__input t-p-h3-bold${error ? " is-error" : ""}`}
+          aria-invalid={error ? true : undefined}
           value={value}
           placeholder={placeholder}
           inputMode={inputMode}
@@ -45,7 +48,13 @@ export function TextField({ label, value, onChange, placeholder, hint, multiline
           onChange={(e) => onChange(e.target.value)}
         />
       )}
-      {hint && <span className="t-p-h5 field__hint">{hint}</span>}
+      {error ? (
+        <span className="t-p-h5 field__hint field__hint--error" role="alert">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="t-p-h5 field__hint">{hint}</span>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+.kenalan__title-row { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-small); }
 .kenalan-progress {
   display: flex;
   flex-direction: column;
@@ -7,16 +8,8 @@
   background: var(--orange-splash);
   color: var(--text-on-accent);
 }
-.kenalan-progress__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.kenalan-progress__slots {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--spacing-extra-small);
-}
+.kenalan-progress__head { display: flex; align-items: center; justify-content: space-between; }
+.kenalan-progress__slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-extra-small); }
 .kenalan-progress__slot {
   display: flex;
   align-items: center;
@@ -28,21 +21,19 @@
 }
 .kenalan-progress__slot.is-filled { border: 0; background: var(--white); }
 .kenalan-progress__hint { opacity: 0.9; line-height: 1.4; }
+.kenalan-progress__claimed { display: flex; align-items: center; gap: var(--spacing-extra-small); flex-wrap: wrap; }
 
-.guest-list { margin: 0; padding: 0; list-style: none; }
-.guest-card {
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  transition: transform 120ms ease;
+.guest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-small);
 }
-.guest-card:active { transform: scale(0.98); }
-.guest-card__text { display: flex; flex-direction: column; gap: var(--spacing-extra-small); flex: 1; min-width: 0; }
-.guest-card__role { color: var(--text-grey-300); }
-.guest-card__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-extra-small);
-  color: var(--text-primary);
+.kenalan-empty { align-items: center; text-align: center; }
+.kenalan-empty__art {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 220px;
+  padding-top: 64px;
 }
+.kenalan-empty__art .character { height: 100%; width: auto; aspect-ratio: 211 / 340; }

@@ -54,3 +54,12 @@
   background: var(--white);
   transition: width 300ms ease;
 }
+/* Reward ready: the gift gently pulses until it's claimed */
+.room-header__kenalan-icon.is-pulsing { animation: gift-pulse 1.4s ease-in-out infinite; }
+@keyframes gift-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-header__kenalan-icon.is-pulsing { animation: none; }
+}

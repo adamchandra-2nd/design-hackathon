@@ -70,3 +70,7 @@
   gap: var(--spacing-small);
   z-index: 3;
 }
+
+/* Overlapping avatars in the group-arrival toast */
+.avatar-stack { display: inline-flex; flex: none; }
+.avatar-stack > * + * { margin-left: calc(var(--spacing-small) * -1); }

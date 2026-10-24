@@ -177,14 +177,14 @@
   width: 72px;
   height: 72px;
   border-radius: var(--radius-infinite);
-  background: var(--orange-splash);
-  color: var(--text-on-accent);
+  background: var(--ink);
+  color: var(--text-inverse);
 }
 
-/* Countdown: quiet cancel row */
-.countdown-cancel {
-  flex-direction: row;
+.topbar__title {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--padding-small) var(--padding-small) var(--padding-small) var(--padding-mid-medium);
+  height: 48px;
+  padding: 0 var(--padding-large);
+  border-radius: var(--radius-infinite);
 }

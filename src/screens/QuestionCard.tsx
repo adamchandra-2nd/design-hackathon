@@ -1,23 +1,108 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
+import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
+import { Scanner, type ScanState } from "../components/Scanner";
 import { TextField } from "../components/TextField";
 import type { Guest } from "../data/guests";
 import "./QuestionCard.css";
 
 type Props = {
   guest: Guest;
-  savedAnswer?: string;
+  /** Note saved with the card; undefined = not collected yet. */
+  savedNote?: string;
   onBack: () => void;
-  onSave: (answer: string) => void;
+  onCollected: (note: string) => void;
 };
 
-/** Figma: Question Card — ask the guest in person, then note their answer to collect the card. */
-export function QuestionCard({ guest, savedAnswer, onBack, onSave }: Props) {
-  const [answer, setAnswer] = useState(savedAnswer ?? "");
-  const saved = savedAnswer !== undefined;
+/**
+ * Figma: Question Card — ask the guest in person, then prove you met by scanning their QR
+ * (or typing the 4-digit code under it). The note is optional; the scan is what counts.
+ */
+export function QuestionCard({ guest, savedNote, onBack, onCollected }: Props) {
+  const [note, setNote] = useState(savedNote ?? "");
+  const [mode, setMode] = useState<"card" | "scan">("card");
+  const [scan, setScan] = useState<ScanState>("scanning");
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState(false);
+  const saved = savedNote !== undefined;
+
+  const onRead = useCallback(() => {
+    setScan("found");
+    window.setTimeout(() => onCollected(note.trim()), 700);
+  }, [note, onCollected]);
+
+  const submitCode = () => {
+    if (code === guest.code) return onCollected(note.trim());
+    setCodeError(true);
+  };
+
+  if (mode === "scan") {
+    return (
+      <div className="question question--scan screen-enter">
+        <div className="page__scroll question__scroll">
+          <div className="topbar">
+            <button type="button" className="icon-btn clay clay-light" onClick={() => setMode("card")} aria-label="Kembali">
+              <Icon name="ArrowLeft" />
+            </button>
+            <span className="t-p-h3-bold">Scan QR {guest.name}</span>
+          </div>
+          <div className="question__scanner">
+            <Scanner state={scan} onRead={codeOpen ? undefined : onRead} />
+          </div>
+          <section className="card question__scan-copy">
+            <h2 className="t-p-h3-bold panel__title">{scan === "found" ? "Kartu tersimpan!" : `Minta ${guest.name} buka QR-nya`}</h2>
+            <p className="t-p-h5 panel__body">
+              {scan === "found"
+                ? `${guest.name} juga dapat kartumu.`
+                : `QR ada di tab Kenalan > QR-ku di HP ${guest.name}. Arahkan kamera ke sana.`}
+            </p>
+          </section>
+        </div>
+        {scan !== "found" && (
+          <div className="page__bottom question__bottom">
+            <Button block style="tertiary" icon="KeyCard" onClick={() => setCodeOpen(true)}>
+              Pakai kode {guest.name}
+            </Button>
+          </div>
+        )}
+        {codeOpen && (
+          <Dialog
+            title={`Kode kenalan ${guest.name}`}
+            onClose={() => setCodeOpen(false)}
+            actions={
+              <>
+                <Button block disabled={code.length < 4} onClick={submitCode}>
+                  Simpan kartu
+                </Button>
+                <Button block style="tertiary" onClick={() => setCodeOpen(false)}>
+                  Kembali
+                </Button>
+              </>
+            }
+          >
+            <TextField
+              label="Kode 4 angka"
+              value={code}
+              onChange={(v) => {
+                setCodeError(false);
+                setCode(v.replace(/\D/g, "").slice(0, 4));
+              }}
+              placeholder="0000"
+              inputMode="numeric"
+              maxLength={4}
+              error={codeError ? `Kodenya tidak cocok. Minta ${guest.name} cek lagi di bawah QR-nya.` : undefined}
+              hint={`Kodenya ada di bawah QR ${guest.name}.`}
+              autoFocus
+            />
+          </Dialog>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="question screen-enter">
@@ -46,29 +131,34 @@ export function QuestionCard({ guest, savedAnswer, onBack, onSave }: Props) {
 
         {saved ? (
           <section className="card">
-            <span className="t-p-h5-bold field__label">Jawaban {guest.name}</span>
-            <p className="t-p-h4 question__answer">{savedAnswer}</p>
+            <span className="t-p-h5-bold field__label">Catatanmu</span>
+            <p className="t-p-h4 question__answer">{savedNote || "Tidak ada catatan."}</p>
           </section>
         ) : (
-          <TextField
-            label={`Jawaban ${guest.name}`}
-            value={answer}
-            onChange={setAnswer}
-            placeholder="Catat jawabannya di sini"
-            hint="Tidak ada jawaban yang salah. Ngobrol dulu, baru catat."
-            multiline
-            maxLength={160}
-          />
+          <>
+            <ol className="question__steps t-p-h5">
+              <li>Ngobrol dan tanyakan pertanyaan di atas. Tidak ada jawaban yang salah.</li>
+              <li>Scan QR di HP {guest.name} untuk menyimpan kartu. Kalian berdua sama-sama dapat kartu.</li>
+            </ol>
+            <TextField
+              label="Catatan jawaban (opsional)"
+              value={note}
+              onChange={setNote}
+              placeholder={`Biar ingat jawaban ${guest.name}`}
+              multiline
+              maxLength={160}
+            />
+          </>
         )}
       </div>
       <div className="page__bottom question__bottom">
         {saved ? (
-          <Button block style="secondary" onClick={onBack}>
-            Kembali ke daftar
+          <Button block style="tertiary" onClick={onBack}>
+            Kembali
           </Button>
         ) : (
-          <Button block disabled={!answer.trim()} onClick={() => onSave(answer.trim())}>
-            Simpan kartu
+          <Button block icon="Scan" onClick={() => setMode("scan")}>
+            Scan QR {guest.name}
           </Button>
         )}
       </div>

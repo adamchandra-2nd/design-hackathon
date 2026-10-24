@@ -20,7 +20,4 @@ export const ROOMS: Room[] = [
   { id: "ruang-omakase", name: "Ruang Omakase", image: ruangOmakase },
 ];
 
-/** Sample live state until the rundown backend exists. */
-export const LIVE_ROOM_ID = "ruang-omakase";
-
 export const roomIndexById = (id: string) => Math.max(0, ROOMS.findIndex((r) => r.id === id));

@@ -13,3 +13,12 @@ export const COUNTDOWN_ENABLED = true;
 
 /** Guests need this many kenalan cards for the reward. */
 export const KENALAN_TARGET = 5;
+
+/** Prototype codes (replace with backend checks). */
+export const DOOR_CODE = "1108";
+export const PANITIA_PIN = "2026";
+/** This guest's own kenalan code, shown under their QR. */
+export const MY_KENALAN_CODE = "4821";
+
+/** Prototype clock for the rundown (minutes since 00:00) until the real event day. */
+export const DEMO_NOW = { live: 9 * 60 + 50, soon: 9 * 60 + 25, between: 11 * 60 + 20, ended: 13 * 60 + 50 };

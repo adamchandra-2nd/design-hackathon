@@ -2,9 +2,12 @@ import { Icon } from "./Icon";
 import type { IconName } from "./iconPaths";
 import "./Button.css";
 
+export type ButtonStyle = "primary" | "secondary" | "tertiary" | "danger";
+
 type ButtonProps = {
   children: React.ReactNode;
-  style?: "primary" | "secondary" | "accent" | "ghost";
+  /** primary = Orange Splash (main action), secondary = Ink, tertiary = white (back/cancel), danger = red. No text-only buttons. */
+  style?: ButtonStyle;
   size?: "large" | "small";
   icon?: IconName;
   disabled?: boolean;
@@ -14,7 +17,12 @@ type ButtonProps = {
   onClick?: () => void;
 };
 
-const clayOf = { primary: "clay clay-dark", accent: "clay clay-accent", secondary: "clay clay-light", ghost: "" };
+const clayOf: Record<ButtonStyle, string> = {
+  primary: "clay clay-accent",
+  secondary: "clay clay-dark",
+  tertiary: "clay clay-light",
+  danger: "clay clay-accent",
+};
 
 /** Figma: Button — Style × Size × State. */
 export function Button({ children, style = "primary", size = "large", icon, disabled, block, type = "button", onClick }: ButtonProps) {

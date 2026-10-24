@@ -17,10 +17,11 @@
   gap: var(--spacing-small);
 }
 .toast__actions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-extra-small);
 }
+.toast__actions .btn { width: 100%; }
 .toast.is-closing {
   animation: toast-out 200ms ease-in both;
 }
@@ -65,9 +66,10 @@
   gap: var(--spacing-small);
 }
 .toast__actions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-extra-small);
 }
+.toast__actions .btn { width: 100%; }
 .toast.is-closing { animation: none; }
 }

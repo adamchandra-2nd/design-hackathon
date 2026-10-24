@@ -1,41 +1,68 @@
 import { Badge } from "./Badge";
+import { Button } from "./Button";
 import { Icon } from "./Icon";
 import "./AgendaMini.css";
 
-type AgendaMiniProps = {
-  room: string;
-  title: string;
-  next: string;
-  /** The guest is already in the event's room. */
-  here: boolean;
-  onClick?: () => void;
-  onGoToRoom?: () => void;
-};
+type AgendaMiniProps =
+  | { type: "now"; title: string; next?: string; room: string; here: boolean; onClick: () => void; onGoToRoom: () => void }
+  | { type: "between"; title: string; minutesLeft: number; room: string; here: boolean; onClick: () => void; onGoToRoom: () => void }
+  | { type: "ended"; onFeedback: () => void };
 
-/** Figma: Agenda Mini (Type=Now) — floating live-agenda summary, glass. Tags on top, then icon + title + next. */
-export function AgendaMini({ room, title, next, here, onClick, onGoToRoom }: AgendaMiniProps) {
+/** Figma: Agenda Mini — floating live-agenda summary. Now · Now Elsewhere · Between · Ended. */
+export function AgendaMini(props: AgendaMiniProps) {
+  if (props.type === "ended") {
+    return (
+      <div className="agenda-mini glass">
+        <span className="agenda-mini__tags">
+          <Badge type="done">Acara selesai</Badge>
+        </span>
+        <div className="agenda-mini__body">
+          <span className="agenda-mini__icon clay clay-accent">
+            <Icon name="Smile" size={20} />
+          </span>
+          <span className="agenda-mini__text">
+            <span className="t-p-h3-bold">Terima kasih sudah datang!</span>
+            <span className="t-p-h5 agenda-mini__next">Ceritakan pengalamanmu hari ini.</span>
+          </span>
+        </div>
+        <Button block size="small" style="secondary" icon="ArrowRight" onClick={props.onFeedback}>
+          Isi feedback
+        </Button>
+      </div>
+    );
+  }
+
+  const between = props.type === "between";
   return (
     <div className="agenda-mini glass">
       <span className="agenda-mini__tags">
-        <Badge type="now">Sekarang</Badge>
-        {here ? (
+        {between ? <Badge type="next">{props.minutesLeft} menit lagi</Badge> : <Badge type="now">Sekarang</Badge>}
+        {props.here ? (
           <Badge type="room">Kamu di sini</Badge>
         ) : (
-          <button type="button" className="agenda-mini__room" onClick={onGoToRoom} aria-label={`Pindah ke ${room}`}>
+          <button type="button" className="agenda-mini__room" onClick={props.onGoToRoom} aria-label={`Pindah ke ${props.room}`}>
             <Badge type="room" arrow>
-              {room}
+              {props.room}
             </Badge>
           </button>
         )}
       </span>
-      <button type="button" className="agenda-mini__body" onClick={onClick}>
+      <button type="button" className="agenda-mini__body" onClick={props.onClick}>
         <span className="agenda-mini__icon clay clay-accent">
-          <Icon name="Sparkle" size={20} />
+          <Icon name={between ? "Clock" : "Sparkle"} size={20} />
         </span>
         <span className="agenda-mini__text">
-          <span className="t-p-h3-bold">{title}</span>
+          <span className="t-p-h3-bold">{props.title}</span>
           <span className="t-p-h5 agenda-mini__next">
-            Berikutnya: <span className="t-p-h5-bold">{next}</span>
+            {between ? (
+              "Sedang jeda, santai dulu ya"
+            ) : props.next ? (
+              <>
+                Berikutnya: <span className="t-p-h5-bold">{props.next}</span>
+              </>
+            ) : (
+              "Acara terakhir hari ini"
+            )}
           </span>
         </span>
         <Icon name="ChevronRight" />

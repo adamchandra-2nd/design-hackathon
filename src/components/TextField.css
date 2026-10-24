@@ -27,3 +27,5 @@
 .field__input::placeholder { color: var(--text-grey-500); }
 .field__input:focus { border-color: var(--orange-splash); }
 .field__hint { color: var(--text-grey-300); line-height: 1.4; }
+.field__input.is-error { border-color: var(--error); }
+.field__hint--error { color: var(--error); }

@@ -14,11 +14,17 @@ npm run build    # production build in dist/
 
 ## Guest flow (user view)
 
-RSVP → (Tidak → Terima kasih, can switch back) → Countdown → Mulai masuk Potara → Check-in (QR / kode pintu / panitia) → Pintu keycard → Narasi → Buat karakter (= hadir) → App: Ruangan · Agenda · Kenalan · Feedback (after the event) → Memory card.
+RSVP → (Tidak → Terima kasih, can switch back) → Countdown → Mulai masuk Potara → Check-in (QR / kode pintu / panitia) → Pintu keycard → Narasi → Buat karakter (outfit; confirming = hadir) → App: Ruangan · Agenda · Kenalan · Feedback (after the event) → Memory card.
 
-Open any screen directly with a hash: `#rsvp`, `#terima-kasih`, `#countdown`, `#mulai`, `#check-in`, `#pintu`, `#narasi`, `#karakter`, `#ruangan`, `#agenda`, `#kenalan`, `#feedback`, `#memory-card`.
+Open `#review` for a hub that links every screen and case (36 of them). Each case is also a direct hash link, e.g. `#check-in-kamera`, `#ruangan-jeda`, `#kenalan-hampir`, `#voucher`.
+
+Prototype codes (replace with backend checks): door code `1108`, committee PIN `2026`, Nanda's kenalan code `1357`. Progress is saved in localStorage so reopening resumes where the guest left off.
 
 Set `COUNTDOWN_ENABLED = false` in `src/config.ts` for Test Day ("Ya" goes straight to "Mulai masuk Potara").
+
+## Buttons
+
+Primary = Orange Splash (main action) · Secondary = Ink · Tertiary = white (back / cancel) · Danger = red. No text-only buttons.
 
 ## Structure
 

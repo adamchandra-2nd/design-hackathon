@@ -7,14 +7,12 @@ const LINES = ["Halo!", "Yuk kenalan sama tamu lain!", "Hehe, geli!", "Jangan lu
 const BUBBLE_MS = 2200;
 
 type CharacterProps = {
-  /** Colour hue shift chosen in customisation. */
-  hue?: number;
   /** A line the character keeps saying (e.g. on RSVP). Tap reactions still override it briefly. */
   say?: string;
 };
 
 /** Figma: Illustration/Character — Nanda's dragon mascot (front view). Tap for a reaction. */
-export function Character({ hue = 0, say }: CharacterProps) {
+export function Character({ say }: CharacterProps) {
   const [line, setLine] = useState<string | null>(null);
   const [bounce, setBounce] = useState(0);
   const lineIndex = useRef(0);
@@ -46,7 +44,6 @@ export function Character({ hue = 0, say }: CharacterProps) {
         width={211}
         height={340}
         draggable={false}
-        style={hue ? { filter: `hue-rotate(${hue}deg)` } : undefined}
       />
     </button>
   );

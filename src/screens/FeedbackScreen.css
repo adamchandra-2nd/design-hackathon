@@ -1,7 +1,7 @@
-.rating { display: flex; justify-content: space-between; }
+.rating { display: flex; justify-content: center; gap: var(--spacing-extra-small); }
 .rating__star {
   display: inline-flex;
-  padding: var(--padding-small);
+  padding: 2px;
   color: var(--text-grey-600);
   transition: transform 120ms ease, color 160ms ease;
 }

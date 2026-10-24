@@ -10,7 +10,6 @@ const RATING_LABELS = ["", "Kurang", "Lumayan", "Oke", "Seru", "Seru banget!"];
 
 type Props = {
   name: string;
-  hue: number;
   kenalanCount: number;
   roomsVisited: number;
   submitted: boolean;
@@ -19,7 +18,7 @@ type Props = {
 };
 
 /** Feedback (after the event) → thank-you with the shareable memory card. */
-export function FeedbackScreen({ name, hue, kenalanCount, roomsVisited, submitted, onSubmit, onShareFallback }: Props) {
+export function FeedbackScreen({ name, kenalanCount, roomsVisited, submitted, onSubmit, onShareFallback }: Props) {
   const [rating, setRating] = useState(0);
   const [moods, setMoods] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -44,8 +43,8 @@ export function FeedbackScreen({ name, hue, kenalanCount, roomsVisited, submitte
           <h1 className="t-display-h6 page__title">Terima kasih, {name}!</h1>
           <p className="t-p-h5 page__sub">Ini kenang-kenanganmu dari rumah baru Potara.</p>
         </header>
-        <MemoryCard name={name} hue={hue} kenalanCount={kenalanCount} roomsVisited={roomsVisited} />
-        <Button block icon="Share" onClick={share}>
+        <MemoryCard name={name} kenalanCount={kenalanCount} roomsVisited={roomsVisited} />
+        <Button block style="secondary" icon="Share" onClick={share}>
           Bagikan ke Instagram
         </Button>
       </div>
@@ -73,7 +72,7 @@ export function FeedbackScreen({ name, hue, kenalanCount, roomsVisited, submitte
               className={`rating__star${n <= rating ? " is-on" : ""}`}
               onClick={() => setRating(n)}
             >
-              <Icon name={n <= rating ? "StarFill" : "Star"} size={32} />
+              <Icon name={n <= rating ? "StarFill" : "Star"} size={36} />
             </button>
           ))}
         </div>

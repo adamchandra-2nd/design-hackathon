@@ -1,35 +1,48 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
+import { Scanner, type ScanState } from "../components/Scanner";
 import { TextField } from "../components/TextField";
+import { DOOR_CODE } from "../config";
 import { ROOMS } from "../data/rooms";
 import "./CheckIn.css";
 
 const CODE_LENGTH = 4;
-/** Prototype only: the camera can't run here, so a QR "is found" after a few seconds. */
-const DEMO_SCAN_MS = 3500;
 
-type Props = { name: string; onBack: () => void; onCheckedIn: () => void };
+/** What the (simulated) camera finds. "invalid" = not a Potara door QR. */
+export type CheckInScenario = "ok" | "invalid" | "denied" | "offline";
+
+type Props = { name: string; scenario: CheckInScenario; onBack: () => void; onCheckedIn: () => void };
+
+const PANEL: Record<ScanState, { title: string; body: string }> = {
+  scanning: { title: "Scan QR di pintu Potara", body: "Arahkan kamera ke QR yang tertempel di pintu masuk." },
+  found: { title: "QR terbaca!", body: "Pintu sedang dibuka untukmu…" },
+  invalid: { title: "Ini bukan QR pintu Potara", body: "Pastikan kamu scan QR yang ada di pintu masuk, bukan poster lain." },
+  denied: { title: "Izin kamera ditolak", body: "Izinkan kamera di pengaturan browser, atau pakai kode pintu." },
+  offline: { title: "Tidak ada koneksi", body: "Check-in butuh internet. Sambungkan lalu coba lagi, atau minta bantuan panitia." },
+};
 
 /** Check-in at the physical door: scan the QR (primary), door code or committee lookup (fallbacks). */
-export function CheckIn({ name, onBack, onCheckedIn }: Props) {
-  const [found, setFound] = useState(false);
+export function CheckIn({ name, scenario, onBack, onCheckedIn }: Props) {
+  const initial: ScanState = scenario === "denied" ? "denied" : scenario === "offline" ? "offline" : "scanning";
+  const [state, setState] = useState<ScanState>(initial);
   const [sheet, setSheet] = useState<"code" | "panitia" | null>(null);
   const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState(false);
 
-  useEffect(() => {
-    if (sheet) return;
-    const t = window.setTimeout(() => setFound(true), DEMO_SCAN_MS);
-    return () => clearTimeout(t);
-  }, [sheet]);
+  const onRead = useCallback(() => {
+    if (scenario === "invalid") return setState("invalid");
+    setState("found");
+    window.setTimeout(onCheckedIn, 900);
+  }, [scenario, onCheckedIn]);
 
-  useEffect(() => {
-    if (!found) return;
-    const t = window.setTimeout(onCheckedIn, 900);
-    return () => clearTimeout(t);
-  }, [found, onCheckedIn]);
+  const submitCode = () => {
+    if (code === DOOR_CODE) return onCheckedIn();
+    setCodeError(true);
+  };
 
+  const p = PANEL[state];
   return (
     <main className="flow checkin screen-enter">
       <div className="flow__bg" style={{ backgroundImage: `url(${ROOMS[0].image})` }} />
@@ -38,41 +51,36 @@ export function CheckIn({ name, onBack, onCheckedIn }: Props) {
           <button type="button" className="icon-btn clay clay-light" onClick={onBack} aria-label="Kembali">
             <Icon name="ArrowLeft" />
           </button>
-          <span className="t-p-h3-bold">Check-in</span>
+          <span className="topbar__title glass t-p-h4-bold">Check-in</span>
         </div>
       </div>
 
       <div className="flow__stage checkin__stage">
-        <div className={`scanner clay clay-dark${found ? " is-found" : ""}`} aria-live="polite">
-          <span className="scanner__corner scanner__corner--tl" />
-          <span className="scanner__corner scanner__corner--tr" />
-          <span className="scanner__corner scanner__corner--bl" />
-          <span className="scanner__corner scanner__corner--br" />
-          {found ? (
-            <span className="scanner__ok clay clay-accent">
-              <Icon name="Check" size={32} />
-            </span>
-          ) : (
-            <>
-              <span className="scanner__line" />
-              <Icon name="Scan" size={40} />
-            </>
-          )}
-        </div>
+        <Scanner state={state} onRead={sheet ? undefined : onRead} />
       </div>
 
       <div className="flow__bottom">
         <section className="panel glass">
-          <h2 className="t-p-h3-bold panel__title">{found ? "QR terbaca!" : "Scan QR di pintu Potara"}</h2>
-          <p className="t-p-h5 panel__body">
-            {found ? "Pintu sedang dibuka untukmu…" : "Arahkan kamera ke QR yang tertempel di pintu masuk."}
-          </p>
-          {!found && (
+          <h2 className="t-p-h3-bold panel__title">{p.title}</h2>
+          <p className="t-p-h5 panel__body">{p.body}</p>
+          {state !== "found" && (
             <div className="panel__actions">
-              <Button block style="secondary" icon="KeyCard" onClick={() => setSheet("code")}>
-                Pakai kode pintu
-              </Button>
-              <Button block style="ghost" size="small" onClick={() => setSheet("panitia")}>
+              {state === "invalid" && (
+                <Button block onClick={() => setState("scanning")}>
+                  Scan lagi
+                </Button>
+              )}
+              {state === "offline" && (
+                <Button block onClick={() => setState(scenario === "offline" ? "offline" : "scanning")}>
+                  Coba lagi
+                </Button>
+              )}
+              {state !== "offline" && (
+                <Button block style={state === "denied" ? "primary" : "secondary"} icon="KeyCard" onClick={() => setSheet("code")}>
+                  Pakai kode pintu
+                </Button>
+              )}
+              <Button block style="tertiary" onClick={() => setSheet("panitia")}>
                 Minta bantuan panitia
               </Button>
             </div>
@@ -86,11 +94,11 @@ export function CheckIn({ name, onBack, onCheckedIn }: Props) {
           onClose={() => setSheet(null)}
           actions={
             <>
-              <Button block disabled={code.length < CODE_LENGTH} onClick={onCheckedIn}>
+              <Button block disabled={code.length < CODE_LENGTH} onClick={submitCode}>
                 Masuk
               </Button>
-              <Button block style="ghost" onClick={() => setSheet(null)}>
-                Batal
+              <Button block style="tertiary" onClick={() => setSheet(null)}>
+                Kembali
               </Button>
             </>
           }
@@ -98,10 +106,14 @@ export function CheckIn({ name, onBack, onCheckedIn }: Props) {
           <TextField
             label="Kode pintu"
             value={code}
-            onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, CODE_LENGTH))}
+            onChange={(v) => {
+              setCodeError(false);
+              setCode(v.replace(/\D/g, "").slice(0, CODE_LENGTH));
+            }}
             placeholder="0000"
             inputMode="numeric"
             maxLength={CODE_LENGTH}
+            error={codeError ? "Kodenya salah. Cek lagi kode di bawah QR pintu." : undefined}
             hint="Kode 4 angka ada di bawah QR pada pintu."
             autoFocus
           />
@@ -117,8 +129,8 @@ export function CheckIn({ name, onBack, onCheckedIn }: Props) {
               <Button block onClick={onCheckedIn}>
                 Sudah dibantu panitia
               </Button>
-              <Button block style="ghost" onClick={() => setSheet(null)}>
-                Kembali scan
+              <Button block style="tertiary" onClick={() => setSheet(null)}>
+                Kembali
               </Button>
             </>
           }

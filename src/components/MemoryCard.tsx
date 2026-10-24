@@ -2,10 +2,10 @@ import dragonFront from "../assets/characters/dragon-front.webp";
 import { EVENT } from "../config";
 import "./MemoryCard.css";
 
-type Props = { name: string; hue: number; kenalanCount: number; roomsVisited: number };
+type Props = { name: string; kenalanCount: number; roomsVisited: number };
 
 /** Figma: Memory Card — story-sized keepsake to share on Instagram. */
-export function MemoryCard({ name, hue, kenalanCount, roomsVisited }: Props) {
+export function MemoryCard({ name, kenalanCount, roomsVisited }: Props) {
   return (
     <figure className="memory-card clay clay-accent" aria-label={`Memory card ${name}`}>
       <div className="memory-card__head">
@@ -14,7 +14,7 @@ export function MemoryCard({ name, hue, kenalanCount, roomsVisited }: Props) {
       </div>
       <span className="memory-card__title">{EVENT.name}</span>
       <div className="memory-card__stage">
-        <img src={dragonFront} alt="" style={hue ? { filter: `hue-rotate(${hue}deg)` } : undefined} />
+        <img src={dragonFront} alt="" />
       </div>
       <figcaption className="memory-card__foot">
         <span className="memory-card__name">{name}</span>
