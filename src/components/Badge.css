@@ -43,3 +43,11 @@
 @media (prefers-reduced-motion: reduce) {
   .badge__dot { animation: none !important; }
 }
+
+/* Question status: Terkirim (slate) → Dibaca (blue) → Terjawab (green) */
+.badge--sent,
+.badge--read,
+.badge--answered { padding: 0 var(--padding-medium) 0 var(--padding-small); }
+.badge--sent { background: var(--status-sent-bg); color: var(--status-sent); }
+.badge--read { background: var(--status-read-bg); color: var(--status-read); }
+.badge--answered { background: var(--status-answered-bg); color: var(--status-answered); }

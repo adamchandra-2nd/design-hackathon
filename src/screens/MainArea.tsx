@@ -20,7 +20,7 @@ const TOAST_CLOSE_MS = 200;
 const MOVE_COUNTDOWN_S = 5;
 
 /** Which notification story to play when the main area opens (first visit or a review link). */
-export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "none";
+export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "none";
 
 type ToastSpec = { key: string; lead: ReactNode; title: string; sub: string; action?: ReactNode; actions?: ReactNode };
 
@@ -136,6 +136,18 @@ export function MainArea({
         at(8000, () => showToast({ key: "hadir", lead: <Avatar initial="N" />, title: "Nanda baru saja hadir", sub: "Ayo sapa dan kenalan!", action: greet }, 5000)),
       );
       if (live && liveRoom !== roomIndex) timers.push(at(15000, () => startMoveNotice(live.title, liveRoom)));
+    }
+    if (scenario === "setelah-feedback") {
+      timers.push(
+        at(400, () =>
+          showToast(
+            { key: "thanks", lead: <ToastIcon icon="Check" tone="accent" />, title: "Terima kasih atas feedbackmu!", sub: "Tercatat sebagai anonim." },
+            3000,
+          ),
+        ),
+      );
+      // Then the usual heads-up before moving to the event that's on now.
+      if (live && liveRoom !== roomIndex) timers.push(at(3800, () => startMoveNotice(live.title, liveRoom)));
     }
     if (scenario === "ramai") {
       timers.push(

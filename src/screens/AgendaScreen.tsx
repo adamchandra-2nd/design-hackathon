@@ -26,10 +26,12 @@ type Props = {
   onGoToRoom: (roomIndex: number) => void;
   onFeedback: () => void;
   onAsk: () => void;
+  /** Per-event feedback already sent (event id → rating). */
+  feedbackSent: Record<string, number>;
 };
 
 /** Agenda as a day timeline: hour column on the left, cards sized by duration, and a live "now" line. */
-export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRoom, onFeedback, onAsk }: Props) {
+export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRoom, onFeedback, onAsk, feedbackSent }: Props) {
   const status = statusAt(now);
   const y = (min: number) => (min - DAY_START) * PX;
   const showNow = now >= DAY_START && now <= DAY_END;
@@ -77,6 +79,7 @@ export function AgendaScreen({ now, currentRoomIndex, changedId, ended, onGoToRo
                 <span className="agenda-card__tags">
                   {tag && <Badge type={tag.type}>{tag.label}</Badge>}
                   {item.id === changedId && <Badge type="on-air">Diubah</Badge>}
+                  {s === "done" && item.id in feedbackSent && <Badge type="hadir">Feedback terkirim</Badge>}
                 </span>
               )}
               <h2 className="agenda-card__title">{item.title}</h2>

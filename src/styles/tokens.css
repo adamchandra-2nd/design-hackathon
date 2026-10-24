@@ -31,6 +31,14 @@
   --success-on-dark: #5fd35a;
   --error: #d93b2b;
 
+  /* Message status (Tanya pembicara) — deliberately outside the warm palette, like chat apps */
+  --status-sent: #5b6676;
+  --status-sent-bg: #e9edf2;
+  --status-read: #2f6fdb;
+  --status-read-bg: #e2ecfd;
+  --status-answered: var(--success);
+  --status-answered-bg: #e5f1e1;
+
   /* Radius */
   --radius-small: 16px;
   --radius-medium: 20px;

@@ -9,10 +9,10 @@ import { formatTime, type AgendaItem } from "../data/agenda";
 import { QUESTION_MAX, type AskedQuestion, type QuestionStatus } from "../data/questions";
 import "./AskScreen.css";
 
-const STATUS: Record<QuestionStatus, { type: "next" | "now" | "hadir"; label: string }> = {
-  terkirim: { type: "next", label: "Terkirim" },
-  dibahas: { type: "now", label: "Sedang dibahas" },
-  dijawab: { type: "hadir", label: "Sudah dijawab" },
+const STATUS: Record<QuestionStatus, { type: "sent" | "read" | "answered"; label: string }> = {
+  terkirim: { type: "sent", label: "Terkirim" },
+  dibaca: { type: "read", label: "Dibaca" },
+  terjawab: { type: "answered", label: "Terjawab" },
 };
 
 type Props = {

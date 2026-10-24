@@ -11,6 +11,7 @@ import { AGENDA, currentItem, eventEndedAt } from "./data/agenda";
 import { SAMPLE_QUESTIONS, type AskedQuestion } from "./data/questions";
 import { ROOMS, roomIndexById } from "./data/rooms";
 import { AskScreen } from "./screens/AskScreen";
+import { EventFeedback } from "./screens/EventFeedback";
 import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
 import { EMPTY_OUTFIT, type Outfit } from "./data/outfits";
 import { AgendaScreen } from "./screens/AgendaScreen";
@@ -52,6 +53,11 @@ type AppState = {
   changedId?: string;
   offline: boolean;
   questions: AskedQuestion[];
+  /** Rundown minute the guest became "hadir"; only events ending after this ask for feedback. */
+  hadirAt: number;
+  /** Per-event feedback already sent (event id → rating). */
+  eventFeedback: Record<string, number>;
+  feedbackOffline: boolean;
   askClosed: boolean;
   askOffline: boolean;
   system: "loading" | "error" | "offline" | null;
@@ -75,6 +81,9 @@ const INITIAL: AppState = {
   guestsPresent: true,
   offline: false,
   questions: SAMPLE_QUESTIONS,
+  hadirAt: DEMO_NOW.live,
+  eventFeedback: {},
+  feedbackOffline: false,
   askClosed: false,
   askOffline: false,
   system: null,
@@ -82,7 +91,17 @@ const INITIAL: AppState = {
 };
 
 /** In-app sample: 3 cards collected, a couple of rooms visited. */
-const APP: Partial<AppState> = { stage: "app", collected: SAMPLE_COLLECTED, visited: [0, 1, 4], mainScenario: "none" };
+const ALL_FEEDBACK = Object.fromEntries(AGENDA.map((a) => [a.id, 5]));
+const APP: Partial<AppState> = {
+  stage: "app",
+  collected: SAMPLE_COLLECTED,
+  visited: [0, 1, 4],
+  mainScenario: "none",
+  hadirAt: 9 * 60,
+  eventFeedback: { pembukaan: 4 },
+};
+/** Right after the talkshow ends, guest still in Ruang Omakase. */
+const TALKSHOW_DONE = 10 * 60 + 31;
 const FOUR = { ...SAMPLE_COLLECTED, raka: "Kucing oren, katanya." };
 const FIVE = { ...FOUR, laras: "Kopi pagi yang pas." };
 
@@ -107,11 +126,11 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   "ruangan-jeda": { ...APP, now: DEMO_NOW.between, roomIndex: 2 },
   "ruangan-berubah": { ...APP, mainScenario: "berubah", changedId: "pengenalan" },
   "ruangan-hadiah": { ...APP, collected: FIVE, mainScenario: "hadiah", roomIndex: 4 },
-  "ruangan-selesai": { ...APP, now: DEMO_NOW.ended },
+  "ruangan-selesai": { ...APP, now: DEMO_NOW.ended, eventFeedback: ALL_FEEDBACK },
   "ruangan-offline": { ...APP, offline: true, roomIndex: 4 },
   agenda: { ...APP, tab: "agenda" },
   "agenda-berubah": { ...APP, tab: "agenda", changedId: "pengenalan" },
-  "agenda-selesai": { ...APP, tab: "agenda", now: DEMO_NOW.ended },
+  "agenda-selesai": { ...APP, tab: "agenda", now: DEMO_NOW.ended, eventFeedback: ALL_FEEDBACK },
   kenalan: { ...APP, tab: "kenalan" },
   "kenalan-kosong": { ...APP, tab: "kenalan", collected: {}, guestsPresent: false },
   "kenalan-kartu": { ...APP, tab: "kenalan", overlay: { type: "guest", id: "nanda" } },
@@ -120,12 +139,14 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   "kenalan-hadiah": { ...APP, tab: "kenalan", collected: FIVE },
   voucher: { ...APP, tab: "kenalan", collected: FIVE, overlay: { type: "voucher" } },
   "kenalan-selesai": { ...APP, tab: "kenalan", collected: FIVE, rewardClaimed: true },
-  feedback: { ...APP, tab: "feedback", now: DEMO_NOW.ended },
-  "memory-card": { ...APP, tab: "feedback", now: DEMO_NOW.ended, feedbackSent: true },
+  feedback: { ...APP, tab: "feedback", now: DEMO_NOW.ended, eventFeedback: ALL_FEEDBACK },
+  "memory-card": { ...APP, tab: "feedback", now: DEMO_NOW.ended, feedbackSent: true, eventFeedback: ALL_FEEDBACK },
   tanya: { ...APP, overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-kosong": { ...APP, questions: [], overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-ditutup": { ...APP, askClosed: true, overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-gagal": { ...APP, askOffline: true, overlay: { type: "ask", eventId: "talkshow" } },
+  "feedback-acara": { ...APP, now: TALKSHOW_DONE, roomIndex: 4 },
+  "feedback-acara-gagal": { ...APP, now: TALKSHOW_DONE, roomIndex: 4, feedbackOffline: true },
   memuat: { system: "loading" },
   error: { system: "error" },
   offline: { system: "offline" },
@@ -133,7 +154,7 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
 
 const STORAGE_KEY = "hmd-progress-v2";
 /** Only real progress is saved, so reopening the app resumes where the guest left off. */
-const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent", "questions"];
+const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent", "questions", "hadirAt", "eventFeedback"];
 
 function load(): AppState {
   const token = window.location.hash.slice(1);
@@ -214,7 +235,7 @@ function Flow() {
         <Customize
           name={state.name}
           initialOutfit={state.outfit}
-          onConfirm={(outfit) => set({ outfit, stage: "app", tab: "ruangan", roomIndex: 0, mainScenario: "intro" })}
+          onConfirm={(outfit) => set({ outfit, stage: "app", tab: "ruangan", roomIndex: 0, mainScenario: "intro", hadirAt: state.now })}
         />
       );
   }
@@ -249,6 +270,22 @@ function Flow() {
       }
     />
   );
+
+  // Per-event feedback is required: it takes over the screen until it's sent.
+  const due = AGENDA.find((a) => a.end <= state.now && a.end > state.hadirAt && !(a.id in state.eventFeedback));
+  if (due) {
+    return (
+      <EventFeedback
+        key={due.id}
+        event={due}
+        roomName={ROOMS[roomIndexById(due.roomId)].name}
+        offline={state.feedbackOffline}
+        onSubmit={(rating) =>
+          set({ eventFeedback: { ...state.eventFeedback, [due.id]: rating }, tab: "ruangan", overlay: null, mainScenario: "setelah-feedback" })
+        }
+      />
+    );
+  }
 
   if (state.tab === "ruangan") {
     return (
@@ -295,6 +332,7 @@ function Flow() {
           onGoToRoom={goToRoom}
           onFeedback={() => onTab("feedback")}
           onAsk={openAsk}
+          feedbackSent={state.eventFeedback}
         />
       )}
       {state.tab === "kenalan" && (

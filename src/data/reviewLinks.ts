@@ -44,6 +44,13 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
     ],
   },
   {
+    title: "Feedback per acara",
+    links: [
+      { token: "feedback-acara", label: "Feedback Talkshow", note: "Wajib setelah acara selesai, lalu notifikasi pindah ruangan" },
+      { token: "feedback-acara-gagal", label: "Gagal terkirim", note: "Offline saat kirim" },
+    ],
+  },
+  {
     title: "Tanya pembicara",
     links: [
       { token: "tanya", label: "Tanya pembicara", note: "Kirim (bisa anonim), status, pertanyaan tamu lain" },

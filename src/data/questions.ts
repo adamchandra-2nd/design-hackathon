@@ -1,5 +1,5 @@
 /** Questions sent to the speaker/MC through the app. Sample data until the MC side exists. */
-export type QuestionStatus = "terkirim" | "dibahas" | "dijawab";
+export type QuestionStatus = "terkirim" | "dibaca" | "terjawab";
 export type AskedQuestion = {
   id: string;
   eventId: string;
@@ -13,8 +13,8 @@ export type AskedQuestion = {
 };
 
 export const SAMPLE_QUESTIONS: AskedQuestion[] = [
-  { id: "q1", eventId: "talkshow", text: "Kenapa akhirnya pilih pindah ke kantor ini?", author: "Sinta", mine: false, status: "dijawab", at: 9 * 60 + 36 },
-  { id: "q2", eventId: "talkshow", text: "Ruangan mana yang paling susah didesain?", author: null, mine: false, status: "dibahas", at: 9 * 60 + 41 },
+  { id: "q1", eventId: "talkshow", text: "Kenapa akhirnya pilih pindah ke kantor ini?", author: "Sinta", mine: false, status: "terjawab", at: 9 * 60 + 36 },
+  { id: "q2", eventId: "talkshow", text: "Ruangan mana yang paling susah didesain?", author: null, mine: false, status: "dibaca", at: 9 * 60 + 41 },
   { id: "q3", eventId: "talkshow", text: "Apa rencana Potara setahun ke depan di rumah baru?", author: "David", mine: true, status: "terkirim", at: 9 * 60 + 47 },
   { id: "q4", eventId: "talkshow", text: "Ada ruang buat tamu kerja bareng nggak nanti?", author: "Raka", mine: false, status: "terkirim", at: 9 * 60 + 48 },
 ];

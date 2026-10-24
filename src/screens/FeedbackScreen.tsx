@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Button } from "../components/Button";
-import { Icon } from "../components/Icon";
 import { MemoryCard } from "../components/MemoryCard";
+import { StarRating } from "../components/StarRating";
 import { TextField } from "../components/TextField";
 import "./FeedbackScreen.css";
 
 const MOODS = ["Acaranya seru", "Kantornya keren", "Makanannya enak", "Dapat kenalan baru", "Kurang lama!"];
-const RATING_LABELS = ["", "Kurang", "Lumayan", "Oke", "Seru", "Seru banget!"];
 
 type Props = {
   name: string;
@@ -61,22 +60,7 @@ export function FeedbackScreen({ name, kenalanCount, roomsVisited, submitted, on
       {/* Figma: Rating */}
       <section className="card">
         <h2 className="t-p-h3-bold panel__title">Gimana acara hari ini?</h2>
-        <div className="rating" role="radiogroup" aria-label="Rating acara">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              role="radio"
-              aria-checked={rating === n}
-              aria-label={`${n} bintang`}
-              className={`rating__star${n <= rating ? " is-on" : ""}`}
-              onClick={() => setRating(n)}
-            >
-              <Icon name={n <= rating ? "StarFill" : "Star"} size={36} />
-            </button>
-          ))}
-        </div>
-        <span className="t-p-h5-bold rating__label">{rating ? RATING_LABELS[rating] : "Tap bintangnya"}</span>
+        <StarRating value={rating} onChange={setRating} label="Rating acara" />
       </section>
 
       <section className="card">
