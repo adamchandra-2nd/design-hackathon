@@ -14,7 +14,7 @@ export function AgendaMini({ room, title, next, onClick }: AgendaMiniProps) {
   return (
     <button type="button" className="agenda-mini glass" onClick={onClick}>
       <span className="agenda-mini__tags">
-        <Badge type="live">Sekarang</Badge>
+        <Badge type="now">Sekarang</Badge>
         <Badge type="room">{room}</Badge>
       </span>
       <span className="agenda-mini__body">

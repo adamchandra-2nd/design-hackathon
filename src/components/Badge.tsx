@@ -2,13 +2,14 @@ import { Icon } from "./Icon";
 import "./Badge.css";
 
 type BadgeProps = {
-  type: "live" | "on-air" | "room" | "next" | "done" | "hadir" | "pic" | "complete" | "plus-one";
+  type: "live" | "now" | "on-air" | "room" | "next" | "done" | "hadir" | "pic" | "complete" | "plus-one";
   children: React.ReactNode;
 };
 
-const withDot = new Set(["live", "on-air", "hadir", "complete"]);
+const withDot = new Set(["live", "now", "on-air", "hadir", "complete"]);
 const clayOf: Record<BadgeProps["type"], string> = {
   live: "clay clay-accent",
+  now: "clay clay-dark",
   "on-air": "clay clay-accent",
   room: "clay clay-light",
   hadir: "clay clay-accent",

@@ -22,14 +22,17 @@
 .badge--next { background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); }
 .badge--done { background: var(--background-texture); color: var(--text-grey-300); }
 
-/* Room: white tag with an orange pin. On Air: red tag for the room that is live right now. */
+/* Now: ink tag for what is happening right now. Room: white tag with an orange pin. On Air: red tag for the room that is live right now. */
 .badge--live,
+.badge--now,
 .badge--room,
 .badge--on-air { padding: 0 var(--padding-medium) 0 var(--padding-small); }
 .badge--room { background: var(--white); color: var(--text-primary); border: 1px solid var(--border); }
 .badge--room svg { color: var(--orange-splash); }
+.badge--now { background: var(--ink); color: var(--text-inverse); }
 .badge--on-air { background: var(--error); color: var(--text-on-accent); }
 .badge--live .badge__dot,
+.badge--now .badge__dot,
 .badge--on-air .badge__dot { width: 8px; height: 8px; animation: badge-pulse 1.6s ease-in-out infinite; }
 
 @keyframes badge-pulse {
