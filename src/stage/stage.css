@@ -281,9 +281,9 @@
   /* Read mode uses the full width too */
   .read-mode { padding-left: var(--padding-large); padding-right: var(--padding-large); }
   .read-mode :is(.read-mode__top, .read-mode__body, .read-mode__actions) { max-width: none; }
-  /* Sheets become a floating dialog in the middle */
-  .sheet-scrim { align-items: center; padding: var(--padding-large); }
-  .sheet { width: 100%; max-height: calc(100dvh - 2 * var(--padding-large)); border-radius: var(--radius-extra); animation: dialog-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  /* Sheets float near the bottom with a 24px gap on every side */
+  .sheet-scrim { align-items: flex-end; padding: var(--padding-large) var(--padding-large) max(var(--padding-large), env(safe-area-inset-bottom)); }
+  .sheet { width: 100%; max-height: calc(100dvh - 2 * var(--padding-large)); border-radius: var(--radius-extra); animation: sheet-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   .sheet__grip { display: none; }
   .sheet__head { padding: var(--padding-mid-medium) var(--padding-large); }
   .sheet__body { padding: var(--padding-mid-medium) var(--padding-large) var(--padding-large); }
