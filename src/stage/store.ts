@@ -3,7 +3,7 @@
  * across tabs (open #mc and #pembicara side by side to see them talk to each other); production uses the backend.
  */
 import { useCallback, useEffect, useState } from "react";
-import { SAMPLE_STAGE_QUESTIONS, SESSIONS, type McSignal, type SpeakerHelp, type StageQuestion } from "./data";
+import { SAMPLE_STAGE_QUESTIONS, SESSIONS, type McSignal, type ScriptPart, type SpeakerHelp, type StageQuestion } from "./data";
 
 export type StagePhase = "pre" | "live" | "ended";
 export type SpeakerStatus = "belum" | "siap" | "live" | "bantuan" | "selesai";
@@ -26,8 +26,11 @@ export type StageState = {
   scriptVariant: Record<string, number>;
   /** Admin changed the rundown since the MC last looked. */
   rundownChanged: boolean;
-  /** MC asked the committee for help. */
+  /** MC asked the committee for help (reason + time), shown in the admin bell. */
   panitiaCalled: boolean;
+  panitiaCall?: { reason: string; at: number };
+  /** Scripts the committee edited in the admin (otherwise Claude's suggestion is used). */
+  scripts?: Record<string, ScriptPart[]>;
 };
 
 const KEY = "hmd-stage-v1";
@@ -50,7 +53,7 @@ export const LIVE_BASE = (): StageState => ({
   panitiaCalled: false,
 });
 
-function read(): StageState | null {
+export function read(): StageState | null {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) ?? "null");
     return s && s.phase ? s : null;
@@ -143,3 +146,21 @@ export const fmtClock = (secs: number) => {
   const a = Math.abs(secs);
   return `${secs < 0 ? "+" : ""}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
 };
+
+/** For the admin side: change the shared state without holding it (the MC/speaker tabs pick it up). */
+export function patchStage(fn: (s: StageState) => StageState) {
+  write(fn(read() ?? LIVE_BASE()));
+}
+
+/** For the admin side: be told when the MC or speaker changes something. */
+export function useStageWatch(cb: (s: StageState) => void) {
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== KEY) return;
+      const s = read();
+      if (s) cb(s);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [cb]);
+}

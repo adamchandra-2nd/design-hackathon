@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Toast, ToastIcon } from "../components/Toast";
@@ -34,6 +34,9 @@ import { Rundown } from "./Rundown";
 import { Settings, type AdminSettings } from "./Settings";
 import { Undangan } from "./Undangan";
 import { Pengisi, type Access } from "./Pengisi";
+import type { ScriptPart } from "../stage/data";
+import { patchStage, read as readStage, useStageWatch, type StageState } from "../stage/store";
+import { HELP_LABEL, PEOPLE } from "../stage/data";
 
 const NOW: Record<Phase, number> = { pre: 8 * 60, live: DEMO_NOW.live, ended: DEMO_NOW.ended };
 const TODAY = new Date(2026, 9, 25);
@@ -93,6 +96,12 @@ const SAMPLE_NOTICES = (phase: Phase): AdminNotice[] =>
         { id: "n-feedback", kind: "info", icon: "Star", tone: "pink", title: "5 feedback baru untuk Pembukaan", body: "Rata-rata 4,2 dari 5.", at: NOW[phase] - 45, read: true, page: "feedback" },
       ];
 
+/** Sample of what the MC / speaker send to the committee. */
+const STAGE_NOTICES: AdminNotice[] = [
+  { id: "n-bantuan", kind: "action", icon: "Bell", tone: "red", title: "Ardi butuh bantuan", body: "Mic bermasalah · Ruang Omakase. Kirim tim ke panggung.", at: NOW.live - 1, read: false, page: "pengisi" },
+  { id: "n-mc", kind: "action", icon: "Megaphone", tone: "red", title: "MC memanggil panitia", body: "Jadwal perlu digeser. Hampiri MC di panggung.", at: NOW.live - 2, read: false, page: "pengisi" },
+];
+
 /** Admin (desktop): same design system as the guest app, one access level, PIN-by-email sign-in. */
 export function AdminApp({ token }: { token: string }) {
   const sc = ADMIN_LINKS[token] ?? ADMIN_LINKS["admin-404"];
@@ -118,7 +127,8 @@ export function AdminApp({ token }: { token: string }) {
   });
   const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
   const [access, setAccess] = useState<Record<string, Access>>({ nadia: "masuk", ardi: "terkirim" });
-  const [notices, setNotices] = useState<AdminNotice[]>(() => SAMPLE_NOTICES(sc.phase));
+  const [scripts, setScripts] = useState<Record<string, ScriptPart[]>>(() => readStage()?.scripts ?? {});
+  const [notices, setNotices] = useState<AdminNotice[]>(() => (sc.stageNotices ? [...STAGE_NOTICES, ...SAMPLE_NOTICES(sc.phase)] : SAMPLE_NOTICES(sc.phase)));
   const [search, setSearch] = useState(sc.search ?? "");
   const [selected, setSelected] = useState<string | null>(sc.selected ?? null);
   const [inviteFor, setInviteFor] = useState<string | undefined>(sc.undangan?.single);
@@ -136,6 +146,24 @@ export function AdminApp({ token }: { token: string }) {
     setNotices((list) => [{ ...n, id: `n${Date.now()}`, at: now, read: false }, ...list]);
     if (n.kind === "action") notify(n.icon, n.title, n.body, { label: "Lihat", page: n.page });
   };
+
+  // MC / speaker calling for help shows up in the bell (and as a toast, since it needs action)
+  const seenStage = useRef({ help: readStage()?.speakerSignal?.at ?? 0, call: readStage()?.panitiaCall?.at ?? 0 });
+  const pushRef = useRef(pushNotice);
+  pushRef.current = pushNotice;
+  const onStage = useCallback((st: StageState) => {
+    const sig = st.speakerSignal;
+    if (sig?.kind === "bantuan" && sig.at > seenStage.current.help) {
+      seenStage.current.help = sig.at;
+      const sp = PEOPLE.find((p) => p.role === "pembicara");
+      pushRef.current({ kind: "action", icon: "Bell", tone: "red", title: `${sp?.name.split(" ")[0]} butuh bantuan`, body: `${HELP_LABEL[sig.help ?? "lainnya"]} · Ruang Omakase. Kirim tim ke panggung.`, page: "pengisi" });
+    }
+    if (st.panitiaCall && st.panitiaCall.at > seenStage.current.call) {
+      seenStage.current.call = st.panitiaCall.at;
+      pushRef.current({ kind: "action", icon: "Megaphone", tone: "red", title: "MC memanggil panitia", body: `${st.panitiaCall.reason}. Hampiri MC di panggung.`, page: "pengisi" });
+    }
+  }, []);
+  useStageWatch(onStage);
 
   if (system)
     return (
@@ -247,6 +275,16 @@ export function AdminApp({ token }: { token: string }) {
       {page === "pengisi" && (
         <Pengisi
           access={access}
+          scripts={scripts}
+          initialEdit={sc.editScript}
+          onSaveScript={(sid, parts) => {
+            const next = { ...scripts };
+            if (parts) next[sid] = parts;
+            else delete next[sid];
+            setScripts(next);
+            patchStage((s) => ({ ...s, scripts: next }));
+            notify("Pencil", parts ? "Naskah disimpan" : "Kembali ke saran Claude", "Langsung tampil di layar MC.");
+          }}
           onSend={(id) => {
             setAccess((a) => ({ ...a, [id]: "terkirim" }));
             notify("Send", "Link terkirim lewat WhatsApp", "Statusnya jadi Sudah masuk begitu kodenya dipakai.");

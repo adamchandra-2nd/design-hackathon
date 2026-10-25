@@ -275,7 +275,7 @@ function McMain({ token }: { token: string }) {
                 className="tpl clay clay-light"
                 onClick={() => {
                   setSheet(undefined);
-                  update((s) => ({ ...s, panitiaCalled: true }));
+                  update((s) => ({ ...s, panitiaCalled: true, panitiaCall: { reason: o.title, at: Date.now() } }));
                   notify({ icon: "Users", title: "Panitia sudah dikabari", sub: `${o.title}. Tunggu sebentar ya.` });
                 }}
               >
@@ -328,7 +328,8 @@ function Panggung({
   const speaker = personById(focus?.speakerId);
   const secs = remainingS(state, now);
   const variant = focus ? (state.scriptVariant[focus.id] ?? 0) % (SCRIPTS[focus.id]?.length ?? 1) : 0;
-  const script = focus ? (SCRIPTS[focus.id]?.[variant] ?? []) : [];
+  const edited = focus ? state.scripts?.[focus.id] : undefined;
+  const script = focus ? (edited ?? SCRIPTS[focus.id]?.[variant] ?? []) : [];
   const checked = focus ? (state.checked[focus.id] ?? []) : [];
   const ended = state.phase === "ended";
   const sent = state.mcSignal;
@@ -501,10 +502,14 @@ function Panggung({
           tone="ink"
           title={`Naskah · ${focus.title}`}
           aside={
-            <span className="claude-tag t-p-h5-bold">
-              <Icon name="Sparkle" size={16} />
-              Claude
-            </span>
+            edited ? (
+              <Badge type="neutral" icon="Pencil">Diedit panitia</Badge>
+            ) : (
+              <span className="claude-tag t-p-h5-bold">
+                <Icon name="Sparkle" size={16} />
+                Claude
+              </span>
+            )
           }
         >
           <ol className="script">
@@ -523,12 +528,12 @@ function Panggung({
               );
             })}
           </ol>
-          {(SCRIPTS[focus.id]?.length ?? 0) > 1 && (
+          {!edited && (SCRIPTS[focus.id]?.length ?? 0) > 1 && (
             <Button size="small" style="tertiary" icon="Sparkle" onClick={() => onVariant(focus.id)}>
               Saran lain
             </Button>
           )}
-          <span className="t-p-h5 stage-muted">Disusun Claude dari rundown. Panitia bisa mengubahnya di dashboard.</span>
+          <span className="t-p-h5 stage-muted">{edited ? "Diperbarui panitia dari dashboard." : "Disusun Claude dari rundown. Panitia bisa mengubahnya di dashboard."}</span>
         </StageCard>
       )}
 

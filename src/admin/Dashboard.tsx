@@ -7,7 +7,7 @@ import { ROOMS, roomIndexById } from "../data/rooms";
 import type { AdminPage } from "./AdminShell";
 import type { AdminEvent, AdminGuest, Announcement } from "./data";
 import { roomStyle } from "./hooks";
-import { Empty, Panel, Stat } from "./ui";
+import { Empty, LiveTimer, Panel, Stat } from "./ui";
 
 export type Phase = "pre" | "live" | "ended";
 
@@ -92,7 +92,10 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                     <span className="t-p-h4-bold one-line" title={e.title}>{e.title}</span>
                     <span className="t-p-h5 dash-room">
                       <span className="room-dot" />
-                      <span className="one-line" title={roomName(e.roomId)}>{roomName(e.roomId)}</span>
+                      <span className="one-line" title={roomName(e.roomId)}>
+                        {roomName(e.roomId)}
+                        {e.pic ? ` · PIC ${e.pic}` : ""}
+                      </span>
                     </span>
                     {s === "now" && <Badge type="now">Sekarang</Badge>}
                     {s === "next" && <Badge type="next" icon="Clock">Berikutnya</Badge>}
@@ -152,8 +155,9 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                 </span>
                 <span className="dash-hero__title">{live.title}</span>
                 <span className="t-p-h4">
-                  {roomName(live.roomId)} · sampai {formatTime(live.end)}
+                  {roomName(live.roomId)} · PIC {live.pic ?? "–"}
                 </span>
+                <LiveTimer start={live.start} end={live.end} now={now} />
                 <Button block size="small" style="secondary" icon="Check" onClick={() => onEndEvent(live.id)}>
                   Selesaikan acara
                 </Button>

@@ -11,9 +11,8 @@ import type { AdminEvent } from "./data";
 import type { Phase } from "./Dashboard";
 import { RoomPicker, TimePicker } from "./pickers";
 import { roomStyle, useHeight } from "./hooks";
-import { SESSIONS } from "../stage/data";
-
-const picOf = (id: string) => SESSIONS.find((s) => s.id === id)?.pic;
+import { LiveTimer } from "./ui";
+import { PEOPLE } from "../stage/data";
 
 const SNAP = 5;
 const MIN_DURATION = 15;
@@ -63,7 +62,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
   const locked = (e: AdminEvent) => status[e.id] === "done";
   const changed = draft.filter((d) => {
     const o = events.find((e) => e.id === d.id);
-    return !o || o.start !== d.start || o.end !== d.end || o.roomId !== d.roomId || o.title !== d.title;
+    return !o || o.start !== d.start || o.end !== d.end || o.roomId !== d.roomId || o.title !== d.title || o.pic !== d.pic || o.speakerId !== d.speakerId;
   });
   const removed = events.filter((e) => !draft.some((d) => d.id === e.id));
   const dirty = changed.length > 0 || removed.length > 0;
@@ -71,6 +70,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
   const clashIds = new Set(clashes.flat().map((e) => e.id));
   const sorted = [...draft].sort((a, b) => a.start - b.start);
   const doneCount = sorted.filter((e) => status[e.id] === "done").length;
+  const liveEvent = phase === "live" ? sorted.find((e) => status[e.id] === "now") : undefined;
 
   const update = (id: string, patch: Partial<AdminEvent>) => setDraft((d) => d.map((e) => (e.id === id ? { ...e, ...patch } : e)));
 
@@ -133,6 +133,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
           <span className="admin-muted">
             {doneCount} dari {sorted.length} selesai
           </span>
+          {liveEvent && <LiveTimer variant="chip" start={liveEvent.start} end={liveEvent.end} now={now} />}
         </span>
         <ol className="stepper__steps">
           {sorted.map((e, i) => {
@@ -229,7 +230,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
                   {size === "is-l" && (
                     <span className="t-p-h5 rundown__event-time">
                       {formatTime(e.start)}–{formatTime(e.end)}
-                      {picOf(e.id) ? ` · PIC ${picOf(e.id)}` : ""}
+                      {e.pic ? ` · PIC ${e.pic}` : ""}
                     </span>
                   )}
                   {lock ? (
@@ -346,15 +347,18 @@ function EventEditor({ event, onClose, onApply, onDelete }: { event: AdminEvent 
   const [roomId, setRoomId] = useState(event?.roomId ?? ROOMS[0].id);
   const [start, setStart] = useState(event?.start ?? 13 * 60 + 30);
   const [end, setEnd] = useState(event?.end ?? 14 * 60);
+  const [pic, setPic] = useState(event?.pic ?? "");
+  const [speakerId, setSpeakerId] = useState<string | undefined>(event?.speakerId);
   const [tried, setTried] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const timeError = end <= start ? "Jam selesai harus setelah jam mulai." : start < DAY_START || end > DAY_END ? "Di luar jam acara (09.00–14.00)." : null;
   const titleError = !title.trim() ? "Judul acara wajib diisi." : null;
+  const picError = !pic.trim() ? "Isi nama PIC dari panitia." : null;
 
   const apply = () => {
     setTried(true);
-    if (timeError || titleError) return;
-    onApply({ id: event?.id ?? `acara-${Date.now()}`, title: title.trim(), roomId, start, end });
+    if (timeError || titleError || picError) return;
+    onApply({ id: event?.id ?? `acara-${Date.now()}`, title: title.trim(), roomId, start, end, pic: pic.trim(), speakerId });
   };
 
   if (confirmDelete && event) {
@@ -414,6 +418,29 @@ function EventEditor({ event, onClose, onApply, onDelete }: { event: AdminEvent 
           {timeError}
         </span>
       )}
+      <TextField label="PIC (panitia)" value={pic} onChange={setPic} placeholder="Nama panitia" maxLength={30} error={tried ? (picError ?? undefined) : undefined} />
+      <div className="field">
+        <span className="t-p-h5-bold field__label">Pembicara (opsional)</span>
+        <div className="speaker-pick">
+          {[{ id: undefined, name: "Tanpa pembicara", title: "MC saja" }, ...PEOPLE.filter((p) => p.role === "pembicara")].map((p) => (
+            <button
+              key={p.id ?? "none"}
+              type="button"
+              className={`speaker-pick__opt clay clay-light${speakerId === p.id ? " is-active" : ""}`}
+              aria-pressed={speakerId === p.id}
+              onClick={() => setSpeakerId(p.id)}
+            >
+              <Icon name={p.id ? "Sparkle" : "Megaphone"} size={16} />
+              <span className="speaker-pick__text">
+                <span className="t-p-h5-bold">{p.name}</span>
+                <span className="t-p-h5 admin-muted">{p.title}</span>
+              </span>
+              {speakerId === p.id && <Icon name="Check" size={16} />}
+            </button>
+          ))}
+        </div>
+        <span className="t-p-h5 field__hint">Pembicara dapat link akses dari menu Pengisi acara.</span>
+      </div>
     </Dialog>
   );
 }

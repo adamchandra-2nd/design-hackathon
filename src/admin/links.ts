@@ -18,6 +18,8 @@ export type Scenario = {
   /** Review case: every star rating (1–5) has answers. */
   feedbackAll?: boolean;
   sessionExpired?: boolean;
+  editScript?: string;
+  stageNotices?: boolean;
   offline?: boolean;
   system?: "error" | "404";
   notifOpen?: boolean;
@@ -68,6 +70,8 @@ export const ADMIN_LINKS: Record<string, Scenario> = {
     rundownDraft: (ev) => ev.map((e) => (e.id === "makan" ? { ...e, start: 12 * 60 + 15, end: 13 * 60 + 15, roomId: "halaman-depan" } : e)),
   }),
   "admin-pengisi": live("pengisi"),
+  "admin-notifikasi-panggung": live("dashboard", { notifOpen: true, stageNotices: true }),
+  "admin-pengisi-naskah": live("pengisi", { editScript: "talkshow" }),
   "admin-pengumuman": live("pengumuman"),
   "admin-pengumuman-gagal": live("pengumuman", { failAnnouncement: true }),
   "admin-hadiah": live("hadiah"),

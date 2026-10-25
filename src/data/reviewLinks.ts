@@ -124,6 +124,8 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "admin-rundown-belum-disimpan", label: "Belum disimpan", note: "Simpan dengan notifikasi ke tamu" },
       { token: "admin-rundown-bentrok", label: "Jadwal bentrok", note: "Simpan dikunci" },
       { token: "admin-pengisi", label: "Pengisi acara", note: "MC & pembicara: kirim link WA, cabut akses, naskah Claude" },
+      { token: "admin-notifikasi-panggung", label: "Notifikasi dari panggung", note: "Pembicara butuh bantuan, MC panggil panitia" },
+      { token: "admin-pengisi-naskah", label: "Edit naskah MC", note: "Ubah baris, tambah, pakai saran Claude" },
       { token: "admin-pengumuman", label: "Pengumuman", note: "Form, pratinjau HP, riwayat" },
       { token: "admin-pengumuman-gagal", label: "Pengumuman gagal", note: "Gagal kirim" },
       { token: "admin-hadiah", label: "Hadiah", note: "Tandai diambil, PIN panitia" },

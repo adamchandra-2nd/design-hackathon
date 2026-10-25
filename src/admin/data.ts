@@ -1,5 +1,6 @@
 /** Sample data for the admin side until the backend exists. */
-import { AGENDA, type AgendaItem } from "../data/agenda";
+import type { AgendaItem } from "../data/agenda";
+import { SESSIONS } from "../stage/data";
 
 export type Rsvp = "ya" | "tidak" | "belum";
 export type RewardStatus = "mengumpulkan" | "siap" | "diambil";
@@ -55,8 +56,9 @@ export const ADMIN_GUESTS: AdminGuest[] = NAMES.map((name, i) => {
   };
 });
 
-export type AdminEvent = AgendaItem;
-export const ADMIN_EVENTS: AdminEvent[] = AGENDA.map((a) => ({ ...a }));
+/** Rundown item + who runs it (brief: the rundown shows the PIC). */
+export type AdminEvent = AgendaItem & { pic?: string; speakerId?: string };
+export const ADMIN_EVENTS: AdminEvent[] = SESSIONS.map((s) => ({ id: s.id, title: s.title, roomId: s.roomId, start: s.start, end: s.end, pic: s.pic, speakerId: s.speakerId }));
 
 export type Announcement = {
   id: string;
