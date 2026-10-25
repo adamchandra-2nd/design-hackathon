@@ -106,6 +106,20 @@ export const SAMPLE_EVENT_FEEDBACK: Record<string, EventFeedbackEntry[]> = {
   ],
 };
 
+/** Same event, with answers on every star (review case for the full donut). */
+export const SAMPLE_EVENT_FEEDBACK_ALL: Record<string, EventFeedbackEntry[]> = {
+  pembukaan: [
+    ...SAMPLE_EVENT_FEEDBACK.pembukaan,
+    { rating: 5, text: "Pembukaannya pas, nggak kepanjangan.", at: 9 * 60 + 37 },
+    { rating: 4, text: "Musiknya enak.", at: 9 * 60 + 38 },
+    { rating: 2, text: "Antrean check-in lama, jadi telat masuk.", at: 9 * 60 + 39 },
+    { rating: 3, text: "Biasa aja.", at: 9 * 60 + 40 },
+    { rating: 1, text: "Nggak kedengeran sama sekali dari belakang.", at: 9 * 60 + 41 },
+    { rating: 2, text: "Ruangannya terlalu penuh.", at: 9 * 60 + 42 },
+    { rating: 5, text: "Mantap!", at: 9 * 60 + 43 },
+  ],
+};
+
 export const SAMPLE_FINAL_FEEDBACK = {
   ratings: [0, 1, 2, 6, 9] as number[],
   moods: { "Acaranya seru": 12, "Kantornya keren": 15, "Makanannya enak": 9, "Dapat kenalan baru": 11, "Kurang lama!": 4 } as Record<string, number>,

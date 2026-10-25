@@ -128,6 +128,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "admin-hadiah", label: "Hadiah", note: "Tandai diambil, PIN panitia" },
       { token: "admin-hadiah-kosong", label: "Hadiah kosong", note: "Sebelum hari H" },
       { token: "admin-feedback", label: "Feedback per acara", note: "Rata-rata, distribusi, komentar" },
+      { token: "admin-feedback-semua-rating", label: "Feedback: semua rating", note: "Donut dengan 1–5 bintang terisi" },
       { token: "admin-feedback-akhir", label: "Feedback akhir", note: "Kesan + pesan" },
       { token: "admin-feedback-kosong", label: "Feedback kosong", note: "Acara belum selesai" },
       { token: "admin-pengaturan", label: "Pengaturan", note: "Ubah lalu simpan" },

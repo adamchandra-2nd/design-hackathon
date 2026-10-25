@@ -15,6 +15,8 @@ export type Scenario = {
   rundownEdit?: string;
   failAnnouncement?: boolean;
   feedbackTab?: string;
+  /** Review case: every star rating (1–5) has answers. */
+  feedbackAll?: boolean;
   sessionExpired?: boolean;
   offline?: boolean;
   system?: "error" | "404";
@@ -70,6 +72,7 @@ export const ADMIN_LINKS: Record<string, Scenario> = {
   "admin-hadiah": live("hadiah"),
   "admin-hadiah-kosong": live("hadiah", { phase: "pre" }),
   "admin-feedback": live("feedback"),
+  "admin-feedback-semua-rating": live("feedback", { feedbackAll: true }),
   "admin-feedback-akhir": live("feedback", { phase: "ended", feedbackTab: "akhir" }),
   "admin-feedback-kosong": live("feedback", { phase: "pre" }),
   "admin-pengaturan": live("pengaturan"),

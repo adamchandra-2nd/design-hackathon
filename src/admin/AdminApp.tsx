@@ -17,6 +17,7 @@ import {
   NEW_INVITEES,
   SAMPLE_ANNOUNCEMENTS,
   SAMPLE_EVENT_FEEDBACK,
+  SAMPLE_EVENT_FEEDBACK_ALL,
   SAMPLE_FINAL_FEEDBACK,
   type AdminEvent,
   type AdminGuest,
@@ -316,7 +317,7 @@ export function AdminApp({ token }: { token: string }) {
           events={events}
           now={now}
           phase={phase}
-          perEvent={phase === "pre" ? {} : SAMPLE_EVENT_FEEDBACK}
+          perEvent={phase === "pre" ? {} : sc.feedbackAll ? SAMPLE_EVENT_FEEDBACK_ALL : SAMPLE_EVENT_FEEDBACK}
           final={phase === "ended" ? SAMPLE_FINAL_FEEDBACK : null}
           present={present}
           initialTab={sc.feedbackTab}
