@@ -369,7 +369,7 @@ function Panggung({
               {speaker ? (
                 <SpeakerRow name={speaker.name} status={state.speaker === "belum" ? "live" : state.speaker} help={state.speakerHelp} onResolve={onResolveHelp} />
               ) : (
-                <SpeakerRow name={MC.name} icon="Megaphone" status="mc" />
+                <SpeakerRow name={MC.name} status="mc" />
               )}
               <Button block style="secondary" icon="Check" onClick={() => setConfirmEnd(true)}>
                 Selesaikan sesi
@@ -405,7 +405,7 @@ function Panggung({
                     { icon: "Users", text: `PIC ${next.pic}` },
                   ]}
                 />
-                {speaker ? <SpeakerRow name={speaker.name} status={state.speaker === "siap" ? "siap" : "belum"} /> : <SpeakerRow name={MC.name} icon="Megaphone" status="mc" />}
+                {speaker ? <SpeakerRow name={speaker.name} status={state.speaker === "siap" ? "siap" : "belum"} /> : <SpeakerRow name={MC.name} status="mc" />}
                 <Button block style="secondary" icon="ArrowRight" onClick={() => onStart(next.id)}>
                   Mulai {next.title}
                 </Button>
@@ -712,7 +712,7 @@ function Sorotan({ state, onCopied }: { state: StageState; onCopied: () => void 
       <div className="mini-stats">
         <MiniStat icon="Users" tone="green" label="Hadir" value={String(here.length)} note={`dari ${yes} RSVP`} />
         <MiniStat icon="Gift" tone="amber" label="Hadiah" value={String(rewards.length + 2)} note="kartu lengkap" />
-        <MiniStat icon="Star" tone="pink" label="Rating" value={avg.toFixed(1).replace(".", ",")} note="rata-rata sesi Pembukaan" />
+        <RatingStat ratings={fb.map((f) => f.rating)} avg={avg} />
       </div>
 
       <StageCard
@@ -896,6 +896,45 @@ export function MiniStat({ icon, tone, label, value, note }: { icon: IconName; t
       </span>
       <span className="mini-stat__value">{value}</span>
       <span className="t-p-h5 stage-muted one-line">{note}</span>
+    </div>
+  );
+}
+
+/** Same order and colours as the admin rating donut (1★ red … 5★ green). */
+const STAR_COLORS = ["", "#c62828", "#d6589f", "#8a63d2", "#2f6fdb", "#4e8a3e"];
+
+/** Wide rating tile: average on the left, stars + per-star bars on the right. */
+function RatingStat({ ratings, avg }: { ratings: number[]; avg: number }) {
+  const max = Math.max(1, ...[1, 2, 3, 4, 5].map((s) => ratings.filter((r) => r === s).length));
+  return (
+    <div className="mini-stat mini-stat--wide">
+      <span className="mini-stat__left">
+        <span className="mini-stat__top">
+          <IconBadge icon="Star" tone="pink" size="S" />
+          <span className="t-p-h5-bold stage-muted">Rating</span>
+        </span>
+        <span className="mini-stat__value">{avg.toFixed(1).replace(".", ",")}</span>
+        <span className="t-p-h5 stage-muted one-line">Pembukaan · {ratings.length} tamu</span>
+      </span>
+      <span className="mini-dist" aria-label={`Rata-rata ${avg.toFixed(1)} dari 5`}>
+        <span className="mini-dist__stars">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Icon key={i} name={i <= Math.round(avg) ? "StarFill" : "Star"} size={16} />
+          ))}
+        </span>
+        {[5, 4, 3, 2, 1].map((s) => {
+          const n = ratings.filter((r) => r === s).length;
+          return (
+            <span key={s} className="mini-dist__row">
+              <span className="t-p-h5-bold">{s}★</span>
+              <span className="mini-dist__bar">
+                <span style={{ width: `${(n / max) * 100}%`, background: STAR_COLORS[s] }} />
+              </span>
+              <span className="t-p-h5 mini-dist__n">{n}</span>
+            </span>
+          );
+        })}
+      </span>
     </div>
   );
 }

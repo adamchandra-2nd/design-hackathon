@@ -399,3 +399,20 @@ a.btn { text-decoration: none; }
   .mini-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mini-stat:nth-child(3) { grid-column: auto; }
 }
+
+/* Person tag (speaker / MC status): cream pill, distinct from the session status tag */
+.person-tag { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 var(--padding-medium) 0 var(--padding-small); border-radius: var(--radius-infinite); border: 1.5px solid rgba(255, 255, 255, 0.85); background: transparent; color: var(--text-on-accent); white-space: nowrap; flex: none; }
+.person-tag.clay::after { display: none; }
+.person-tag.clay { box-shadow: none; }
+.person-tag__dot { width: 8px; height: 8px; margin-left: 4px; border-radius: 50%; border: 1.5px solid currentColor; }
+.now-card__next .person-tag, .stage-card .person-tag { border-color: var(--border); color: var(--text-primary); }
+
+/* Rating tile: stars + mini distribution on the right */
+.mini-stat--wide { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); column-gap: var(--spacing-large); align-items: center; }
+.mini-stat--wide > .mini-stat__left { display: flex; flex-direction: column; gap: var(--spacing-small); min-width: 0; }
+.mini-dist { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mini-dist__stars { display: inline-flex; gap: 2px; color: var(--amber); }
+.mini-dist__row { display: grid; grid-template-columns: 22px minmax(0, 1fr) 14px; align-items: center; gap: 6px; }
+.mini-dist__bar { height: 6px; border-radius: var(--radius-infinite); background: var(--background-texture); overflow: hidden; }
+.mini-dist__bar span { display: block; height: 100%; border-radius: inherit; }
+.mini-dist__n { text-align: right; color: var(--text-grey-300); }

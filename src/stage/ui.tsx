@@ -298,11 +298,11 @@ export function SpeakerRow({ name, status, help, icon, onResolve }: { name: stri
         </span>
       )}
       <span className="t-p-h4-bold speaker-row__name">{status === "bantuan" && onResolve && name ? name.split(" ")[0] : (name ?? "Tanpa pembicara")}</span>
-      {status === "live" && <Badge type="now">Sedang bicara</Badge>}
-      {status === "siap" && <Badge type="claimed" icon="Check">Siap</Badge>}
-      {status === "belum" && <Badge type="warn" icon="Clock">Belum siap</Badge>}
+      {status === "live" && <PersonTag icon="Megaphone">Sedang bicara</PersonTag>}
+      {status === "siap" && <PersonTag icon="Check" tone="ok">Siap</PersonTag>}
+      {status === "belum" && <PersonTag dot>Belum siap</PersonTag>}
       {status === "selesai" && <Badge type="done">Selesai</Badge>}
-      {status === "mc" && <Badge type="ready" icon="Megaphone">Dipandu MC</Badge>}
+      {status === "mc" && <PersonTag icon="Megaphone">Dipandu MC</PersonTag>}
       {status === "bantuan" && <Badge type="danger" icon="Bell">{`Bantuan: ${HELP_SHORT[help ?? "lainnya"]}`}</Badge>}
       {status === "bantuan" && onResolve && (
         <button type="button" className="speaker-row__ok clay clay-light" aria-label="Tandai beres" title="Tandai beres" onClick={onResolve}>
@@ -310,6 +310,17 @@ export function SpeakerRow({ name, status, help, icon, onResolve }: { name: stri
         </button>
       )}
     </div>
+  );
+}
+
+/** Tag about a person (speaker / MC). Cream, so it never matches the session status tag at the top of the card. */
+function PersonTag({ icon, tone, dot, children }: { icon?: IconName; tone?: "ok"; dot?: boolean; children: ReactNode }) {
+  return (
+    <span className={`person-tag${tone ? ` person-tag--${tone}` : ""} clay clay-light t-p-h5-bold`}>
+      {dot && <span className="person-tag__dot" />}
+      {icon && <Icon name={icon} size={16} />}
+      {children}
+    </span>
   );
 }
 
