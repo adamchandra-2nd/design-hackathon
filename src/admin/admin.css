@@ -595,7 +595,10 @@
 }
 
 /* Feedback */
-.fb-context { margin: 0; flex: none; color: var(--text-grey-200); }
+.fb-picker { flex: none; display: flex; flex-direction: column; border-radius: var(--radius-extra); background: var(--surface); border: 1px solid var(--border); }
+.fb-picker .pill-tabs { padding: var(--padding-mid-medium) var(--padding-large); }
+.fb-context { margin: 0; flex: none; display: flex; align-items: center; gap: var(--spacing-small); padding: var(--padding-medium) var(--padding-large); border-top: 1px solid var(--border); color: var(--text-grey-200); }
+.fb-context > svg { flex: none; color: var(--text-grey-300); }
 .fb-fill { grid-template-columns: minmax(0, 1fr) 400px; }
 .fb-fill--final { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 400px; }
 .fb-list { display: flex; flex-direction: column; gap: var(--spacing-small); margin: 0; padding: 0; list-style: none; }
