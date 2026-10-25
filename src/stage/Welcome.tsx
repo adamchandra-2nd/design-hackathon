@@ -63,7 +63,7 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
         <>
           <p className="t-p-h4 stage-login__body">
             {isMc
-              ? "Timer, naskah, dan pertanyaan tamu ada di app ini. Kamu juga bisa kirim kode ke pembicara (misalnya 5 menit lagi) tanpa harus memberi isyarat dari jauh."
+              ? "Timer, naskah, dan pertanyaan tamu ada di app ini. Kamu juga bisa kirim kode ke performance (misalnya 5 menit lagi) tanpa harus memberi isyarat dari jauh."
               : "MC akan mengirim kode ke layarmu, misalnya 5 menit lagi atau waktunya tanya jawab. Pertanyaan tamu yang dipilih MC juga muncul di sini."}
           </p>
           <dl className="info-rows">

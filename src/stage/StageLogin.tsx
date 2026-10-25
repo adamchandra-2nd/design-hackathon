@@ -81,13 +81,13 @@ export function StageLogin({ person, eventLabel, initial, onDone }: { person: Pe
           <>
             <span className="stage-login__role">
               <Badge type="ready" icon={isMc ? "Megaphone" : "Sparkle"}>
-                {isMc ? "MC" : "Pembicara"}
+                {isMc ? "MC" : "Performance"}
               </Badge>
             </span>
             <div className="stage-login__head">
               <h1 className="stage-login__title">Halo, {person.name.split(" ")[0]}!</h1>
               <p className="t-p-h4 stage-login__body">
-                Kamu {isMc ? "jadi MC" : `pembicara (${person.title.toLowerCase()})`} di {eventLabel}. Untuk keamanan, kami kirim kode 6 angka ke WhatsApp {maskPhone(person.phone)}.
+                Kamu {isMc ? "jadi MC" : `jadi performance (${person.title.toLowerCase()})`} di {eventLabel}. Untuk keamanan, kami kirim kode 6 angka ke WhatsApp {maskPhone(person.phone)}.
               </p>
             </div>
             <Button

@@ -297,7 +297,7 @@ export function SpeakerRow({ name, status, help, icon, onResolve }: { name: stri
           <Icon name="Megaphone" size={16} />
         </span>
       )}
-      <span className="t-p-h4-bold speaker-row__name">{status === "bantuan" && onResolve && name ? name.split(" ")[0] : (name ?? "Tanpa pembicara")}</span>
+      <span className="t-p-h4-bold speaker-row__name">{status === "bantuan" && onResolve && name ? name.split(" ")[0] : (name ?? "Tanpa performance")}</span>
       {status === "live" && <PersonTag icon="Megaphone">Sedang bicara</PersonTag>}
       {status === "siap" && <PersonTag icon="Check" tone="ok">Siap</PersonTag>}
       {status === "belum" && <PersonTag dot>Belum siap</PersonTag>}

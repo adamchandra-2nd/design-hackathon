@@ -76,10 +76,10 @@ function McMain({ token }: { token: string }) {
     if (!s || s.at <= seenSignal.current) return;
     seenSignal.current = s.at;
     const speaker = personById(sessionById("talkshow").speakerId);
-    if (s.kind === "siap") notify({ icon: "Check", title: `${firstName(speaker?.name ?? "Pembicara")} sudah siap`, sub: "Sesi berikutnya bisa dimulai kapan saja." });
+    if (s.kind === "siap") notify({ icon: "Check", title: `${firstName(speaker?.name ?? "Performance")} sudah siap`, sub: "Sesi berikutnya bisa dimulai kapan saja." });
     if (s.kind === "bantuan")
-      notify({ icon: "Bell", urgent: true, title: `${firstName(speaker?.name ?? "Pembicara")} butuh bantuan`, sub: `${HELP_LABEL[s.help ?? "lainnya"]}. Panitia sudah dikabari otomatis.` });
-    if (s.kind === "selesai") notify({ icon: "ArrowRight", title: "Panggung kembali ke MC", sub: "Pembicara sudah selesai. Tutup sesi lalu lanjut." });
+      notify({ icon: "Bell", urgent: true, title: `${firstName(speaker?.name ?? "Performance")} butuh bantuan`, sub: `${HELP_LABEL[s.help ?? "lainnya"]}. Panitia sudah dikabari otomatis.` });
+    if (s.kind === "selesai") notify({ icon: "ArrowRight", title: "Panggung kembali ke MC", sub: "Performance sudah selesai. Tutup sesi lalu lanjut." });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.speakerSignal]);
 
@@ -123,7 +123,7 @@ function McMain({ token }: { token: string }) {
   };
   const signal = (kind: McSignal) => {
     update((s) => ({ ...s, mcSignal: { kind, at: Date.now() } }));
-    notify({ icon: "Send", title: `Terkirim ke ${firstName(personById(live?.speakerId)?.name ?? "pembicara")}`, sub: `“${MC_SIGNALS[kind].title}” muncul besar di layarnya.` });
+    notify({ icon: "Send", title: `Terkirim ke ${firstName(personById(live?.speakerId)?.name ?? "performance")}`, sub: `“${MC_SIGNALS[kind].title}” muncul besar di layarnya.` });
   };
 
   const strip = live ? (
@@ -185,7 +185,7 @@ function McMain({ token }: { token: string }) {
       onSheet={setSheet}
       onResolveHelp={() => {
         update((s) => ({ ...s, speaker: "live", speakerHelp: undefined }));
-        notify({ icon: "Check", title: "Ditandai beres", sub: "Pembicara melihat bantuan sudah ditangani." });
+        notify({ icon: "Check", title: "Ditandai beres", sub: "Performance melihat bantuan sudah ditangani." });
       }}
     />
   );
@@ -449,7 +449,7 @@ function Panggung({
 
       {live && speaker && (
         <StageCard icon="Send" tone="sky" title={`Kode ke ${firstName(speaker.name)}`}>
-          <span className="t-p-h5 stage-muted">Muncul besar di layar pembicara, jadi kamu tidak perlu memberi isyarat dari jauh.</span>
+          <span className="t-p-h5 stage-muted">Muncul besar di layar performance, jadi kamu tidak perlu memberi isyarat dari jauh.</span>
           <div className="signal-grid">
             {(["5-menit", "tanya-jawab", "akhiri", "terima-kasih"] as McSignal[]).map((k) => (
               <button key={k} type="button" className={`signal-btn clay clay-light${sent?.kind === k ? " is-sent" : ""}`} onClick={() => onSignal(k)}>
@@ -577,7 +577,7 @@ function Pertanyaan({ state, onSet, onRead }: { state: StageState; onSet: (id: s
   const done = all.filter((q) => DONE.includes(q.state));
   const counts = { masuk: inbox.length, dipilih: picked.length, selesai: done.length };
   const doneTag = (q: StageQuestion) =>
-    q.state === "dilewati" ? <Badge type="done">Dilewati</Badge> : <Badge type="answered">{q.state === "dijawab" ? "Dijawab pembicara" : "Dibacakan"}</Badge>;
+    q.state === "dilewati" ? <Badge type="done">Dilewati</Badge> : <Badge type="answered">{q.state === "dijawab" ? "Dijawab performance" : "Dibacakan"}</Badge>;
 
   return (
     <>
@@ -638,7 +638,7 @@ function Pertanyaan({ state, onSet, onRead }: { state: StageState; onSet: (id: s
       )}
       {view === "dipilih" &&
         (picked.length === 0 ? (
-          <EmptyCard icon="Check" title="Belum ada yang dipilih" body="Pilih pertanyaan dari tab Masuk. Yang dipilih juga tampil di layar pembicara." />
+          <EmptyCard icon="Check" title="Belum ada yang dipilih" body="Pilih pertanyaan dari tab Masuk. Yang dipilih juga tampil di layar performance." />
         ) : (
           <ul className="q-list">
             {picked.map((q) => (
