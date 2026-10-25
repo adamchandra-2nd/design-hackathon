@@ -73,3 +73,21 @@
 .place-card__actions { display: flex; flex-wrap: wrap; gap: var(--spacing-extra-small); padding: 0 var(--padding-small) var(--padding-small); }
 .place-card__actions > * { flex: 1 1 auto; }
 .place-card__actions .btn { text-decoration: none; }
+
+/* Room dropdown */
+.room-select { position: relative; }
+.room-select__field { width: 100%; }
+.room-select__chev { transform: rotate(90deg); transition: transform 160ms ease; }
+.room-select__chev.is-open { transform: rotate(-90deg); }
+.room-select__clear { position: absolute; right: 48px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: var(--background-primary); color: var(--text-grey-300); cursor: pointer; }
+.room-select__clear:hover { color: var(--text-primary); }
+.room-select__pop { gap: 2px; padding: var(--padding-small); }
+.room-opt { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-small); width: 100%; padding: var(--padding-small); border: 0; border-radius: var(--radius-medium); background: none; color: var(--text-primary); text-align: left; cursor: pointer; }
+.room-opt:hover { background: var(--background-primary); }
+.room-opt.is-active { background: var(--background-primary); }
+.room-opt > svg { color: var(--orange-splash); flex: none; }
+.room-opt__main { display: inline-flex; align-items: center; gap: var(--spacing-small); min-width: 0; }
+.room-icon { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--room); color: var(--white); }
+.room-icon svg { color: var(--white) !important; }
+.room-icon--empty { background: var(--background-texture); }
+.room-icon--empty svg { color: var(--text-grey-300) !important; }

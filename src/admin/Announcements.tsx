@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import type { IconName } from "../components/iconPaths";
 import { Badge } from "../components/Badge";
 import { BottomNav } from "../components/BottomNav";
 import { Button } from "../components/Button";
@@ -11,6 +12,7 @@ import { formatTime } from "../data/agenda";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import type { Announcement } from "./data";
 import { roomStyle } from "./hooks";
+import { RoomPicker } from "./pickers";
 import { Empty, Panel } from "./ui";
 
 type Props = {
@@ -22,6 +24,20 @@ type Props = {
   onSend: (a: { title: string; body: string; roomId: string | null }) => void;
   onResend: (id: string) => void;
 };
+
+const ago = (min: number) => (min < 1 ? "baru saja" : min < 60 ? `${min} menit lalu` : `${Math.floor(min / 60)} jam lalu`);
+
+/** One detail line: icon, label, value on the right (+ optional extra under it). */
+function MetaRow({ icon, label, value, children }: { icon: IconName; label: string; value: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="ann-meta__row">
+      <Icon name={icon} size={16} />
+      <dt className="t-p-h5 admin-muted">{label}</dt>
+      <dd className="t-p-h5-bold">{value}</dd>
+      {children && <span className="ann-meta__extra">{children}</span>}
+    </div>
+  );
+}
 
 /**
  * Manual announcements from the committee, for things outside the rundown. Guests get them as the
@@ -79,25 +95,14 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
             hint={`${body.length}/120`}
             error={error ? "Gagal mengirim. Cek koneksi, lalu kirim lagi." : undefined}
           />
-          <div className="field">
-            <span className="t-p-h5-bold field__label">Ruangan tujuan (opsional)</span>
-            <div className="editor-rooms">
-              {ROOMS.map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  className={`room-chip t-p-h5-bold${r.id === roomId ? " is-active clay clay-light" : ""}`}
-                  style={roomStyle(r.id)}
-                  aria-pressed={r.id === roomId}
-                  onClick={() => setRoomId(r.id === roomId ? null : r.id)}
-                >
-                  <Icon name={r.icon} size={16} />
-                  {r.name}
-                </button>
-              ))}
-            </div>
-            <span className="t-p-h5 field__hint">Kalau dipilih, notifikasinya punya tombol “Ke sana”. Klik lagi untuk batal.</span>
-          </div>
+          <RoomPicker
+            label="Ruangan tujuan (opsional)"
+            value={roomId}
+            onChange={setRoomId}
+            optional
+            emptyLabel="Tidak ada"
+            hint="Kalau dipilih, notifikasi di HP tamu punya tombol “Ke sana” ke ruangan itu."
+          />
         </Panel>
 
         {/* What guests will see: a mini main area */}
@@ -143,42 +148,29 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
                   </span>
                   <span className="t-p-h5 admin-muted">{a.body}</span>
                   <dl className="ann-meta">
-                    <div>
-                      <dt className="t-p-h5 admin-muted">Dikirim</dt>
-                      <dd className="t-p-h5-bold">
-                        {formatTime(a.at)} · {Math.max(0, now - a.at)} menit lalu
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="t-p-h5 admin-muted">Penerima</dt>
-                      <dd className="t-p-h5-bold">{a.failed ? "–" : `${a.recipients} tamu hadir`}</dd>
-                    </div>
+                    <MetaRow icon="Clock" label="Dikirim" value={`${formatTime(a.at)} · ${ago(now - a.at)}`} />
+                    <MetaRow icon="Users" label="Penerima" value={a.failed ? "–" : `${a.recipients} tamu hadir`} />
                     {!a.failed && (
-                      <div>
-                        <dt className="t-p-h5 admin-muted">Dibaca</dt>
-                        <dd className="ann-read">
-                          <span className="t-p-h5-bold">
-                            {a.read} dari {a.recipients}
-                          </span>
-                          <span className="stat__bar">
-                            <span style={{ width: `${a.recipients ? (a.read / a.recipients) * 100 : 0}%` }} />
-                          </span>
-                        </dd>
-                      </div>
+                      <MetaRow icon="Eye" label="Dibaca" value={`${a.read} dari ${a.recipients}`}>
+                        <span className="stat__bar">
+                          <span style={{ width: `${a.recipients ? (a.read / a.recipients) * 100 : 0}%` }} />
+                        </span>
+                      </MetaRow>
                     )}
-                    <div>
-                      <dt className="t-p-h5 admin-muted">Tombol “Ke sana”</dt>
-                      <dd className="t-p-h5-bold">
-                        {a.roomId ? (
+                    <MetaRow
+                      icon="MapPin"
+                      label="Tombol “Ke sana”"
+                      value={
+                        a.roomId ? (
                           <span className="dash-room" style={roomStyle(a.roomId)}>
                             <span className="room-dot" />
                             {ROOMS[roomIndexById(a.roomId)].name}
                           </span>
                         ) : (
-                          "Tanpa ruangan"
-                        )}
-                      </dd>
-                    </div>
+                          "Tidak ada"
+                        )
+                      }
+                    />
                   </dl>
                   {a.failed && (
                     <Button size="small" style="secondary" icon="ArrowRight" onClick={() => onResend(a.id)}>

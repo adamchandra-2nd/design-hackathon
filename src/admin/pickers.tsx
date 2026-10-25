@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Icon } from "../components/Icon";
+import { ROOMS } from "../data/rooms";
+import { roomStyle } from "./hooks";
 import "./pickers.css";
 
 const MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -217,5 +219,73 @@ export function PlacePicker({ label, value, onChange, offline }: { label: string
       )}
       <span className="t-p-h5 field__hint">Tamu bisa membuka lokasi ini di Google Maps.</span>
     </div>
+  );
+}
+
+/** Room dropdown: coloured clay room icon + name. `optional` adds an empty choice and a clear button. */
+export function RoomPicker({ label, value, onChange, optional, emptyLabel = "Tidak ada", hint }: { label: string; value: string | null; onChange: (id: string | null) => void; optional?: boolean; emptyLabel?: string; hint?: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useOutside(open, () => setOpen(false));
+  const room = ROOMS.find((r) => r.id === value);
+  const choose = (id: string | null) => {
+    onChange(id);
+    setOpen(false);
+  };
+  return (
+    <div className="field picker" ref={ref}>
+      <span className="t-p-h5-bold field__label">{label}</span>
+      <div className="room-select">
+        <button type="button" className="field__input picker__field room-select__field" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="listbox">
+          {room ? (
+            <span className="room-opt__main">
+              <RoomIcon id={room.id} />
+              <span className="t-p-h4-bold">{room.name}</span>
+            </span>
+          ) : (
+            <span className="t-p-h4 admin-muted">{emptyLabel}</span>
+          )}
+          <Icon name="ChevronRight" size={20} className={`room-select__chev${open ? " is-open" : ""}`} />
+        </button>
+        {optional && room && (
+          <button type="button" className="room-select__clear" aria-label="Kosongkan ruangan" onClick={() => onChange(null)}>
+            <Icon name="Close" size={16} />
+          </button>
+        )}
+      </div>
+      {open && (
+        <div className="picker__pop room-select__pop clay clay-light" role="listbox">
+          {optional && (
+            <button type="button" role="option" aria-selected={!value} className={`room-opt${!value ? " is-active" : ""}`} onClick={() => choose(null)}>
+              <span className="room-opt__main">
+                <span className="room-icon room-icon--empty">
+                  <Icon name="Close" size={16} />
+                </span>
+                <span className="t-p-h4">{emptyLabel}</span>
+              </span>
+              {!value && <Icon name="Check" size={20} />}
+            </button>
+          )}
+          {ROOMS.map((r) => (
+            <button key={r.id} type="button" role="option" aria-selected={r.id === value} className={`room-opt${r.id === value ? " is-active" : ""}`} onClick={() => choose(r.id)}>
+              <span className="room-opt__main">
+                <RoomIcon id={r.id} />
+                <span className="t-p-h4-bold">{r.name}</span>
+              </span>
+              {r.id === value && <Icon name="Check" size={20} />}
+            </button>
+          ))}
+        </div>
+      )}
+      {hint && <span className="t-p-h5 field__hint">{hint}</span>}
+    </div>
+  );
+}
+
+function RoomIcon({ id }: { id: string }) {
+  const r = ROOMS.find((x) => x.id === id)!;
+  return (
+    <span className="room-icon clay" style={roomStyle(id)}>
+      <Icon name={r.icon} size={16} />
+    </span>
   );
 }

@@ -5,6 +5,8 @@ import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { IconBadge } from "../components/IconBadge";
+import { TextField } from "../components/TextField";
+import { Toggle } from "../components/Toggle";
 import { formatTime } from "../data/agenda";
 import { downloadCsv } from "./csv";
 import { SAMPLE_CSV, type AdminGuest } from "./data";
@@ -13,6 +15,9 @@ import { DataTable, Empty, Panel, Stat } from "./ui";
 
 export type UndanganDialog =
   | "single"
+  | "tambah"
+  | "tambah-error"
+  | "tambah-duplikat"
   | "bulk-confirm"
   | "bulk-progress"
   | "bulk-result"
@@ -46,6 +51,19 @@ const inviteState = (g: AdminGuest): Exclude<Tab, "semua"> | "mengirim" =>
   g.rsvp !== "belum" ? "rsvp" : g.invite === "mengirim" ? "mengirim" : g.invite;
 const sendable = (g: AdminGuest) => g.rsvp === "belum" && g.invite !== "mengirim";
 const firstName = (n: string) => n.split(" ")[0];
+const newRow = (id: string, r: { name: string; phone: string }): AdminGuest => ({
+  id,
+  name: r.name,
+  email: "",
+  rsvp: "belum",
+  checkIn: null,
+  hadir: false,
+  phone: r.phone,
+  invite: "belum",
+  cards: 0,
+  reward: "mengumpulkan",
+  finalFeedback: false,
+});
 
 function inviteTag(g: AdminGuest): ReactNode {
   switch (inviteState(g)) {
@@ -124,6 +142,8 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
   const [bulkConfirm, setBulkConfirm] = useState(initialDialog === "bulk-confirm");
   const [run, setRun] = useState<{ ids: string[]; done: number; failed: AdminGuest[]; finished: boolean } | null>(null);
   const [editing, setEditing] = useState(initialDialog === "template");
+  const [adding, setAdding] = useState(initialDialog?.startsWith("tambah") ?? false);
+  const [highlight, setHighlight] = useState<string | null>(null);
   const [csv, setCsv] = useState<{ step: "upload" | "review"; error?: string; file?: string; rows: CsvRow[] } | null>(() => {
     if (initialDialog === "csv-upload") return { step: "upload", rows: [] };
     if (initialDialog?.startsWith("csv-error")) return { step: "upload", rows: [], error: SAMPLE_ERRORS[initialDialog], file: initialDialog === "csv-error-format" ? "daftar-tamu.xlsx" : "daftar-tamu.csv" };
@@ -154,6 +174,13 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
       else n.delete(id);
       return n;
     });
+
+  /** Briefly highlights a row and scrolls it into view. */
+  const flash = (id: string) => {
+    setHighlight(id);
+    window.setTimeout(() => document.querySelector(".undangan-fill .dtable__row.is-selected")?.scrollIntoView({ block: "center", behavior: "smooth" }), 80);
+    window.setTimeout(() => setHighlight((h) => (h === id ? null : h)), 2600);
+  };
 
   /** Sends one guest at a time (like the Business API queue), updating each row as it goes. */
   const startBulk = (list: AdminGuest[]) => {
@@ -229,8 +256,11 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
           <p className="t-p-h4 admin-sub">Kirim link RSVP lewat WhatsApp, satu per satu atau sekaligus.</p>
         </div>
         <div className="admin-actions">
-          <Button size="small" style="secondary" icon="Upload" onClick={() => setCsv({ step: "upload", rows: [] })}>
+          <Button size="small" style="tertiary" icon="Upload" onClick={() => setCsv({ step: "upload", rows: [] })}>
             Impor CSV
+          </Button>
+          <Button size="small" icon="Plus" onClick={() => setAdding(true)}>
+            Tambah tamu
           </Button>
         </div>
       </div>
@@ -289,7 +319,7 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
             empty={<Empty icon="Mail" tone="green" title={tab === "gagal" ? "Tidak ada yang gagal" : "Belum ada tamu di sini"} body={tab === "gagal" ? "Semua undangan berhasil terkirim." : "Impor CSV untuk menambah tamu."} />}
             rows={rows.map((g) => ({
               id: g.id,
-              selected: selected.has(g.id),
+              selected: selected.has(g.id) || highlight === g.id,
               onClick: sendable(g) ? () => toggle(g.id, !selected.has(g.id)) : undefined,
               cells: [
                 sendable(g) ? <Check checked={selected.has(g.id)} label={`Pilih ${g.name}`} onChange={(on) => toggle(g.id, on)} /> : <span />,
@@ -468,6 +498,29 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
         </Dialog>
       )}
 
+      {adding && (
+        <AddGuest
+          guests={guests}
+          template={template}
+          now={now}
+          sample={initialDialog === "tambah-error" ? "error" : initialDialog === "tambah-duplikat" ? "duplikat" : undefined}
+          onClose={() => setAdding(false)}
+          onShow={(id) => {
+            setAdding(false);
+            setTab("semua");
+            flash(id);
+          }}
+          onAdd={(row, sendNow, again) => {
+            const [id] = onAdd([row]);
+            if (!again) setAdding(false);
+            setTab("semua");
+            flash(id);
+            if (sendNow) sendOne(newRow(id, row));
+            else onToast(`${row.name} ditambahkan`, "Status Belum dikirim. Kirim kapan saja dari daftar.");
+          }}
+        />
+      )}
+
       {editing && (
         <TemplateEditor
           value={template}
@@ -496,6 +549,95 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
         />
       )}
     </div>
+  );
+}
+
+/** Add one guest by hand. Adds to the list only, unless "Langsung kirim undangan" is on. */
+function AddGuest({
+  guests,
+  template,
+  now,
+  sample,
+  onClose,
+  onShow,
+  onAdd,
+}: {
+  guests: AdminGuest[];
+  template: string;
+  now: number;
+  sample?: "error" | "duplikat";
+  onClose: () => void;
+  onShow: (id: string) => void;
+  onAdd: (row: { name: string; phone: string }, sendNow: boolean, again: boolean) => void;
+}) {
+  const [name, setName] = useState(sample === "duplikat" ? "Laras" : sample === "error" ? "" : "");
+  const [phone, setPhone] = useState(sample === "duplikat" ? "0812 3441 114" : sample === "error" ? "08123" : "");
+  const [sendNow, setSendNow] = useState(false);
+  const [tried, setTried] = useState(!!sample);
+  const [added, setAdded] = useState<string | null>(null);
+  const p = normalizePhone(phone);
+  const existing = p ? guests.find((g) => normalizePhone(g.phone) === p) : undefined;
+  const nameError = !name.trim() ? "Nama wajib diisi." : undefined;
+  const phoneError = !phone.trim() ? "Nomor WA wajib diisi." : !p ? "Nomor tidak valid. Contoh: 081234567890" : undefined;
+  const ok = !nameError && !phoneError && !existing;
+
+  const submit = (again: boolean) => {
+    setTried(true);
+    if (!ok) return;
+    onAdd({ name: name.trim(), phone: p! }, sendNow, again);
+    if (again) {
+      setAdded(name.trim());
+      setName("");
+      setPhone("");
+      setTried(false);
+    }
+  };
+
+  return (
+    <Dialog
+      icon="UserPlus"
+      iconTone="blue"
+      title="Tambah tamu"
+      description="Tamu masuk ke daftar undangan. Undangan baru terkirim kalau kamu menekan Kirim, atau nyalakan Langsung kirim."
+      form
+      wide
+      onClose={onClose}
+      danger={
+        <Button style="tertiary" icon="Plus" onClick={() => submit(true)}>
+          Simpan & tambah lagi
+        </Button>
+      }
+      actions={
+        <>
+          <Button icon={sendNow ? "Send" : "UserPlus"} onClick={() => submit(false)}>
+            {sendNow ? "Tambah & kirim" : "Tambah tamu"}
+          </Button>
+          <Button style="tertiary" onClick={onClose}>
+            Kembali
+          </Button>
+        </>
+      }
+    >
+      {added && (
+        <div className="add-done t-p-h5-bold">
+          <Icon name="Check" size={16} /> {added} ditambahkan. Lanjut isi tamu berikutnya.
+        </div>
+      )}
+      <TextField label="Nama" value={name} onChange={setName} placeholder="Nama tamu" error={tried ? nameError : undefined} autoFocus />
+      <div className="add-phone">
+        <TextField label="Nomor WA" value={phone} onChange={setPhone} placeholder="081234567890" inputMode="tel" error={tried ? phoneError : undefined} hint={!tried || !phoneError ? "Format 08… atau +62…" : undefined} />
+        {existing && (
+          <div className="dup-note">
+            <span className="t-p-h5 field__hint--error">Nomor ini sudah terdaftar atas nama {existing.name}.</span>
+            <Button size="small" style="tertiary" icon="ArrowRight" onClick={() => onShow(existing.id)}>
+              Lihat
+            </Button>
+          </div>
+        )}
+      </div>
+      <Toggle dark label="Langsung kirim undangan" hint="Kirim lewat WhatsApp begitu disimpan" checked={sendNow} onChange={setSendNow} />
+      {sendNow && <WaBubble text={fillTemplate(template, name.trim() || "Tamu")} at={formatTime(now)} />}
+    </Dialog>
   );
 }
 

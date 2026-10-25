@@ -10,10 +10,10 @@ import type { AdminGuest } from "./data";
 import { VoucherBox } from "./Guests";
 import { DataTable, Empty, Panel, Stat } from "./ui";
 
-type Props = { guests: AdminGuest[]; pin: string; onClaim: (id: string) => void; onChangePin: (pin: string) => void };
+type Props = { guests: AdminGuest[]; pin: string; changedAt: number; onClaim: (id: string) => void; onChangePin: (pin: string) => void };
 
 /** Rewards: who can claim, who already did, and the committee PIN used on guests' phones. */
-export function Rewards({ guests, pin, onClaim, onChangePin }: Props) {
+export function Rewards({ guests, pin, changedAt, onClaim, onChangePin }: Props) {
   const [showPin, setShowPin] = useState(false);
   const [changing, setChanging] = useState(false);
   const [next, setNext] = useState("");
@@ -81,12 +81,13 @@ export function Rewards({ guests, pin, onClaim, onChangePin }: Props) {
             <CodeBoxes code={pin} hidden={!showPin} />
             <div className="akses-hero__actions">
               <Button size="small" style="tertiary" icon="Eye" onClick={() => setShowPin(!showPin)}>
-                {showPin ? "Sembunyikan" : "Tampilkan"}
+                {showPin ? "Sembunyi" : "Tampilkan"}
               </Button>
               <Button size="small" style="primary" icon="Pencil" onClick={() => setChanging(true)}>
                 Ganti PIN
               </Button>
             </div>
+            <span className="t-p-h5 akses-hero__note">Terakhir diganti {formatTime(changedAt)} oleh Admin.</span>
           </div>
         </section>
       </div>

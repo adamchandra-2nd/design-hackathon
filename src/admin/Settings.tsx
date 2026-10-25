@@ -84,7 +84,7 @@ export function Settings({ settings, today, onSave, onCopied }: Props) {
                 <CodeBoxes code={s[c.key]} hidden={!c.shown} />
                 <div className="akses-hero__actions">
                   <Button size="small" style="tertiary" icon="Eye" onClick={c.toggle}>
-                    {c.shown ? "Sembunyikan" : "Tampilkan"}
+                    {c.shown ? "Sembunyi" : "Tampilkan"}
                   </Button>
                   <Button size="small" style="tertiary" icon="Copy" onClick={() => copy(s[c.key], c.label)}>
                     Salin

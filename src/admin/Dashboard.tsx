@@ -17,7 +17,7 @@ const ACTIVITY: Record<Activity["kind"], { text: string; tag: string; type: "neu
   qr: { text: "check-in", tag: "Scan QR", type: "neutral", icon: "Scan" },
   kode: { text: "check-in", tag: "Kode pintu", type: "neutral", icon: "KeyCard" },
   panitia: { text: "check-in", tag: "Lewat panitia", type: "warn", icon: "Users" },
-  "reward-ready": { text: "mengumpulkan 5 kartu", tag: "Hadiah siap", type: "ready", icon: "Gift" },
+  "reward-ready": { text: "kartunya lengkap", tag: "Hadiah siap", type: "ready", icon: "Gift" },
   "reward-claimed": { text: "mengambil hadiah", tag: "Hadiah diambil", type: "claimed", icon: "Check" },
   feedback: { text: "mengirim feedback", tag: "Feedback", type: "next", icon: "Star" },
 };
@@ -89,15 +89,15 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                 <li key={e.id} className={`dash-rundown__item is-${s}`} style={roomStyle(e.roomId)}>
                   <span className="t-p-h5-bold dash-rundown__time">{formatTime(e.start)}</span>
                   <span className="dash-rundown__body">
-                    <span className="t-p-h4-bold">{e.title}</span>
+                    <span className="t-p-h4-bold one-line" title={e.title}>{e.title}</span>
                     <span className="t-p-h5 dash-room">
                       <span className="room-dot" />
-                      {roomName(e.roomId)}
+                      <span className="one-line" title={roomName(e.roomId)}>{roomName(e.roomId)}</span>
                     </span>
+                    {s === "now" && <Badge type="now">Sekarang</Badge>}
+                    {s === "next" && <Badge type="next" icon="Clock">Berikutnya</Badge>}
+                    {s === "done" && <Badge type="done">Selesai</Badge>}
                   </span>
-                  {s === "now" && <Badge type="now">Sekarang</Badge>}
-                  {s === "next" && <Badge type="next" icon="Clock">Berikutnya</Badge>}
-                  {s === "done" && <Badge type="done">Selesai</Badge>}
                 </li>
               );
             })}
@@ -124,16 +124,16 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                   <li key={i} className={`dash-activity__item${i === 0 ? " is-new" : ""}`}>
                     <Avatar initial={a.guest.charAt(0)} size="S" />
                     <span className="dash-activity__text">
-                      <span className="t-p-h4">
+                      <span className="t-p-h4 one-line" title={`${a.guest} ${k.text}`}>
                         <strong>{a.guest}</strong> {k.text}
                       </span>
-                      <span className="t-p-h5 admin-muted">
+                      <span className="t-p-h5 admin-muted one-line">
                         {formatTime(a.at)} · {ago(now - a.at)}{a.detail ? ` · ${a.detail}` : ""}
                       </span>
+                      <Badge type={k.type} icon={k.icon}>
+                        {k.tag}
+                      </Badge>
                     </span>
-                    <Badge type={k.type} icon={k.icon}>
-                      {k.tag}
-                    </Badge>
                     {i === 0 && <span className="dash-activity__new" aria-label="Terbaru" />}
                   </li>
                 );
@@ -154,10 +154,9 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                 <span className="t-p-h4">
                   {roomName(live.roomId)} · sampai {formatTime(live.end)}
                 </span>
-                <Button block style="secondary" icon="Check" onClick={() => onEndEvent(live.id)}>
+                <Button block size="small" style="secondary" icon="Check" onClick={() => onEndEvent(live.id)}>
                   Selesaikan acara
                 </Button>
-                <span className="t-p-h5 dash-hero__note">Tamu langsung dapat form feedback acara ini.</span>
               </div>
             ) : (
               <div className="dash-hero__now">
@@ -169,7 +168,7 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                 <span className="dash-hero__title">{phase === "pre" ? `${daysLeft} hari lagi` : phase === "ended" ? "Semua acara selesai" : "Tidak ada acara berjalan"}</span>
                 {phase === "pre" && <span className="t-p-h4">{yes} tamu akan datang.</span>}
                 {phase === "ended" && (
-                  <Button block style="secondary" icon="ArrowRight" onClick={() => onNavigate("feedback")}>
+                  <Button block size="small" style="secondary" icon="ArrowRight" onClick={() => onNavigate("feedback")}>
                     Lihat feedback
                   </Button>
                 )}
@@ -178,12 +177,12 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
             {next && (
               <div className="dash-hero__next">
                 <span className="t-p-h5-bold dash-hero__label">{phase === "pre" ? "Acara pertama" : "Berikutnya"}</span>
-                <span className="t-p-h3-bold">{next.title}</span>
+                <span className="t-p-h3-bold one-line" title={next.title}>{next.title}</span>
                 <span className="t-p-h5">
                   {roomName(next.roomId)} · {formatTime(next.start)}–{formatTime(next.end)}
                 </span>
                 {phase === "live" && (
-                  <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
+                  <Button block size="small" style="secondary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
                     Mulai sekarang
                   </Button>
                 )}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
+import { RsvpTag } from "../components/RsvpTag";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
@@ -27,8 +28,7 @@ type Props = {
 };
 
 /** RSVP = the answer to the invitation. Kehadiran = what happened on the day ("Hadir" = checked in + made a character). */
-const rsvpTag = (g: AdminGuest) =>
-  g.rsvp === "ya" ? <Badge type="neutral">Akan datang</Badge> : g.rsvp === "tidak" ? <Badge type="done">Tidak bisa</Badge> : <Badge type="warn">Belum jawab</Badge>;
+const rsvpTag = (g: AdminGuest) => <RsvpTag answer={g.rsvp} />;
 const presenceOf = (g: AdminGuest): "hadir" | "masuk" | "belum" | "tidak" =>
   g.rsvp === "tidak" ? "tidak" : g.checkIn === null ? "belum" : g.hadir ? "hadir" : "masuk";
 const presenceTag = (g: AdminGuest) => {

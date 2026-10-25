@@ -46,11 +46,12 @@ export function Notifications({ notices, now, onOpen, onReadAll, initialOpen }: 
   }, [open]);
 
   return (
-    <div className="admin-bell" ref={ref}>
+    <div className={`admin-bell${open ? " is-open" : ""}`} ref={ref}>
       <button type="button" className="icon-btn clay clay-light" aria-label={`Notifikasi, ${unread} belum dibaca`} aria-expanded={open} onClick={() => setOpen(!open)}>
         <Icon name="Bell" />
       </button>
       {unread > 0 && <span className="admin-bell__count t-p-h5-bold">{unread}</span>}
+      {open && <div className="notif-scrim" aria-hidden="true" />}
       {open && (
         <div className="notif-pop clay clay-light" role="dialog" aria-label="Notifikasi">
           <header className="notif-pop__head">

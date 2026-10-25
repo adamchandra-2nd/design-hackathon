@@ -10,7 +10,7 @@ type TextFieldProps = {
   /** Shown instead of the hint, with a red border. */
   error?: string;
   multiline?: boolean;
-  inputMode?: "text" | "numeric";
+  inputMode?: "text" | "numeric" | "tel";
   maxLength?: number;
   autoFocus?: boolean;
 };

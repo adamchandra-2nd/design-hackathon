@@ -9,7 +9,7 @@ import { DAY_END, DAY_START, formatTime, statusAt, type AgendaStatus } from "../
 import { ROOMS } from "../data/rooms";
 import type { AdminEvent } from "./data";
 import type { Phase } from "./Dashboard";
-import { TimePicker } from "./pickers";
+import { RoomPicker, TimePicker } from "./pickers";
 import { roomStyle, useHeight } from "./hooks";
 
 const SNAP = 5;
@@ -247,6 +247,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
             <>
               {/* Line runs behind the cards; the time label stays on top in the hour column */}
               <span className="rundown__now-line" style={{ top: (now - DAY_START) * PX }} />
+              <span className="rundown__now-dot" style={{ top: (now - DAY_START) * PX }} aria-hidden="true" />
               <span className="t-p-h5-bold rundown__now-time" style={{ top: (now - DAY_START) * PX }}>
                 {formatTime(now)}
               </span>
@@ -399,24 +400,7 @@ function EventEditor({ event, onClose, onApply, onDelete }: { event: AdminEvent 
       }
     >
       <TextField label="Judul acara" value={title} onChange={setTitle} maxLength={40} error={tried ? (titleError ?? undefined) : undefined} />
-      <div className="field">
-        <span className="t-p-h5-bold field__label">Ruangan</span>
-        <div className="editor-rooms">
-          {ROOMS.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              className={`room-chip t-p-h5-bold${r.id === roomId ? " is-active clay clay-light" : ""}`}
-              style={roomStyle(r.id)}
-              aria-pressed={r.id === roomId}
-              onClick={() => setRoomId(r.id)}
-            >
-              <Icon name={r.icon} size={16} />
-              {r.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <RoomPicker label="Ruangan" value={roomId} onChange={(id) => id && setRoomId(id)} />
       <div className="editor-times">
         <TimePicker label="Mulai" value={start} onChange={setStart} error={tried && !!timeError} min={DAY_START} max={DAY_END} />
         <TimePicker label="Selesai" value={end} onChange={setEnd} error={tried && !!timeError} min={DAY_START} max={DAY_END} />

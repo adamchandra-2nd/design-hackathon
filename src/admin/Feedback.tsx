@@ -22,8 +22,8 @@ type Props = {
   onExported: () => void;
 };
 
-/** Star colours: warm (5) to dark (1). */
-const STAR_COLORS = ["", "#101010", "#86817a", "#d9b98a", "#ffa101", "#f95b00"];
+/** Star colours: distinct hues (not shades of one), so neighbouring slices stay apart, also for colour-blind eyes. */
+const STAR_COLORS = ["", "#101010", "#8a63d2", "#2f6fdb", "#e8a800", "#f95b00"];
 
 /** Feedback results: per event (anonymous rating + text) and the final event feedback. */
 export function Feedback({ events, now, phase, perEvent, final, present, initialTab, onExported }: Props) {
@@ -129,9 +129,9 @@ export function Feedback({ events, now, phase, perEvent, final, present, initial
                 .map(([m, n]) => {
                   const max = Math.max(...Object.values(final.moods));
                   return (
-                    <span key={m} className="fb-bubble clay clay-accent" style={{ "--s": 0.55 + (n / max) * 0.45 } as React.CSSProperties}>
+                    <span key={m} className="fb-bubble clay clay-accent" style={{ "--s": 0.7 + (n / max) * 0.3 } as React.CSSProperties}>
                       <span className="fb-bubble__n">{n}</span>
-                      <span className="t-p-h5-bold">{m}</span>
+                      <span className="fb-bubble__label">{m}</span>
                     </span>
                   );
                 })}
@@ -190,7 +190,7 @@ function Donut({ ratings }: { ratings: number[] }) {
                 cy="100"
                 r={R}
                 className={`donut__seg${hover === s ? " is-hover" : ""}`}
-                style={{ stroke: STAR_COLORS[s], strokeDasharray: `${Math.max(0, len - 3)} ${C}`, strokeDashoffset: -offset }}
+                style={{ stroke: STAR_COLORS[s], strokeDasharray: `${Math.max(0, len - (n === total ? 0 : 4))} ${C}`, strokeDashoffset: -offset }}
                 onMouseEnter={() => setHover(s)}
                 onMouseLeave={() => setHover(null)}
               />
@@ -215,15 +215,21 @@ function Donut({ ratings }: { ratings: number[] }) {
         </div>
       </div>
       <ul className="donut__legend">
-        {counts.map(({ s, n }) => (
-          <li key={s} className={`donut__chip${hover === s ? " is-hover" : ""}`} onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(null)}>
-            <span className="donut__dot" style={{ background: STAR_COLORS[s] }} />
-            <span className="t-p-h5-bold">{s}★</span>
-            <span className="t-p-h5 admin-muted">
-              {n} tamu · {total ? Math.round((n / total) * 100) : 0}%
-            </span>
-          </li>
-        ))}
+        {counts.map(({ s, n }) => {
+          const pct = total ? Math.round((n / total) * 100) : 0;
+          return (
+            <li key={s} className={`donut__row${hover === s ? " is-hover" : ""}`} onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(null)}>
+              <span className="donut__dot" style={{ background: STAR_COLORS[s] }} />
+              <span className="t-p-h5-bold donut__star">{s}★</span>
+              <span className="donut__bar">
+                <span style={{ width: `${pct}%`, background: STAR_COLORS[s] }} />
+              </span>
+              <span className="t-p-h5 admin-muted donut__val">
+                {n} tamu · {pct}%
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </Panel>
   );

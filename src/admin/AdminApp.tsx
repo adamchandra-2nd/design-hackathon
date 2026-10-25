@@ -300,6 +300,7 @@ export function AdminApp({ token }: { token: string }) {
         <Rewards
           guests={guests}
           pin={settings.panitiaPin}
+          changedAt={settings.codesChangedAt}
           onClaim={(id) => {
             patchGuest(id, { reward: "diambil", claimedAt: now });
             notify("Gift", "Hadiah ditandai diambil", `Voucher ${name(id)} sudah tidak berlaku.`);
