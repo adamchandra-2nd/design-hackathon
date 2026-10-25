@@ -257,7 +257,7 @@ export function RoomPicker({ label, value, onChange, optional, emptyLabel = "Tid
           {optional && (
             <button type="button" role="option" aria-selected={!value} className={`room-opt${!value ? " is-active" : ""}`} onClick={() => choose(null)}>
               <span className="room-opt__main">
-                <span className="room-icon room-icon--empty">
+                <span className="room-icon room-icon--empty clay clay-light">
                   <Icon name="Close" size={16} />
                 </span>
                 <span className="t-p-h4">{emptyLabel}</span>
@@ -284,7 +284,7 @@ export function RoomPicker({ label, value, onChange, optional, emptyLabel = "Tid
 function RoomIcon({ id }: { id: string }) {
   const r = ROOMS.find((x) => x.id === id)!;
   return (
-    <span className="room-icon clay" style={roomStyle(id)}>
+    <span className="room-icon clay clay-accent" style={roomStyle(id)}>
       <Icon name={r.icon} size={16} />
     </span>
   );

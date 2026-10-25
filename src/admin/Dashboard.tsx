@@ -182,7 +182,7 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                   {roomName(next.roomId)} · {formatTime(next.start)}–{formatTime(next.end)}
                 </span>
                 {phase === "live" && (
-                  <Button block size="small" style="secondary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
+                  <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
                     Mulai sekarang
                   </Button>
                 )}

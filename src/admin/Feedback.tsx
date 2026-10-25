@@ -23,7 +23,7 @@ type Props = {
 };
 
 /** Star colours: distinct hues (not shades of one), so neighbouring slices stay apart, also for colour-blind eyes. */
-const STAR_COLORS = ["", "#101010", "#8a63d2", "#2f6fdb", "#e8a800", "#f95b00"];
+const STAR_COLORS = ["", "#101010", "#9a948c", "#8a63d2", "#2f6fdb", "#4e8a3e"];
 
 /** Feedback results: per event (anonymous rating + text) and the final event feedback. */
 export function Feedback({ events, now, phase, perEvent, final, present, initialTab, onExported }: Props) {

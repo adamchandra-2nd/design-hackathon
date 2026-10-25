@@ -6,7 +6,7 @@ const LABEL: Record<RsvpAnswer, string> = { ya: "Akan datang", belum: "Belum jaw
 /** Figma: Tag RSVP — outlined, squarer than status pills, with a coloured dot. Kept visually apart from attendance tags. */
 export function RsvpTag({ answer }: { answer: RsvpAnswer }) {
   return (
-    <span className={`rsvp-tag rsvp-tag--${answer} t-p-h5-bold`}>
+    <span className={`rsvp-tag rsvp-tag--${answer} clay clay-light t-p-h5-bold`}>
       <span className="rsvp-tag__dot" />
       {LABEL[answer]}
     </span>

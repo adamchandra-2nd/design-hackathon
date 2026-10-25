@@ -346,6 +346,9 @@
   border-bottom: 1px solid var(--border);
 }
 .dash-activity__item:last-child { border-bottom: 0; }
+/* The panel body already pads the top: no extra gap above the first row */
+.dash-rundown__item:first-child, .dash-activity__item:first-child { padding-top: 0; }
+.dash-rundown__item:last-child, .dash-activity__item:last-child { padding-bottom: 0; }
 .dash-activity__text { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-extra-small); min-width: 0; }
 .dash-activity__text > .one-line { align-self: stretch; }
 .dash-rundown__body > .one-line { align-self: stretch; }
