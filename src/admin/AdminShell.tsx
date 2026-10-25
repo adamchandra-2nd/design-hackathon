@@ -63,7 +63,7 @@ export function AdminShell({ page, onNavigate, now, search, onSearch, counts, em
               >
                 <Icon name={it.icon} size={20} />
                 {it.label}
-                {counts[it.id] ? <span className="admin-nav__count t-p-h5-bold">{counts[it.id]}</span> : null}
+                {counts[it.id] ? <span className="admin-nav__count clay clay-accent t-p-h5-bold">{counts[it.id]}</span> : null}
               </button>
             ))}
           </nav>

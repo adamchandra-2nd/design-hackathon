@@ -268,7 +268,7 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
       <section className="stat-strip" aria-label="Ringkasan undangan">
         <Stat icon="Mail" tone="slate" label="Belum dikirim" value={counts.belum} note="siap diundang" />
         <Stat icon="Check" tone="blue" label="Terkirim" value={counts.terkirim} note="belum dibuka" />
-        <Stat icon="CheckDouble" tone="purple" label="Dibaca" value={counts.dibaca} note="dibuka, belum jawab RSVP" />
+        <Stat icon="CheckDouble" tone="sky" label="Dibaca" value={counts.dibaca} note="dibuka, belum jawab RSVP" />
         <Stat icon="ChatCheck" tone="green" label="Sudah RSVP" value={counts.rsvp} of={guests.length} note="dari semua yang diundang" />
         <Stat icon="Close" tone="red" label="Gagal" value={counts.gagal} note={counts.gagal ? "cek nomornya, lalu kirim ulang" : "semua lancar"} />
       </section>
@@ -351,7 +351,7 @@ export function Undangan({ guests, now, template, initialTab, initialSelected, i
 
         <Panel
           icon="Message"
-          tone="green"
+          tone="blue"
           title="Pesan undangan"
           footer={
             <Button block style="secondary" icon="Pencil" onClick={() => setEditing(true)}>

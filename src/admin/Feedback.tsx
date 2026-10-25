@@ -23,7 +23,7 @@ type Props = {
 };
 
 /** Star colours: distinct hues (not shades of one), so neighbouring slices stay apart, also for colour-blind eyes. */
-const STAR_COLORS = ["", "#101010", "#9a948c", "#8a63d2", "#2f6fdb", "#4e8a3e"];
+const STAR_COLORS = ["", "#c62828", "#d6589f", "#8a63d2", "#2f6fdb", "#4e8a3e"];
 
 /** Feedback results: per event (anonymous rating + text) and the final event feedback. */
 export function Feedback({ events, now, phase, perEvent, final, present, initialTab, onExported }: Props) {
@@ -91,16 +91,16 @@ export function Feedback({ events, now, phase, perEvent, final, present, initial
 
       {event ? (
         status[event.id] !== "done" ? (
-          <Panel icon="Star" tone="amber" title="Feedback acara">
-            <Empty icon="Clock" tone="blue" title={`${event.title} belum selesai`} body="Form feedback dikirim ke tamu begitu acara diselesaikan." />
+          <Panel icon="Star" tone="pink" title="Feedback acara">
+            <Empty icon="Clock" tone="teal" title={`${event.title} belum selesai`} body="Form feedback dikirim ke tamu begitu acara diselesaikan." />
           </Panel>
         ) : entries.length === 0 ? (
-          <Panel icon="Star" tone="amber" title="Feedback acara">
-            <Empty icon="Star" tone="amber" title="Belum ada feedback" body="Tamu sedang mengisi. Hasilnya muncul di sini secara langsung." />
+          <Panel icon="Star" tone="pink" title="Feedback acara">
+            <Empty icon="Star" tone="pink" title="Belum ada feedback" body="Tamu sedang mengisi. Hasilnya muncul di sini secara langsung." />
           </Panel>
         ) : (
           <div className="admin-fill fb-fill">
-            <Panel icon="Message" tone="purple" title={`Komentar · ${entries.length}`}>
+            <Panel icon="Message" tone="pink" title={`Komentar · ${entries.length}`}>
               <ul className="fb-list">
                 {entries.map((f, i) => (
                   <li key={i} className="fb-list__item">
@@ -117,12 +117,12 @@ export function Feedback({ events, now, phase, perEvent, final, present, initial
           </div>
         )
       ) : !final ? (
-        <Panel icon="Star" tone="amber" title="Feedback akhir">
+        <Panel icon="Star" tone="pink" title="Feedback akhir">
           <Empty icon="Lock" tone="slate" title="Feedback akhir belum dibuka" body="Tab Feedback di HP tamu terbuka setelah acara selesai." />
         </Panel>
       ) : (
         <div className="admin-fill fb-fill fb-fill--final">
-          <Panel icon="Sparkle" tone="orange" title="Yang paling berkesan">
+          <Panel icon="Sparkle" tone="pink" title="Yang paling berkesan">
             <div className="fb-bubbles">
               {Object.entries(final.moods)
                 .sort((a, b) => b[1] - a[1])
@@ -137,7 +137,7 @@ export function Feedback({ events, now, phase, perEvent, final, present, initial
                 })}
             </div>
           </Panel>
-          <Panel icon="Message" tone="purple" title={`Pesan buat Potara · ${final.messages.length}`}>
+          <Panel icon="Message" tone="pink" title={`Pesan buat Potara · ${final.messages.length}`}>
             <ul className="fb-list">
               {final.messages.map((m, i) => (
                 <li key={i} className="fb-list__item">
@@ -172,25 +172,33 @@ function Donut({ ratings }: { ratings: number[] }) {
   const counts = [5, 4, 3, 2, 1].map((s) => ({ s, n: ratings.filter((r) => r === s).length }));
   const verdict = avg >= 4 ? { type: "claimed" as const, text: "Mayoritas puas" } : avg >= 3 ? { type: "warn" as const, text: "Cukup" } : { type: "danger" as const, text: "Perlu perhatian" };
   const R = 80;
+  const STROKE = 28;
+  const GAP = 2;
   const C = 2 * Math.PI * R;
   let offset = 0;
 
   return (
-    <Panel icon="Star" tone="amber" title="Rata-rata" aside={total ? <Badge type={verdict.type}>{verdict.text}</Badge> : undefined}>
+    <Panel icon="Star" tone="pink" title="Rata-rata" aside={total ? <Badge type={verdict.type}>{verdict.text}</Badge> : undefined}>
       <div className="donut">
         <svg viewBox="0 0 200 200" className="donut__svg" role="img" aria-label={`Rata-rata ${avg.toFixed(1)} dari ${total} tamu`}>
           <circle cx="100" cy="100" r={R} className="donut__track" />
           {counts.map(({ s, n }) => {
             if (!n) return null;
             const len = (n / total) * C;
+            const full = n === total;
             const seg = (
               <circle
                 key={s}
                 cx="100"
                 cy="100"
                 r={R}
-                className={`donut__seg${hover === s ? " is-hover" : ""}`}
-                style={{ stroke: STAR_COLORS[s], strokeDasharray: `${Math.max(0, len - (n === total ? 0 : 4))} ${C}`, strokeDashoffset: -offset }}
+                className={`donut__seg${hover === s ? " is-hover" : ""}${full ? " is-full" : ""}`}
+                style={
+                  full
+                    ? { stroke: STAR_COLORS[s] }
+                    : // Round caps stick out half the stroke at each end, so trim the dash by that plus the gap
+                      { stroke: STAR_COLORS[s], strokeDasharray: `${Math.max(0.01, len - GAP - STROKE)} ${C}`, strokeDashoffset: -(offset + GAP / 2 + STROKE / 2) }
+                }
                 onMouseEnter={() => setHover(s)}
                 onMouseLeave={() => setHover(null)}
               />

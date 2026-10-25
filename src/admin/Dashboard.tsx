@@ -74,7 +74,7 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
       <div className="admin-fill dash-fill">
         <Panel
           icon="Calendar"
-          tone="blue"
+          tone="teal"
           title="Rundown hari ini"
           footer={
             <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("rundown")}>
@@ -106,7 +106,7 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
 
         <Panel
           icon="Clock"
-          tone="purple"
+          tone="slate"
           title="Aktivitas terbaru"
           footer={
             <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("tamu")}>
@@ -115,7 +115,7 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
           }
         >
           {activity.length === 0 ? (
-            <Empty icon="Clock" tone="blue" title="Belum ada aktivitas" body="Check-in dibuka di hari H." />
+            <Empty icon="Clock" tone="slate" title="Belum ada aktivitas" body="Check-in dibuka di hari H." />
           ) : (
             <ul className="dash-activity">
               {activity.map((a, i) => {

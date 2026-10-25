@@ -55,7 +55,7 @@ export function Notifications({ notices, now, onOpen, onReadAll, initialOpen }: 
       {open && (
         <div className="notif-pop clay clay-light" role="dialog" aria-label="Notifikasi">
           <header className="notif-pop__head">
-            <IconBadge icon="Bell" tone="coral" size="S" />
+            <IconBadge icon="Bell" tone="ink" size="S" />
             <h2 className="t-p-h3-bold admin-panel__title">Notifikasi</h2>
             <Button size="small" style="tertiary" disabled={!unread} onClick={onReadAll}>
               Tandai semua dibaca

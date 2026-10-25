@@ -73,7 +73,7 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
       <div className="admin-fill ann-fill">
         <Panel
           icon="Pencil"
-          tone="orange"
+          tone="coral"
           title="Tulis pengumuman"
           footer={
             <Button block icon="Megaphone" disabled={!ready} onClick={() => setConfirm(true)}>
@@ -106,7 +106,7 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
         </Panel>
 
         {/* What guests will see: a mini main area */}
-        <Panel icon="Eye" tone="blue" title="Pratinjau di HP tamu" flush>
+        <Panel icon="Eye" tone="ink" title="Pratinjau di HP tamu" flush>
           <div className="ann-preview">
             <div className="ann-phone">
               <div className="ann-phone__screen" style={{ backgroundImage: `url(${ROOMS[previewRoom].image})` }}>
@@ -135,7 +135,7 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
           </div>
         </Panel>
 
-        <Panel icon="Clock" tone="purple" title="Riwayat" aside={<Badge type="neutral">{history.length} pengumuman</Badge>}>
+        <Panel icon="Clock" tone="slate" title="Riwayat" aside={<Badge type="neutral">{history.length} pengumuman</Badge>}>
           {history.length === 0 ? (
             <Empty icon="Megaphone" tone="coral" title="Belum ada pengumuman" body="Pengumuman yang terkirim muncul di sini." />
           ) : (

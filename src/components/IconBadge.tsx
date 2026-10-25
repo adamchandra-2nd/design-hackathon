@@ -2,7 +2,7 @@ import { Icon } from "./Icon";
 import type { IconName } from "./iconPaths";
 import "./IconBadge.css";
 
-export type IconTone = "orange" | "ink" | "blue" | "green" | "purple" | "amber" | "coral" | "slate" | "red";
+export type IconTone = "orange" | "ink" | "blue" | "green" | "purple" | "amber" | "coral" | "slate" | "red" | "teal" | "pink" | "sky";
 
 type Props = { icon: IconName; tone?: IconTone; size?: "S" | "M" | "L" };
 

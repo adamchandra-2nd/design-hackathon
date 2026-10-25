@@ -3,8 +3,8 @@
   align-items: center;
   gap: var(--spacing-extra-small);
   height: 28px;
-  padding: 0 var(--padding-small);
-  border-radius: 8px;
+  padding: 0 var(--padding-mid-medium) 0 var(--padding-medium);
+  border-radius: var(--radius-infinite);
   border: 1px solid var(--border);
   background: var(--white);
   color: var(--text-primary);

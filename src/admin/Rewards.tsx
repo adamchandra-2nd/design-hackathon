@@ -35,7 +35,7 @@ export function Rewards({ guests, pin, changedAt, onClaim, onChangePin }: Props)
       <section className="stat-strip">
         <Stat icon="Gift" tone="amber" label="Siap ditukar" value={ready.length} note="belum diambil di meja panitia" />
         <Stat icon="Check" tone="green" label="Sudah diambil" value={claimed.length} of={ready.length + claimed.length} note="dari semua hadiah siap" />
-        <Stat icon="UserPlus" tone="slate" label="Masih mengumpulkan" value={collecting.length} note="tamu hadir, kurang dari 5 kartu" />
+        <Stat icon="UserPlus" tone="purple" label="Masih mengumpulkan" value={collecting.length} note="tamu hadir, kurang dari 5 kartu" />
       </section>
 
       <div className="admin-fill rewards-fill">

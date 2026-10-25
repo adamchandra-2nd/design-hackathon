@@ -105,7 +105,7 @@ export function Guests({ guests, search, selectedId, now, onSelect, onCheckIn, o
             empty={
               <Empty
                 icon="Search"
-                tone="purple"
+                tone="slate"
                 title="Tidak ada tamu yang cocok"
                 body={q ? `Tidak ada hasil untuk "${search}". Coba ejaan lain.` : "Belum ada tamu di kategori ini."}
               />

@@ -55,7 +55,7 @@ export function Settings({ settings, today, onSave, onCopied }: Props) {
       </div>
 
       <div className="admin-fill settings-fill">
-        <Panel icon="Calendar" tone="blue" title="Data acara">
+        <Panel icon="Calendar" tone="teal" title="Data acara">
           <TextField label="Nama acara" value={s.eventName} onChange={(v) => set({ eventName: v })} error={tried ? nameError : undefined} />
           <DatePicker label="Tanggal" value={s.date} today={today} onChange={(d) => set({ date: d })} />
           <PlacePicker label="Tempat" value={s.place} onChange={(p) => set({ place: p })} />
@@ -106,9 +106,9 @@ export function Settings({ settings, today, onSave, onCopied }: Props) {
           </div>
         </section>
 
-        <Panel icon="Sliders" tone="purple" title="Mode acara">
+        <Panel icon="Sliders" tone="slate" title="Mode acara">
           <div className="setting-box clay clay-light">
-            <IconBadge icon="Clock" tone="blue" size="S" />
+            <IconBadge icon="Clock" tone="teal" size="S" />
             <Toggle orange label="Countdown sebelum hari H" hint="Matikan saat Test Day." checked={s.countdown} onChange={(v) => set({ countdown: v })} />
           </div>
           <TimePicker label="Feedback akhir dibuka jam" value={s.finalFeedbackAt} onChange={(m) => set({ finalFeedbackAt: m })} />

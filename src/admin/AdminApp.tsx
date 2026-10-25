@@ -83,13 +83,13 @@ const SAMPLE_NOTICES = (phase: Phase): AdminNotice[] =>
   phase === "pre"
     ? [
         { id: "n-gagal", kind: "action", icon: "Close", tone: "red", title: "1 undangan gagal terkirim", body: "Nomor tidak terdaftar di WhatsApp. Cek lalu kirim ulang.", at: 7 * 60 + 50, read: false, page: "undangan" },
-        { id: "n-rsvp", kind: "info", icon: "ChatCheck", tone: "green", title: "3 RSVP baru", body: "Laras, Dimas, dan Putri akan datang.", at: 7 * 60 + 30, read: true, page: "tamu" },
+        { id: "n-rsvp", kind: "info", icon: "ChatCheck", tone: "blue", title: "3 RSVP baru", body: "Laras, Dimas, dan Putri akan datang.", at: 7 * 60 + 30, read: true, page: "tamu" },
       ]
     : [
         { id: "n-hadiah", kind: "action", icon: "Gift", tone: "amber", title: "Sinta siap ambil hadiah", body: "5/5 kartu kenalan. Siapkan voucher di meja panitia.", at: NOW[phase] - 4, read: false, page: "hadiah" },
         { id: "n-gagal", kind: "action", icon: "Close", tone: "red", title: "1 undangan gagal terkirim", body: "Nomor tidak terdaftar di WhatsApp. Cek lalu kirim ulang.", at: NOW[phase] - 20, read: false, page: "undangan" },
-        { id: "n-bentrok", kind: "info", icon: "Calendar", tone: "blue", title: "Talkshow mulai 10 menit lagi", body: "Ruang Omakase. Tamu otomatis dapat notifikasi.", at: NOW[phase] - 10, read: false, page: "rundown" },
-        { id: "n-feedback", kind: "info", icon: "Star", tone: "purple", title: "5 feedback baru untuk Pembukaan", body: "Rata-rata 4,2 dari 5.", at: NOW[phase] - 45, read: true, page: "feedback" },
+        { id: "n-bentrok", kind: "info", icon: "Calendar", tone: "teal", title: "Talkshow mulai 10 menit lagi", body: "Ruang Omakase. Tamu otomatis dapat notifikasi.", at: NOW[phase] - 10, read: false, page: "rundown" },
+        { id: "n-feedback", kind: "info", icon: "Star", tone: "pink", title: "5 feedback baru untuk Pembukaan", body: "Rata-rata 4,2 dari 5.", at: NOW[phase] - 45, read: true, page: "feedback" },
       ];
 
 /** Admin (desktop): same design system as the guest app, one access level, PIN-by-email sign-in. */
