@@ -439,18 +439,5 @@ a.btn { text-decoration: none; }
 :is(.q-card, .stage-card__body, .read-card, .hl-item, .now-card__main) > :is(.badge, .claude-tag) { align-self: flex-start; justify-self: start; }
 .q-card > .badge { width: max-content; }
 
-/* ---------- High contrast on the orange card ---------- */
-.now-card .meta-tag { background: var(--cream); color: var(--ink); }
-.now-card .meta-tag svg { color: var(--ink); }
-.now-card .big-timer--ok .big-timer__state { background: var(--cream); color: var(--ink); }
-.now-card .speaker-row { background: #b34200; }
-.now-card .speaker-row .avatar { box-shadow: 0 0 0 2px var(--white); }
-.now-card .speaker-row__name { color: var(--white); }
-.now-card .person-tag { background: var(--white); border: 0; color: #a83e00; }
-.now-card .person-tag--ok { color: #2e6a24; }
-.now-card .person-tag__dot { border-color: #a83e00; }
-.now-card .speaker-row.is-alert { background: #8f1d14; }
-.now-card .speaker-row__mc { color: #a83e00; }
-
 /* Actions at the end of a card or form: separator first */
 .card-actions--block { display: block; }
