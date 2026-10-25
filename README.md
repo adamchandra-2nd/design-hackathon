@@ -24,7 +24,7 @@ Set `COUNTDOWN_ENABLED = false` in `src/config.ts` for Test Day ("Ya" goes strai
 
 ## Admin side (desktop)
 
-Open `#admin-login` (email `admin@potara.id`, PIN `123456`) or `#admin` to skip sign-in. Same design system as the guest app; layout is an Ink sidebar + top bar + panels for 1440×900. Screens: Dashboard, Rundown (5 room columns, drag to move, drag the bottom edge to resize, click to edit), Pengumuman (with phone preview), Daftar tamu (manual check-in), Hadiah (committee PIN), Feedback (per event + final, anonymous), Pengaturan. Every admin case is listed under "Admin (desktop)" in `#review`. CSV export lives in `src/admin/csv.ts` so it's easy to remove.
+Open `#admin-login` (email `admin@potara.id`, PIN `123456`) or `#admin` to skip sign-in. Same design system as the guest app; layout is an Ink sidebar + top bar + panels for 1440×900. Screens: Dashboard, Rundown (5 room columns, drag to move, drag the bottom edge to resize, click to edit), Pengumuman (with phone preview), Undangan WA (send RSVP links one by one or in bulk, CSV import with a review step before anything is added, editable message template; delivery is simulated here and goes through the WhatsApp Business API in production), Daftar tamu (manual check-in), Hadiah (committee PIN), Feedback (per event + final, anonymous), Pengaturan. Panels fill the screen and scroll inside; the bell opens notifications, and items that need action also pop up as a toast. Every admin case is listed under "Admin (desktop)" in `#review`. CSV export lives in `src/admin/csv.ts` so it's easy to remove.
 
 ## Buttons
 

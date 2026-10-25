@@ -37,7 +37,7 @@ export function Voucher({ name, claimed, onBack, onClaimed }: Props) {
 
         <section className={`voucher clay ${claimed ? "clay-light voucher--claimed" : "clay-accent"}`}>
           <span className="voucher__tags">
-            {claimed ? <Badge type="complete">Sudah diambil</Badge> : <Badge type="next">Siap ditukar</Badge>}
+            {claimed ? <Badge type="claimed">Sudah diambil</Badge> : <Badge type="ready">Siap ditukar</Badge>}
           </span>
           <span className="voucher__gift clay clay-dark">
             <Icon name={claimed ? "Check" : "Gift"} size={32} />

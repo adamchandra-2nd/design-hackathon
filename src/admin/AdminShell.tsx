@@ -5,7 +5,7 @@ import type { IconName } from "../components/iconPaths";
 import { formatTime } from "../data/agenda";
 import "./admin.css";
 
-export type AdminPage = "dashboard" | "tamu" | "rundown" | "pengumuman" | "hadiah" | "feedback" | "pengaturan";
+export type AdminPage = "dashboard" | "undangan" | "tamu" | "rundown" | "pengumuman" | "hadiah" | "feedback" | "pengaturan";
 
 const NAV: { group: string; items: { id: AdminPage; label: string; icon: IconName }[] }[] = [
   { group: "Acara", items: [
@@ -14,6 +14,7 @@ const NAV: { group: string; items: { id: AdminPage; label: string; icon: IconNam
     { id: "pengumuman", label: "Pengumuman", icon: "Megaphone" },
   ] },
   { group: "Tamu", items: [
+    { id: "undangan", label: "Undangan", icon: "Mail" },
     { id: "tamu", label: "Daftar tamu", icon: "Users" },
     { id: "hadiah", label: "Hadiah", icon: "Gift" },
   ] },
@@ -33,11 +34,12 @@ type Props = {
   email: string;
   onLogout: () => void;
   banner?: ReactNode;
+  bell: ReactNode;
   children: ReactNode;
 };
 
 /** Admin frame: Ink sidebar (Bottom Nav language), top bar with guest search + live clock, scrolling content. */
-export function AdminShell({ page, onNavigate, now, search, onSearch, counts, email, onLogout, banner, children }: Props) {
+export function AdminShell({ page, onNavigate, now, search, onSearch, counts, email, onLogout, banner, bell, children }: Props) {
   return (
     <div className="admin">
       <aside className="admin-sidebar clay clay-dark">
@@ -67,13 +69,13 @@ export function AdminShell({ page, onNavigate, now, search, onSearch, counts, em
           </nav>
         ))}
         <div className="admin-sidebar__foot">
-          <div className="admin-me">
-            <Avatar initial="A" size="M" />
+          <div className="admin-me clay clay-grey">
+            <Avatar initial="A" size="M" character />
             <span className="admin-me__text">
               <span className="t-p-h5-bold">Admin</span>
               <span className="t-p-h5 admin-me__email">{email}</span>
             </span>
-            <button type="button" className="icon-btn" onClick={onLogout} aria-label="Keluar">
+            <button type="button" className="icon-btn clay clay-grey" onClick={onLogout} aria-label="Keluar">
               <Icon name="Logout" size={20} />
             </button>
           </div>
@@ -91,9 +93,7 @@ export function AdminShell({ page, onNavigate, now, search, onSearch, counts, em
               <span className="admin-clock__dot" />
               Minggu, 8 Nov · {formatTime(now)}
             </span>
-            <button type="button" className="icon-btn clay clay-light" aria-label="Notifikasi">
-              <Icon name="Bell" />
-            </button>
+            {bell}
           </div>
         </header>
         {banner}

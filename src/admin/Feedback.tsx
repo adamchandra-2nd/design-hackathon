@@ -7,6 +7,7 @@ import { ROOMS, roomIndexById } from "../data/rooms";
 import { downloadCsv } from "./csv";
 import type { AdminEvent, EventFeedbackEntry } from "./data";
 import type { Phase } from "./Dashboard";
+import { Empty, Panel } from "./ui";
 
 type Final = { ratings: number[]; moods: Record<string, number>; messages: string[] };
 type Props = {
@@ -15,19 +16,23 @@ type Props = {
   phase: Phase;
   perEvent: Record<string, EventFeedbackEntry[]>;
   final: Final | null;
+  /** Guests present (to show how many have answered). */
+  present: number;
   initialTab?: string;
   onExported: () => void;
 };
 
-const avg = (ratings: number[]) => (ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0);
+/** Star colours: warm (5) to dark (1). */
+const STAR_COLORS = ["", "#101010", "#86817a", "#d9b98a", "#ffa101", "#f95b00"];
 
 /** Feedback results: per event (anonymous rating + text) and the final event feedback. */
-export function Feedback({ events, now, phase, perEvent, final, initialTab, onExported }: Props) {
+export function Feedback({ events, now, phase, perEvent, final, present, initialTab, onExported }: Props) {
   const status = phase === "ended" ? Object.fromEntries(events.map((e) => [e.id, "done"])) : phase === "pre" ? {} : statusAt(now);
   const sorted = [...events].sort((a, b) => a.start - b.start);
   const [tab, setTab] = useState<string>(initialTab ?? sorted.find((e) => status[e.id] === "done")?.id ?? "akhir");
   const event = events.find((e) => e.id === tab);
   const entries = perEvent[tab] ?? [];
+  const finalCount = final ? final.ratings.reduce((a, b) => a + b, 0) : 0;
 
   const exportCsv = () => {
     downloadCsv("feedback-hmd.csv", [
@@ -63,113 +68,163 @@ export function Feedback({ events, now, phase, perEvent, final, initialTab, onEx
         </button>
       </div>
 
+      {/* Context of what's being read, as text (not a tag) */}
+      <p className="t-p-h4 fb-context">
+        {event ? (
+          <>
+            <strong>{event.title}</strong> · {formatTime(event.start)}–{formatTime(event.end)} · {ROOMS[roomIndexById(event.roomId)].name} ·{" "}
+            <strong>
+              {entries.length} dari {present}
+            </strong>{" "}
+            tamu hadir sudah mengisi
+          </>
+        ) : (
+          <>
+            <strong>Feedback akhir</strong> · seluruh acara ·{" "}
+            <strong>
+              {finalCount} dari {present}
+            </strong>{" "}
+            tamu hadir sudah mengisi
+          </>
+        )}
+      </p>
+
       {event ? (
         status[event.id] !== "done" ? (
-          <Empty icon="Clock" title={`${event.title} belum selesai`} body="Form feedback dikirim ke tamu begitu acara diselesaikan." />
+          <Panel icon="Star" tone="amber" title="Feedback acara">
+            <Empty icon="Clock" tone="blue" title={`${event.title} belum selesai`} body="Form feedback dikirim ke tamu begitu acara diselesaikan." />
+          </Panel>
         ) : entries.length === 0 ? (
-          <Empty icon="Star" title="Belum ada feedback" body="Tamu sedang mengisi. Hasilnya muncul di sini secara langsung." />
+          <Panel icon="Star" tone="amber" title="Feedback acara">
+            <Empty icon="Star" tone="amber" title="Belum ada feedback" body="Tamu sedang mengisi. Hasilnya muncul di sini secara langsung." />
+          </Panel>
         ) : (
-          <div className="admin-grid">
-            <section className="admin-panel">
-              <div className="admin-panel__head">
-                <h2 className="t-p-h3-bold admin-panel__title">Komentar ({entries.length})</h2>
-                <Badge type="room">{ROOMS[roomIndexById(event.roomId)].name}</Badge>
-              </div>
+          <div className="admin-fill fb-fill">
+            <Panel icon="Message" tone="purple" title={`Komentar · ${entries.length}`}>
               <ul className="fb-list">
                 {entries.map((f, i) => (
                   <li key={i} className="fb-list__item">
-                    <span className="fb-stars" aria-label={`${f.rating} bintang`}>
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <Icon key={n} name={n <= f.rating ? "StarFill" : "Star"} size={16} />
-                      ))}
+                    <span className="fb-list__head">
+                      <Stars n={f.rating} />
+                      <span className="t-p-h5 admin-muted">Anonim · {formatTime(f.at)}</span>
                     </span>
                     <span className="t-p-h4">{f.text}</span>
-                    <span className="t-p-h5 admin-muted">Anonim · {formatTime(f.at)}</span>
                   </li>
                 ))}
               </ul>
-            </section>
-            <Summary ratings={entries.map((e) => e.rating)} />
+            </Panel>
+            <Donut ratings={entries.map((e) => e.rating)} />
           </div>
         )
       ) : !final ? (
-        <Empty icon="Lock" title="Feedback akhir belum dibuka" body="Tab Feedback di HP tamu terbuka setelah acara selesai." />
+        <Panel icon="Star" tone="amber" title="Feedback akhir">
+          <Empty icon="Lock" tone="slate" title="Feedback akhir belum dibuka" body="Tab Feedback di HP tamu terbuka setelah acara selesai." />
+        </Panel>
       ) : (
-        <div className="admin-grid">
-          <div className="admin-col">
-            <section className="admin-panel">
-              <h2 className="t-p-h3-bold admin-panel__title">Yang paling berkesan</h2>
+        <div className="admin-fill fb-fill fb-fill--final">
+          <Panel icon="Sparkle" tone="orange" title="Yang paling berkesan">
+            <div className="fb-bubbles">
               {Object.entries(final.moods)
                 .sort((a, b) => b[1] - a[1])
-                .map(([m, n]) => (
-                  <div key={m} className="fb-bar">
-                    <span className="t-p-h5-bold fb-bar__label">{m}</span>
-                    <span className="fb-bar__track">
-                      <span style={{ width: `${(n / Math.max(...Object.values(final.moods))) * 100}%` }} />
+                .map(([m, n]) => {
+                  const max = Math.max(...Object.values(final.moods));
+                  return (
+                    <span key={m} className="fb-bubble clay clay-accent" style={{ "--s": 0.55 + (n / max) * 0.45 } as React.CSSProperties}>
+                      <span className="fb-bubble__n">{n}</span>
+                      <span className="t-p-h5-bold">{m}</span>
                     </span>
-                    <span className="t-p-h5 admin-muted">{n}</span>
-                  </div>
-                ))}
-            </section>
-            <section className="admin-panel">
-              <h2 className="t-p-h3-bold admin-panel__title">Pesan buat Potara</h2>
-              <ul className="fb-list">
-                {final.messages.map((m, i) => (
-                  <li key={i} className="fb-list__item">
-                    <span className="t-p-h4">{m}</span>
-                    <span className="t-p-h5 admin-muted">Anonim</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-          <Summary ratings={final.ratings.flatMap((n, i) => Array(n).fill(i + 1))} />
+                  );
+                })}
+            </div>
+          </Panel>
+          <Panel icon="Message" tone="purple" title={`Pesan buat Potara · ${final.messages.length}`}>
+            <ul className="fb-list">
+              {final.messages.map((m, i) => (
+                <li key={i} className="fb-list__item">
+                  <span className="t-p-h5 admin-muted">Anonim</span>
+                  <span className="t-p-h4">{m}</span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+          <Donut ratings={final.ratings.flatMap((n, i) => Array(n).fill(i + 1))} />
         </div>
       )}
     </div>
   );
 }
 
-function Summary({ ratings }: { ratings: number[] }) {
-  const a = avg(ratings);
+function Stars({ n, size = 16 }: { n: number; size?: number }) {
   return (
-    <section className="admin-panel fb-summary">
-      <span className="t-p-h5-bold admin-muted">Rata-rata</span>
-      <span className="fb-summary__avg">{a.toFixed(1)}</span>
-      <span className="fb-stars fb-stars--big">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <Icon key={n} name={n <= Math.round(a) ? "StarFill" : "Star"} size={24} />
-        ))}
-      </span>
-      <span className="t-p-h5 admin-muted">dari {ratings.length} tamu</span>
-      <div className="fb-dist">
-        {[5, 4, 3, 2, 1].map((n) => {
-          const c = ratings.filter((r) => r === n).length;
-          return (
-            <div key={n} className="fb-bar">
-              <span className="t-p-h5-bold fb-bar__label">{n} ★</span>
-              <span className="fb-bar__track">
-                <span style={{ width: `${ratings.length ? (c / ratings.length) * 100 : 0}%` }} />
-              </span>
-              <span className="t-p-h5 admin-muted">{c}</span>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    <span className="fb-stars" aria-label={`${n} bintang`}>
+      {[1, 2, 3, 4, 5].map((k) => (
+        <Icon key={k} name={k <= Math.round(n) ? "StarFill" : "Star"} size={size} />
+      ))}
+    </span>
   );
 }
 
-function Empty({ icon, title, body }: { icon: "Clock" | "Star" | "Lock"; title: string; body: string }) {
+/** Donut of the 1–5 star split, average in the middle, a verdict tag, and a legend. */
+function Donut({ ratings }: { ratings: number[] }) {
+  const [hover, setHover] = useState<number | null>(null);
+  const total = ratings.length;
+  const avg = total ? ratings.reduce((a, b) => a + b, 0) / total : 0;
+  const counts = [5, 4, 3, 2, 1].map((s) => ({ s, n: ratings.filter((r) => r === s).length }));
+  const verdict = avg >= 4 ? { type: "claimed" as const, text: "Mayoritas puas" } : avg >= 3 ? { type: "warn" as const, text: "Cukup" } : { type: "danger" as const, text: "Perlu perhatian" };
+  const R = 80;
+  const C = 2 * Math.PI * R;
+  let offset = 0;
+
   return (
-    <section className="admin-panel">
-      <div className="admin-empty">
-        <span className="admin-empty__icon">
-          <Icon name={icon} />
-        </span>
-        <span className="t-p-h4-bold">{title}</span>
-        <span className="t-p-h5">{body}</span>
+    <Panel icon="Star" tone="amber" title="Rata-rata" aside={total ? <Badge type={verdict.type}>{verdict.text}</Badge> : undefined}>
+      <div className="donut">
+        <svg viewBox="0 0 200 200" className="donut__svg" role="img" aria-label={`Rata-rata ${avg.toFixed(1)} dari ${total} tamu`}>
+          <circle cx="100" cy="100" r={R} className="donut__track" />
+          {counts.map(({ s, n }) => {
+            if (!n) return null;
+            const len = (n / total) * C;
+            const seg = (
+              <circle
+                key={s}
+                cx="100"
+                cy="100"
+                r={R}
+                className={`donut__seg${hover === s ? " is-hover" : ""}`}
+                style={{ stroke: STAR_COLORS[s], strokeDasharray: `${Math.max(0, len - 3)} ${C}`, strokeDashoffset: -offset }}
+                onMouseEnter={() => setHover(s)}
+                onMouseLeave={() => setHover(null)}
+              />
+            );
+            offset += len;
+            return seg;
+          })}
+        </svg>
+        <div className="donut__center">
+          {hover ? (
+            <>
+              <span className="donut__avg">{counts.find((c) => c.s === hover)?.n}</span>
+              <span className="t-p-h5 admin-muted">tamu memberi {hover}★</span>
+            </>
+          ) : (
+            <>
+              <span className="donut__avg">{avg.toFixed(1)}</span>
+              <Stars n={avg} />
+              <span className="t-p-h5 admin-muted">dari {total} tamu</span>
+            </>
+          )}
+        </div>
       </div>
-    </section>
+      <ul className="donut__legend">
+        {counts.map(({ s, n }) => (
+          <li key={s} className={`donut__chip${hover === s ? " is-hover" : ""}`} onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(null)}>
+            <span className="donut__dot" style={{ background: STAR_COLORS[s] }} />
+            <span className="t-p-h5-bold">{s}★</span>
+            <span className="t-p-h5 admin-muted">
+              {n} tamu · {total ? Math.round((n / total) * 100) : 0}%
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   );
 }

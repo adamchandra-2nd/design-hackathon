@@ -39,6 +39,24 @@
   --status-answered: var(--success);
   --status-answered-bg: #e5f1e1;
 
+  /* Soft tags (labels, never buttons): tinted fill, no border */
+  --tag-amber: #8a5600;
+  --tag-amber-bg: #fdeccc;
+  --tag-red: #b3261e;
+  --tag-red-bg: #fbe1dd;
+
+  /* Room colours (admin): background + strong ink for text/icons */
+  --room-halaman-depan: #4f7a3f;
+  --room-halaman-depan-bg: #e3efd9;
+  --room-ruang-kerja-utama: #2f6aa8;
+  --room-ruang-kerja-utama-bg: #dceafa;
+  --room-ruang-kerja-dalam: #6a4fb0;
+  --room-ruang-kerja-dalam-bg: #e9e2fa;
+  --room-ruang-meeting: #8a6a00;
+  --room-ruang-meeting-bg: #fbf0c9;
+  --room-ruang-omakase: #b8432c;
+  --room-ruang-omakase-bg: #fbe2da;
+
   /* Radius */
   --radius-small: 16px;
   --radius-medium: 20px;

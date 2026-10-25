@@ -5,13 +5,13 @@ import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { TextField } from "../components/TextField";
 import { Toggle } from "../components/Toggle";
-import { DAY_END, DAY_START, formatTime, statusAt } from "../data/agenda";
+import { DAY_END, DAY_START, formatTime, statusAt, type AgendaStatus } from "../data/agenda";
 import { ROOMS } from "../data/rooms";
 import type { AdminEvent } from "./data";
 import type { Phase } from "./Dashboard";
+import { TimePicker } from "./pickers";
+import { roomStyle, useHeight } from "./hooks";
 
-/** Whole day (09.00–14.00) fits one desktop screen: 300 min × 1.7 px. */
-const PX = 1.7;
 const SNAP = 5;
 const MIN_DURATION = 15;
 const HOURS = Array.from({ length: (DAY_END - DAY_START) / 60 + 1 }, (_, i) => DAY_START + i * 60);
@@ -30,11 +30,6 @@ type Props = {
 
 const roomIndex = (id: string) => ROOMS.findIndex((r) => r.id === id);
 const snap = (m: number) => Math.round(m / SNAP) * SNAP;
-const parseTime = (v: string) => {
-  const [h, m] = v.split(":").map(Number);
-  return h * 60 + (m || 0);
-};
-const toInput = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
 function conflicts(events: AdminEvent[]) {
   const out: [AdminEvent, AdminEvent][] = [];
@@ -47,20 +42,22 @@ function conflicts(events: AdminEvent[]) {
 }
 
 /**
- * Rundown editor: one column per room, the whole day on one screen. Drag a card to move it
- * (time and room), drag its bottom edge to change duration, or click it to edit. Changes stay
- * a draft until saved, with an option to notify guests.
+ * Rundown editor: one coloured column per room, the whole day fitted to the panel. Drag a card to move it
+ * (time and room), drag its bottom edge to change duration, or click it to edit. Changes stay a draft until saved.
  */
 export function Rundown({ events, now, phase, initialDraft, initialEditId, onSave }: Props) {
   const [draft, setDraft] = useState<AdminEvent[]>(initialDraft ?? events);
   const [editing, setEditing] = useState<AdminEvent | "new" | null>(initialEditId ? (events.find((e) => e.id === initialEditId) ?? null) : null);
   const [saving, setSaving] = useState(false);
   const [notify, setNotify] = useState(true);
+  const [focus, setFocus] = useState<string | null>(null);
   const drag = useRef<Drag | null>(null);
   const cols = useRef<HTMLDivElement>(null);
+  const [bodyRef, bodyH] = useHeight<HTMLDivElement>();
+  const PX = bodyH ? bodyH / (DAY_END - DAY_START) : 1.7;
 
-  const status = phase === "pre" ? {} : statusAt(now);
-  const locked = (e: AdminEvent) => phase === "ended" || status[e.id] === "done";
+  const status: Record<string, AgendaStatus> = phase === "pre" ? {} : phase === "ended" ? Object.fromEntries(draft.map((e) => [e.id, "done"])) : statusAt(now);
+  const locked = (e: AdminEvent) => status[e.id] === "done";
   const changed = draft.filter((d) => {
     const o = events.find((e) => e.id === d.id);
     return !o || o.start !== d.start || o.end !== d.end || o.roomId !== d.roomId || o.title !== d.title;
@@ -70,6 +67,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
   const clashes = conflicts(draft);
   const clashIds = new Set(clashes.flat().map((e) => e.id));
   const sorted = [...draft].sort((a, b) => a.start - b.start);
+  const doneCount = sorted.filter((e) => status[e.id] === "done").length;
 
   const update = (id: string, patch: Partial<AdminEvent>) => setDraft((d) => d.map((e) => (e.id === id ? { ...e, ...patch } : e)));
 
@@ -125,17 +123,37 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
         </div>
       </div>
 
-      {/* Whole day at a glance, in order */}
-      <div className="rundown-strip" aria-label="Urutan acara">
-        {sorted.map((e, i) => (
-          <span key={e.id} className="rundown-strip__item">
-            {i > 0 && <Icon name="ChevronRight" size={16} />}
-            <span className={`rundown-strip__chip t-p-h5-bold${status[e.id] === "now" ? " is-now clay clay-dark" : ""}${status[e.id] === "done" ? " is-done" : ""}`}>
-              {formatTime(e.start)} {e.title}
-            </span>
+      {/* Progress of the day, as a stepper */}
+      <section className="stepper" aria-label="Progres hari ini">
+        <span className="stepper__title t-p-h5-bold">
+          Progres hari ini
+          <span className="admin-muted">
+            {doneCount} dari {sorted.length} selesai
           </span>
-        ))}
-      </div>
+        </span>
+        <ol className="stepper__steps">
+          {sorted.map((e, i) => {
+            const s = status[e.id] ?? "later";
+            return (
+              <li key={e.id} className={`stepper__step is-${s}`} style={roomStyle(e.roomId)}>
+                <button type="button" className="stepper__btn" onClick={() => setFocus(e.id)} title="Sorot di timeline">
+                  <span className={`stepper__mark t-p-h5-bold${s === "now" ? " clay clay-accent" : ""}`}>
+                    {s === "done" ? <Icon name="Check" size={16} /> : s === "now" ? <span className="stepper__pulse" /> : i + 1}
+                  </span>
+                  <span className="stepper__text">
+                    <span className="t-p-h5 admin-muted">{formatTime(e.start)}</span>
+                    <span className="t-p-h5-bold stepper__name">
+                      <span className="room-dot" />
+                      {e.title}
+                    </span>
+                  </span>
+                </button>
+                {i < sorted.length - 1 && <span className={`stepper__line${s === "done" ? " is-filled" : s === "now" ? " is-half" : ""}`} />}
+              </li>
+            );
+          })}
+        </ol>
+      </section>
 
       {(dirty || clashes.length > 0) && (
         <div className={`rundown-banner t-p-h5-bold${clashes.length ? " is-error" : ""}`} role="status">
@@ -150,13 +168,13 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
         <div className="rundown__head">
           <span />
           {ROOMS.map((r) => (
-            <span key={r.id} className="rundown__room t-p-h5-bold">
-              <Icon name="MapPin" size={16} />
+            <span key={r.id} className="rundown__room t-p-h5-bold clay clay-light" style={roomStyle(r.id)}>
+              <Icon name={r.icon} size={16} />
               {r.name}
             </span>
           ))}
         </div>
-        <div className="rundown__body" style={{ height: (DAY_END - DAY_START) * PX }}>
+        <div className="rundown__body" ref={bodyRef}>
           {HOURS.map((h) => (
             <div key={h} className="rundown__hour" style={{ top: (h - DAY_START) * PX }}>
               <span className="t-p-h5 rundown__label">{formatTime(h)}</span>
@@ -165,32 +183,51 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
           ))}
           <div ref={cols} className="rundown__cols">
             {ROOMS.map((r) => (
-              <div key={r.id} className="rundown__col" />
+              <div key={r.id} className="rundown__col" style={roomStyle(r.id)} />
             ))}
             {draft.map((e) => {
-              const s = status[e.id];
+              const s = status[e.id] ?? "later";
               const lock = locked(e);
               const col = roomIndex(e.roomId);
+              const h = (e.end - e.start) * PX;
+              const size = h < 64 ? "is-s" : h < 100 ? "is-m" : "is-l";
+              const clash = clashIds.has(e.id);
+              const isChanged = changed.some((c) => c.id === e.id);
+              const tag = clash ? (
+                <Badge type="danger">Bentrok</Badge>
+              ) : isChanged ? (
+                <Badge type="neutral" icon="Pencil">Diubah</Badge>
+              ) : s === "now" ? (
+                <Badge type="now">Sekarang</Badge>
+              ) : s === "next" ? (
+                <Badge type="next" icon="Clock">Berikutnya</Badge>
+              ) : s === "done" ? (
+                <Badge type="done">Selesai</Badge>
+              ) : null;
               return (
                 <article
                   key={e.id}
-                  className={`rundown__event clay clay-light is-${s ?? "later"}${clashIds.has(e.id) ? " is-clash" : ""}${lock ? " is-locked" : ""}${changed.some((c) => c.id === e.id) ? " is-changed" : ""}`}
+                  className={`rundown__event clay clay-light is-${s} ${size}${clash ? " is-clash" : ""}${lock ? " is-locked" : ""}${focus === e.id ? " is-focus" : ""}`}
                   style={{
+                    ...roomStyle(e.roomId),
                     top: (e.start - DAY_START) * PX,
-                    height: (e.end - e.start) * PX,
+                    height: h,
                     left: `calc(${(col / ROOMS.length) * 100}% + 4px)`,
                     width: `calc(${100 / ROOMS.length}% - 8px)`,
                   }}
                   onPointerDown={(p) => onPointerDown(p, e, "move")}
                   onPointerMove={onPointerMove}
                   onPointerUp={() => onPointerUp(e)}
+                  onAnimationEnd={() => setFocus(null)}
                   title={lock ? "Acara sudah selesai, tidak bisa diubah" : "Geser untuk pindah, klik untuk edit"}
                 >
+                  {size !== "is-s" && tag && <span className="rundown__tags">{tag}</span>}
                   <span className="rundown__event-title t-p-h5-bold">{e.title}</span>
-                  <span className="t-p-h5 rundown__event-time">
-                    {formatTime(e.start)}–{formatTime(e.end)}
-                  </span>
-                  {s === "now" && <span className="rundown__live" aria-label="Sedang berlangsung" />}
+                  {size === "is-l" && (
+                    <span className="t-p-h5 rundown__event-time">
+                      {formatTime(e.start)}–{formatTime(e.end)}
+                    </span>
+                  )}
                   {lock ? (
                     <Icon name="Lock" size={16} className="rundown__lock" />
                   ) : (
@@ -235,12 +272,14 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
 
       {saving && (
         <Dialog
+          icon="Calendar"
+          iconTone="blue"
           title="Simpan perubahan rundown?"
+          description={`${changed.length + removed.length} acara berubah. Tamu melihat jadwal baru begitu disimpan.`}
           onClose={() => setSaving(false)}
           actions={
             <>
               <Button
-                block
                 onClick={() => {
                   onSave(draft, notify);
                   setSaving(false);
@@ -248,25 +287,49 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
               >
                 Simpan
               </Button>
-              <Button block style="tertiary" onClick={() => setSaving(false)}>
+              <Button style="tertiary" onClick={() => setSaving(false)}>
                 Kembali
               </Button>
             </>
           }
         >
-          <ul className="rundown-changes">
-            {changed.map((c) => (
-              <li key={c.id} className="t-p-h5">
-                <strong>{c.title}</strong> → {formatTime(c.start)}–{formatTime(c.end)}, {ROOMS[roomIndex(c.roomId)].name}
-              </li>
-            ))}
+          <ul className="diff-list">
+            {changed.map((c) => {
+              const o = events.find((e) => e.id === c.id);
+              return (
+                <li key={c.id} className="diff-list__row" style={roomStyle(c.roomId)}>
+                  <span className="room-dot" />
+                  <span className="t-p-h4-bold diff-list__name">{c.title}</span>
+                  <span className="t-p-h5 diff-list__change">
+                    {o ? (
+                      <>
+                        <s>
+                          {formatTime(o.start)}–{formatTime(o.end)}
+                          {o.roomId !== c.roomId ? `, ${ROOMS[roomIndex(o.roomId)].name}` : ""}
+                        </s>
+                        <Icon name="ArrowRight" size={16} />
+                      </>
+                    ) : (
+                      <Badge type="claimed">Baru</Badge>
+                    )}
+                    <strong>
+                      {formatTime(c.start)}–{formatTime(c.end)}
+                      {!o || o.roomId !== c.roomId ? `, ${ROOMS[roomIndex(c.roomId)].name}` : ""}
+                    </strong>
+                  </span>
+                </li>
+              );
+            })}
             {removed.map((r) => (
-              <li key={r.id} className="t-p-h5">
-                <strong>{r.title}</strong> dihapus
+              <li key={r.id} className="diff-list__row is-removed">
+                <span className="room-dot" />
+                <span className="t-p-h4-bold diff-list__name">{r.title}</span>
+                <Badge type="danger">Dihapus</Badge>
               </li>
             ))}
           </ul>
-          <Toggle label="Kirim notifikasi ke tamu" hint="Tamu dapat notifikasi “Rundown berubah”." checked={notify} onChange={setNotify} />
+          <div className="dialog-gap" />
+          <Toggle dark label="Kirim notifikasi ke tamu" hint="Tamu dapat notifikasi “Rundown berubah”." checked={notify} onChange={setNotify} />
         </Dialog>
       )}
     </div>
@@ -276,93 +339,93 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
 function EventEditor({ event, onClose, onApply, onDelete }: { event: AdminEvent | null; onClose: () => void; onApply: (e: AdminEvent) => void; onDelete: (id: string) => void }) {
   const [title, setTitle] = useState(event?.title ?? "");
   const [roomId, setRoomId] = useState(event?.roomId ?? ROOMS[0].id);
-  const [start, setStart] = useState(toInput(event?.start ?? 13 * 60 + 30));
-  const [end, setEnd] = useState(toInput(event?.end ?? 14 * 60));
+  const [start, setStart] = useState(event?.start ?? 13 * 60 + 30);
+  const [end, setEnd] = useState(event?.end ?? 14 * 60);
   const [tried, setTried] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const s = parseTime(start);
-  const e = parseTime(end);
-  const timeError = e <= s ? "Jam selesai harus setelah jam mulai." : s < DAY_START || e > DAY_END ? "Di luar jam acara (09.00–14.00)." : null;
+  const timeError = end <= start ? "Jam selesai harus setelah jam mulai." : start < DAY_START || end > DAY_END ? "Di luar jam acara (09.00–14.00)." : null;
   const titleError = !title.trim() ? "Judul acara wajib diisi." : null;
 
   const apply = () => {
     setTried(true);
     if (timeError || titleError) return;
-    onApply({ id: event?.id ?? `acara-${Date.now()}`, title: title.trim(), roomId, start: s, end: e });
+    onApply({ id: event?.id ?? `acara-${Date.now()}`, title: title.trim(), roomId, start, end });
   };
 
   if (confirmDelete && event) {
     return (
       <Dialog
+        icon="Trash"
+        iconTone="red"
         title={`Hapus ${event.title}?`}
+        description="Acara ini hilang dari rundown tamu setelah perubahan disimpan."
         onClose={() => setConfirmDelete(false)}
         actions={
           <>
-            <Button block style="danger" onClick={() => onDelete(event.id)}>
+            <Button style="danger" onClick={() => onDelete(event.id)}>
               Ya, hapus
             </Button>
-            <Button block style="tertiary" onClick={() => setConfirmDelete(false)}>
+            <Button style="tertiary" onClick={() => setConfirmDelete(false)}>
               Kembali
             </Button>
           </>
         }
-      >
-        Acara ini hilang dari rundown tamu setelah perubahan disimpan.
-      </Dialog>
+      />
     );
   }
 
   return (
     <Dialog
+      form
+      icon={event ? "Pencil" : "Plus"}
+      iconTone="blue"
       title={event ? "Edit acara" : "Tambah acara"}
+      description="Perubahan baru terlihat tamu setelah kamu klik “Simpan perubahan”."
       onClose={onClose}
+      danger={
+        event ? (
+          <Button style="danger" icon="Trash" onClick={() => setConfirmDelete(true)}>
+            Hapus
+          </Button>
+        ) : undefined
+      }
       actions={
         <>
-          <Button block onClick={apply}>
-            {event ? "Terapkan" : "Tambah ke rundown"}
+          <Button onClick={apply}>{event ? "Terapkan" : "Tambah ke rundown"}</Button>
+          <Button style="tertiary" onClick={onClose}>
+            Batal
           </Button>
-          <div className="editor-actions">
-            {event && (
-              <Button style="danger" icon="Trash" onClick={() => setConfirmDelete(true)}>
-                Hapus
-              </Button>
-            )}
-            <Button style="tertiary" onClick={onClose}>
-              Batal
-            </Button>
-          </div>
         </>
       }
     >
-      <div className="editor">
-        <TextField label="Judul acara" value={title} onChange={setTitle} maxLength={40} error={tried ? (titleError ?? undefined) : undefined} />
-        <div className="field">
-          <span className="t-p-h5-bold field__label">Ruangan</span>
-          <div className="editor-rooms">
-            {ROOMS.map((r) => (
-              <button key={r.id} type="button" className={`pill-tab t-p-h5-bold${r.id === roomId ? " is-active clay clay-dark" : ""}`} onClick={() => setRoomId(r.id)}>
-                {r.name}
-              </button>
-            ))}
-          </div>
+      <TextField label="Judul acara" value={title} onChange={setTitle} maxLength={40} error={tried ? (titleError ?? undefined) : undefined} />
+      <div className="field">
+        <span className="t-p-h5-bold field__label">Ruangan</span>
+        <div className="editor-rooms">
+          {ROOMS.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              className={`room-chip t-p-h5-bold${r.id === roomId ? " is-active clay clay-light" : ""}`}
+              style={roomStyle(r.id)}
+              aria-pressed={r.id === roomId}
+              onClick={() => setRoomId(r.id)}
+            >
+              <Icon name={r.icon} size={16} />
+              {r.name}
+            </button>
+          ))}
         </div>
-        <div className="editor-times">
-          <label className="field">
-            <span className="t-p-h5-bold field__label">Mulai</span>
-            <input type="time" step={SNAP * 60} className={`field__input t-p-h3-bold${tried && timeError ? " is-error" : ""}`} value={start} onChange={(v) => setStart(v.target.value)} />
-          </label>
-          <label className="field">
-            <span className="t-p-h5-bold field__label">Selesai</span>
-            <input type="time" step={SNAP * 60} className={`field__input t-p-h3-bold${tried && timeError ? " is-error" : ""}`} value={end} onChange={(v) => setEnd(v.target.value)} />
-          </label>
-        </div>
-        {tried && timeError && (
-          <span className="t-p-h5 field__hint field__hint--error" role="alert">
-            {timeError}
-          </span>
-        )}
-        {event && <Badge type="next">Perubahan baru tersimpan setelah klik “Simpan perubahan”</Badge>}
       </div>
+      <div className="editor-times">
+        <TimePicker label="Mulai" value={start} onChange={setStart} error={tried && !!timeError} min={DAY_START} max={DAY_END} />
+        <TimePicker label="Selesai" value={end} onChange={setEnd} error={tried && !!timeError} min={DAY_START} max={DAY_END} />
+      </div>
+      {tried && timeError && (
+        <span className="t-p-h5 field__hint field__hint--error" role="alert">
+          {timeError}
+        </span>
+      )}
     </Dialog>
   );
 }

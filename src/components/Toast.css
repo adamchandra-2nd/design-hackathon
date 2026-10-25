@@ -22,6 +22,7 @@
   gap: var(--spacing-extra-small);
 }
 .toast__actions .btn { width: 100%; }
+.toast__actions.is-single { grid-template-columns: 1fr; }
 .toast.is-closing {
   animation: toast-out 200ms ease-in both;
 }
@@ -60,16 +61,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .toast,
-  .toast__main {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-small);
-}
-.toast__actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-extra-small);
-}
-.toast__actions .btn { width: 100%; }
-.toast.is-closing { animation: none; }
+  .toast.is-closing { animation: none; }
 }

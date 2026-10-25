@@ -3,6 +3,7 @@ import { AGENDA, type AgendaItem } from "../data/agenda";
 
 export type Rsvp = "ya" | "tidak" | "belum";
 export type RewardStatus = "mengumpulkan" | "siap" | "diambil";
+export type InviteStatus = "belum" | "mengirim" | "terkirim" | "dibaca" | "gagal";
 export type AdminGuest = {
   id: string;
   name: string;
@@ -11,6 +12,14 @@ export type AdminGuest = {
   /** Check-in minute (since 00:00), null = not here yet. */
   checkIn: number | null;
   checkInBy?: "qr" | "kode" | "panitia";
+  /** Checked in AND finished their character = "Hadir". Checked in only = "Sedang masuk". */
+  hadir: boolean;
+  phone: string;
+  invite: InviteStatus;
+  invitedAt?: number;
+  inviteError?: string;
+  /** Minute the reward was claimed. */
+  claimedAt?: number;
   cards: number;
   reward: RewardStatus;
   finalFeedback: boolean;
@@ -34,8 +43,14 @@ export const ADMIN_GUESTS: AdminGuest[] = NAMES.map((name, i) => {
     rsvp,
     checkIn: here ? 9 * 60 + ((i * 7) % 48) : null,
     checkInBy: here ? (i % 8 === 3 ? "panitia" : i % 8 === 6 ? "kode" : "qr") : undefined,
+    // Two guests are still in customisation right now
+    hadir: here && i !== 4 && i !== 13,
+    phone: `0812${String(3000000 + i * 73519).slice(0, 7)}`,
+    invite: rsvp === "belum" ? (i % 2 ? "dibaca" : "terkirim") : "dibaca",
+    invitedAt: 8 * 60 + (i % 50),
     cards,
     reward: cards >= 5 ? (i % 2 ? "diambil" : "siap") : "mengumpulkan",
+    claimedAt: cards >= 5 && i % 2 ? 9 * 60 + 40 + (i % 9) : undefined,
     finalFeedback: false,
   };
 });
@@ -43,11 +58,42 @@ export const ADMIN_GUESTS: AdminGuest[] = NAMES.map((name, i) => {
 export type AdminEvent = AgendaItem;
 export const ADMIN_EVENTS: AdminEvent[] = AGENDA.map((a) => ({ ...a }));
 
-export type Announcement = { id: string; title: string; body: string; roomId: string | null; at: number; recipients: number };
+export type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  roomId: string | null;
+  at: number;
+  recipients: number;
+  /** How many opened it (sample until the guest app reports reads). */
+  read: number;
+  failed?: boolean;
+};
 export const SAMPLE_ANNOUNCEMENTS: Announcement[] = [
-  { id: "a1", title: "Selamat datang!", body: "Check-in di pintu, lalu jelajahi 5 ruangan Potara.", roomId: null, at: 8 * 60 + 55, recipients: 0 },
-  { id: "a2", title: "Talkshow segera mulai", body: "Kursi di Ruang Omakase masih banyak, yuk merapat.", roomId: "ruang-omakase", at: 9 * 60 + 25, recipients: 18 },
+  { id: "a1", title: "Selamat datang!", body: "Check-in di pintu, lalu jelajahi 5 ruangan Potara.", roomId: "halaman-depan", at: 9 * 60 + 2, recipients: 6, read: 6 },
+  { id: "a2", title: "Talkshow segera mulai", body: "Kursi di Ruang Omakase masih banyak, yuk merapat.", roomId: "ruang-omakase", at: 9 * 60 + 25, recipients: 18, read: 14 },
 ];
+
+/** Uninvited guests waiting in the invite list (sample). */
+export const NEW_INVITEES = [
+  { name: "Andini", phone: "081298765432" },
+  { name: "Bagas", phone: "081377712345" },
+  { name: "Clara", phone: "085711122233" },
+  { name: "Dewa", phone: "081944455566" },
+];
+
+/** CSV export sample for the import review (includes problems on purpose). */
+export const SAMPLE_CSV = `nama,nomor_wa
+Eka,081234567890
+Farah,0812-3456-7891
+Galih,08123
+Hesti,081234567892
+,081234567893
+Eka,081234567890
+Laras,08123441114
+Indra,+6281234567894
+Jihan,08abc
+Kevin,081234567895`;
 
 export type EventFeedbackEntry = { rating: number; text: string; at: number };
 export const SAMPLE_EVENT_FEEDBACK: Record<string, EventFeedbackEntry[]> = {

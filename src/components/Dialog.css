@@ -22,8 +22,11 @@
   text-align: center;
   animation: dialog-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+.dialog__head { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-medium); }
 .dialog__lead { display: flex; justify-content: center; }
-.dialog__text { display: flex; flex-direction: column; gap: var(--spacing-extra-small); }
+.dialog__content { display: flex; flex-direction: column; gap: var(--spacing-medium); text-align: left; min-height: 0; overflow-y: auto; }
+.dialog__danger { display: contents; }
+.dialog__text { display: flex; flex-direction: column; gap: var(--spacing-extra-small); align-self: stretch; }
 .dialog__title { margin: 0; text-wrap: balance; }
 .dialog__body { color: var(--text-grey-200); line-height: 1.5; }
 .dialog__actions { display: flex; flex-direction: column; gap: var(--spacing-extra-small); }

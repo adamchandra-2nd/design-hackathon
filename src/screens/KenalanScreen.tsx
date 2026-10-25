@@ -61,7 +61,7 @@ export function KenalanScreen({ guests, collected, reward, onOpenGuest, onMyQr, 
         )}
         {reward === "claimed" && (
           <span className="kenalan-progress__claimed">
-            <Badge type="complete">Lengkap</Badge>
+            <Badge type="claimed">Lengkap</Badge>
             <span className="t-p-h5">Terima kasih sudah seru-seruan bareng!</span>
           </span>
         )}

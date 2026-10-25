@@ -19,7 +19,20 @@
 .badge--plus-one { background: var(--amber); color: var(--text-on-accent); transform: rotate(6deg); }
 .badge--complete { background: var(--ink); color: var(--text-inverse); }
 .badge--complete .badge__dot { background: var(--amber); }
-.badge--next { background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); }
+/* Soft tags: tinted fill + a whisper of inset shade, no border — clearly labels, not buttons */
+.badge--next,
+.badge--ready { background: var(--tag-amber-bg); color: var(--tag-amber); }
+.badge--claimed { background: var(--status-answered-bg); color: var(--status-answered); }
+.badge--neutral { background: var(--status-sent-bg); color: var(--status-sent); }
+.badge--warn { background: var(--tag-amber-bg); color: var(--tag-amber); }
+.badge--danger { background: var(--tag-red-bg); color: var(--tag-red); }
+.badge--next,
+.badge--ready,
+.badge--claimed,
+.badge--neutral,
+.badge--warn,
+.badge--danger { box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(16, 16, 16, 0.06); }
+.badge:has(> svg:first-child) { padding-left: var(--padding-small); }
 .badge--done { background: var(--background-texture); color: var(--text-grey-300); }
 
 /* Now: ink tag for what is happening right now. Room: white tag with an orange pin. On Air: red tag for the room that is live right now. */

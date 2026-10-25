@@ -8,7 +8,7 @@ type ToastProps = {
   lead: ReactNode;
   title: string;
   sub: string;
-  /** One small button at the right (e.g. "Sapa"). */
+  /** One button (e.g. "Sapa"); shown on its own row under the text, full width. */
   action?: ReactNode;
   /** Two buttons on their own row (e.g. "Tetap di sini" + "Pindah sekarang"). */
   actions?: ReactNode;
@@ -25,9 +25,8 @@ export function Toast({ lead, title, sub, action, actions, closing }: ToastProps
           <span className="t-p-h4-bold">{title}</span>
           <span className="t-p-h5 toast__sub">{sub}</span>
         </div>
-        {action}
       </div>
-      {actions && <div className="toast__actions">{actions}</div>}
+      {(action || actions) && <div className={`toast__actions${action && !actions ? " is-single" : ""}`}>{actions ?? action}</div>}
     </div>
   );
 }

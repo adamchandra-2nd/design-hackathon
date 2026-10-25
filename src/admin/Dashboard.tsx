@@ -1,12 +1,26 @@
+import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
-import { Icon } from "../components/Icon";
+import type { IconName } from "../components/iconPaths";
 import { formatTime, statusAt } from "../data/agenda";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import type { AdminPage } from "./AdminShell";
 import type { AdminEvent, AdminGuest, Announcement } from "./data";
+import { roomStyle } from "./hooks";
+import { Empty, Panel, Stat } from "./ui";
 
 export type Phase = "pre" | "live" | "ended";
+
+export type Activity = { at: number; guest: string; kind: "qr" | "kode" | "panitia" | "reward-ready" | "reward-claimed" | "feedback"; detail?: string };
+
+const ACTIVITY: Record<Activity["kind"], { text: string; tag: string; type: "neutral" | "warn" | "ready" | "claimed" | "next"; icon: IconName }> = {
+  qr: { text: "check-in", tag: "Scan QR", type: "neutral", icon: "Scan" },
+  kode: { text: "check-in", tag: "Kode pintu", type: "neutral", icon: "KeyCard" },
+  panitia: { text: "check-in", tag: "Lewat panitia", type: "warn", icon: "Users" },
+  "reward-ready": { text: "mengumpulkan 5 kartu", tag: "Hadiah siap", type: "ready", icon: "Gift" },
+  "reward-claimed": { text: "mengambil hadiah", tag: "Hadiah diambil", type: "claimed", icon: "Check" },
+  feedback: { text: "mengirim feedback", tag: "Feedback", type: "next", icon: "Star" },
+};
 
 type Props = {
   phase: Phase;
@@ -15,27 +29,29 @@ type Props = {
   guests: AdminGuest[];
   events: AdminEvent[];
   announcements: Announcement[];
-  activity: { at: number; text: string }[];
+  activity: Activity[];
   onNavigate: (p: AdminPage) => void;
   onEndEvent: (id: string) => void;
   onStartEvent: (id: string) => void;
 };
 
+const ago = (min: number) => (min < 1 ? "baru saja" : min < 60 ? `${min} menit lalu` : `${Math.floor(min / 60)} jam lalu`);
 const roomName = (id: string) => ROOMS[roomIndexById(id)].name;
 
-/** Overview: stat strip, today's rundown + activity, and the live event as the single orange hero. */
+/** Overview: stat strip, then three equal-height columns that fill the screen. */
 export function Dashboard({ phase, daysLeft, now, guests, events, announcements, activity, onNavigate, onEndEvent, onStartEvent }: Props) {
   const yes = guests.filter((g) => g.rsvp === "ya").length;
   const no = guests.filter((g) => g.rsvp === "tidak").length;
   const pending = guests.filter((g) => g.rsvp === "belum").length;
-  const here = guests.filter((g) => g.checkIn !== null).length;
+  const here = guests.filter((g) => g.checkIn !== null && g.hadir).length;
   const cards = guests.reduce((n, g) => n + g.cards, 0);
   const ready = guests.filter((g) => g.reward !== "mengumpulkan").length;
   const claimed = guests.filter((g) => g.reward === "diambil").length;
   const status = statusAt(now);
-  const live = phase === "live" ? events.find((e) => status[e.id] === "now") : undefined;
-  const next = phase === "ended" ? undefined : events.find((e) => (phase === "pre" ? true : status[e.id] === "next"));
   const sorted = [...events].sort((a, b) => a.start - b.start);
+  const live = phase === "live" ? sorted.find((e) => status[e.id] === "now") : undefined;
+  const next = phase === "pre" ? sorted[0] : phase === "live" ? sorted.find((e) => status[e.id] === "next") : undefined;
+  const lastAnn = announcements[announcements.length - 1];
 
   return (
     <div className="admin-page">
@@ -46,83 +62,91 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
             {phase === "pre" ? `Hari H dalam ${daysLeft} hari. Pantau RSVP dulu.` : phase === "live" ? "Acara sedang berjalan." : "Acara sudah selesai. Terima kasih, panitia!"}
           </p>
         </div>
-        <div className="admin-actions">
-          <Button size="small" style="tertiary" icon="Megaphone" onClick={() => onNavigate("pengumuman")}>
-            Buat pengumuman
-          </Button>
-        </div>
       </div>
 
       <section className="stat-strip" aria-label="Ringkasan">
-        <Stat label="RSVP hadir" value={yes} extra={`${no} tidak · ${pending} belum jawab`} />
-        <Stat label="Sudah check-in" value={here} of={yes} />
-        <Stat label="Kartu kenalan" value={cards} extra={phase === "pre" ? "Belum mulai" : "terkumpul total"} />
-        <Stat label="Hadiah" value={claimed} of={ready} extra="diambil dari yang siap" />
+        <Stat icon="Mail" tone="blue" label="Akan datang" value={yes} note={`${no} tidak bisa · ${pending} belum jawab`} />
+        <Stat icon="Users" tone="green" label="Hadir" value={here} of={yes} note="sudah check-in & buat karakter" />
+        <Stat icon="UserPlus" tone="purple" label="Kartu kenalan" value={cards} note={phase === "pre" ? "belum mulai" : "terkumpul total"} />
+        <Stat icon="Gift" tone="amber" label="Hadiah" value={claimed} of={ready} note="diambil dari yang siap" />
       </section>
 
-      <div className="admin-grid">
-        <div className="admin-col">
-          <section className="admin-panel">
-            <div className="admin-panel__head">
-              <h2 className="t-p-h3-bold admin-panel__title">Rundown hari ini</h2>
-              <Button size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("rundown")}>
-                Atur rundown
-              </Button>
-            </div>
-            <ol className="dash-rundown">
-              {sorted.map((e) => {
-                const s = phase === "pre" ? "later" : phase === "ended" ? "done" : status[e.id];
+      <div className="admin-fill dash-fill">
+        <Panel
+          icon="Calendar"
+          tone="blue"
+          title="Rundown hari ini"
+          footer={
+            <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("rundown")}>
+              Atur rundown
+            </Button>
+          }
+        >
+          <ol className="dash-rundown">
+            {sorted.map((e) => {
+              const s = phase === "pre" ? "later" : phase === "ended" ? "done" : status[e.id];
+              return (
+                <li key={e.id} className={`dash-rundown__item is-${s}`} style={roomStyle(e.roomId)}>
+                  <span className="t-p-h5-bold dash-rundown__time">{formatTime(e.start)}</span>
+                  <span className="dash-rundown__body">
+                    <span className="t-p-h4-bold">{e.title}</span>
+                    <span className="t-p-h5 dash-room">
+                      <span className="room-dot" />
+                      {roomName(e.roomId)}
+                    </span>
+                  </span>
+                  {s === "now" && <Badge type="now">Sekarang</Badge>}
+                  {s === "next" && <Badge type="next" icon="Clock">Berikutnya</Badge>}
+                  {s === "done" && <Badge type="done">Selesai</Badge>}
+                </li>
+              );
+            })}
+          </ol>
+        </Panel>
+
+        <Panel
+          icon="Clock"
+          tone="purple"
+          title="Aktivitas terbaru"
+          footer={
+            <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("tamu")}>
+              Lihat daftar tamu
+            </Button>
+          }
+        >
+          {activity.length === 0 ? (
+            <Empty icon="Clock" tone="blue" title="Belum ada aktivitas" body="Check-in dibuka di hari H." />
+          ) : (
+            <ul className="dash-activity">
+              {activity.map((a, i) => {
+                const k = ACTIVITY[a.kind];
                 return (
-                  <li key={e.id} className={`dash-rundown__item is-${s}`}>
-                    <span className="t-p-h5-bold dash-rundown__time">{formatTime(e.start)}</span>
-                    <span className="dash-rundown__dot" />
-                    <span className="dash-rundown__body">
-                      <span className="t-p-h4-bold">{e.title}</span>
+                  <li key={i} className={`dash-activity__item${i === 0 ? " is-new" : ""}`}>
+                    <Avatar initial={a.guest.charAt(0)} size="S" />
+                    <span className="dash-activity__text">
+                      <span className="t-p-h4">
+                        <strong>{a.guest}</strong> {k.text}
+                      </span>
                       <span className="t-p-h5 admin-muted">
-                        {roomName(e.roomId)} · {formatTime(e.start)}–{formatTime(e.end)}
+                        {formatTime(a.at)} · {ago(now - a.at)}{a.detail ? ` · ${a.detail}` : ""}
                       </span>
                     </span>
-                    {s === "now" && <Badge type="now">Sekarang</Badge>}
-                    {s === "next" && <Badge type="next">Berikutnya</Badge>}
-                    {s === "done" && <Badge type="done">Selesai</Badge>}
+                    <Badge type={k.type} icon={k.icon}>
+                      {k.tag}
+                    </Badge>
+                    {i === 0 && <span className="dash-activity__new" aria-label="Terbaru" />}
                   </li>
                 );
               })}
-            </ol>
-          </section>
-
-          <section className="admin-panel">
-            <div className="admin-panel__head">
-              <h2 className="t-p-h3-bold admin-panel__title">Aktivitas terbaru</h2>
-              <Button size="small" style="tertiary" icon="ArrowRight" onClick={() => onNavigate("tamu")}>
-                Lihat tamu
-              </Button>
-            </div>
-            {activity.length === 0 ? (
-              <div className="admin-empty">
-                <span className="admin-empty__icon">
-                  <Icon name="Clock" />
-                </span>
-                <span className="t-p-h4">Belum ada aktivitas. Check-in dibuka di hari H.</span>
-              </div>
-            ) : (
-              <ul className="dash-activity">
-                {activity.map((a, i) => (
-                  <li key={i} className="dash-activity__item">
-                    <span className="t-p-h5 admin-muted">{formatTime(a.at)}</span>
-                    <span className="t-p-h4">{a.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+            </ul>
+          )}
+        </Panel>
 
         <div className="admin-col">
-          {/* The one orange hero on the page */}
+          {/* One orange card: what's on now, then what's next */}
           <section className="dash-hero clay clay-accent">
             {live ? (
-              <>
+              <div className="dash-hero__now">
                 <span className="agenda-card__tags">
                   <Badge type="now">Sekarang</Badge>
                 </span>
@@ -134,88 +158,63 @@ export function Dashboard({ phase, daysLeft, now, guests, events, announcements,
                   Selesaikan acara
                 </Button>
                 <span className="t-p-h5 dash-hero__note">Tamu langsung dapat form feedback acara ini.</span>
-              </>
-            ) : phase === "pre" ? (
-              <>
-                <span className="agenda-card__tags">
-                  <Badge type="next">Belum mulai</Badge>
-                </span>
-                <span className="dash-hero__title">{daysLeft} hari lagi</span>
-                <span className="t-p-h4">{yes} tamu sudah konfirmasi hadir.</span>
-              </>
-            ) : phase === "ended" ? (
-              <>
-                <span className="agenda-card__tags">
-                  <Badge type="complete">Selesai</Badge>
-                </span>
-                <span className="dash-hero__title">Semua acara selesai</span>
-                <Button block style="secondary" icon="ArrowRight" onClick={() => onNavigate("feedback")}>
-                  Lihat feedback
-                </Button>
-              </>
-            ) : (
-              <>
-                <span className="agenda-card__tags">
-                  <Badge type="next">Jeda</Badge>
-                </span>
-                <span className="dash-hero__title">Tidak ada acara berjalan</span>
-              </>
-            )}
-          </section>
-
-          {next && (
-            <section className="admin-panel">
-              <span className="agenda-card__tags">
-                <Badge type="next">Berikutnya</Badge>
-              </span>
-              <h2 className="t-display-h6 admin-panel__title">{next.title}</h2>
-              <span className="t-p-h5 admin-muted">
-                {roomName(next.roomId)} · {formatTime(next.start)}–{formatTime(next.end)}
-              </span>
-              {phase === "live" && (
-                <Button block style="tertiary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
-                  Mulai sekarang
-                </Button>
-              )}
-            </section>
-          )}
-
-          <section className="admin-panel">
-            <div className="admin-panel__head">
-              <h2 className="t-p-h3-bold admin-panel__title">Pengumuman terakhir</h2>
-            </div>
-            {announcements.length ? (
-              <div className="dash-ann">
-                <span className="t-p-h4-bold">{announcements[announcements.length - 1].title}</span>
-                <span className="t-p-h5 admin-muted">{announcements[announcements.length - 1].body}</span>
               </div>
             ) : (
-              <span className="t-p-h5 admin-muted">Belum ada pengumuman.</span>
+              <div className="dash-hero__now">
+                <span className="agenda-card__tags">
+                  <Badge type={phase === "ended" ? "claimed" : "next"} icon={phase === "ended" ? "Check" : "Clock"}>
+                    {phase === "pre" ? "Belum mulai" : phase === "ended" ? "Selesai" : "Jeda"}
+                  </Badge>
+                </span>
+                <span className="dash-hero__title">{phase === "pre" ? `${daysLeft} hari lagi` : phase === "ended" ? "Semua acara selesai" : "Tidak ada acara berjalan"}</span>
+                {phase === "pre" && <span className="t-p-h4">{yes} tamu akan datang.</span>}
+                {phase === "ended" && (
+                  <Button block style="secondary" icon="ArrowRight" onClick={() => onNavigate("feedback")}>
+                    Lihat feedback
+                  </Button>
+                )}
+              </div>
             )}
-            <Button block size="small" style="tertiary" icon="Plus" onClick={() => onNavigate("pengumuman")}>
-              Pengumuman baru
-            </Button>
+            {next && (
+              <div className="dash-hero__next">
+                <span className="t-p-h5-bold dash-hero__label">{phase === "pre" ? "Acara pertama" : "Berikutnya"}</span>
+                <span className="t-p-h3-bold">{next.title}</span>
+                <span className="t-p-h5">
+                  {roomName(next.roomId)} · {formatTime(next.start)}–{formatTime(next.end)}
+                </span>
+                {phase === "live" && (
+                  <Button block size="small" style="tertiary" icon="ArrowRight" onClick={() => onStartEvent(next.id)}>
+                    Mulai sekarang
+                  </Button>
+                )}
+              </div>
+            )}
           </section>
+
+          <Panel
+            icon="Megaphone"
+            tone="coral"
+            title="Pengumuman terakhir"
+            footer={
+              <Button block size="small" style="tertiary" icon="Plus" onClick={() => onNavigate("pengumuman")}>
+                Pengumuman baru
+              </Button>
+            }
+          >
+            {lastAnn ? (
+              <div className="dash-ann">
+                <span className="t-p-h4-bold">{lastAnn.title}</span>
+                <span className="t-p-h5 admin-muted">{lastAnn.body}</span>
+                <span className="t-p-h5 admin-muted">
+                  {formatTime(lastAnn.at)} · {lastAnn.recipients} tamu
+                </span>
+              </div>
+            ) : (
+              <Empty icon="Megaphone" tone="coral" title="Belum ada pengumuman" />
+            )}
+          </Panel>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Stat({ label, value, of, extra }: { label: string; value: number; of?: number; extra?: string }) {
-  return (
-    <div className="stat">
-      <span className="t-p-h5-bold stat__label">{label}</span>
-      <span className="stat__row">
-        <span className="stat__value">{value}</span>
-        {of !== undefined && <span className="t-p-h4 admin-muted">/ {of}</span>}
-      </span>
-      {of !== undefined ? (
-        <span className="stat__bar">
-          <span style={{ width: `${of ? Math.round((value / of) * 100) : 0}%` }} />
-        </span>
-      ) : null}
-      {extra && <span className="t-p-h5 admin-muted">{extra}</span>}
     </div>
   );
 }
