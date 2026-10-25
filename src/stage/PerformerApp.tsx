@@ -4,6 +4,7 @@ import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { IconBadge } from "../components/IconBadge";
+import type { IconName } from "../components/iconPaths";
 import { Toast, ToastIcon } from "../components/Toast";
 import { EVENT } from "../config";
 import { formatTime } from "../data/agenda";
@@ -44,7 +45,7 @@ function PerfMain({ token }: { token: string }) {
   const [sheet, setSheet] = useState(sc.sheet);
   const [reading, setReading] = useState(!!sc.readMode);
   const [confirmBack, setConfirmBack] = useState(false);
-  const [toast, setToast] = useState<{ title: string; sub: string } | null>(null);
+  const [toast, setToast] = useState<{ title: string; sub: string; icon?: IconName; onOpen?: () => void } | null>(null);
   const seen = useRef<number>(sc.toast ? 0 : (state.mcSignal?.at ?? 0));
   const [signal, setSignal] = useState<StageState["mcSignal"]>(null);
 
@@ -57,9 +58,11 @@ function PerfMain({ token }: { token: string }) {
     navigator.vibrate?.(200);
   }, [state.mcSignal]);
 
-  const notify = (t: { title: string; sub: string }) => {
+  const toastTimer = useRef<number>(undefined);
+  const notify = (t: NonNullable<typeof toast>) => {
+    window.clearTimeout(toastTimer.current);
     setToast(t);
-    window.setTimeout(() => setToast(null), 4000);
+    toastTimer.current = window.setTimeout(() => setToast(null), t.onOpen ? 7000 : 4000);
   };
 
   const onStage = state.liveId === MY.id;
@@ -68,6 +71,24 @@ function PerfMain({ token }: { token: string }) {
   const mine = state.questions.filter((q) => q.sessionId === MY.id);
   const picked = mine.filter((q) => q.state === "dipilih");
   const setQ = (id: string, st: StageQuestionState) => update((s) => ({ ...s, questions: s.questions.map((q) => (q.id === id ? { ...q, state: st } : q)) }));
+
+  // A quiet toast (not a full-screen cue) when the MC picks a question, so it doesn't interrupt the talk
+  const knownPicks = useRef(new Set(picked.slice(0, sc.newPick ? -1 : undefined).map((q) => q.id)));
+  useEffect(() => {
+    const fresh = picked.filter((q) => !knownPicks.current.has(q.id));
+    picked.forEach((q) => knownPicks.current.add(q.id));
+    if (!fresh.length || reading) return;
+    const q = fresh[fresh.length - 1];
+    const group = QUESTION_GROUPS.find((g) => g.id === q.groupId)?.label;
+    navigator.vibrate?.(80);
+    notify({
+      icon: "Message",
+      title: fresh.length > 1 ? `MC memilih ${fresh.length} pertanyaan` : "MC memilih pertanyaan",
+      sub: [q.author ?? "Anonim", group].filter(Boolean).join(" · "),
+      onOpen: () => (setTab("pertanyaan"), setReading(true)),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [picked.map((q) => q.id).join()]);
   const ask = (help: SpeakerHelp) => {
     setSheet(undefined);
     update((s) => ({ ...s, speaker: "bantuan", speakerHelp: help, speakerSignal: { kind: "bantuan", help, at: Date.now() } }));
@@ -317,7 +338,30 @@ function PerfMain({ token }: { token: string }) {
             </div>
           ) : undefined
         }
-        toast={toast && <Toast lead={<ToastIcon icon="Check" tone="accent" />} title={toast.title} sub={toast.sub} />}
+        toast={
+          toast && (
+            <Toast
+              lead={<ToastIcon icon={toast.icon ?? "Check"} tone="accent" />}
+              title={toast.title}
+              sub={toast.sub}
+              action={
+                toast.onOpen ? (
+                  <Button
+                    size="small"
+                    block
+                    icon="ArrowRight"
+                    onClick={() => {
+                      toast.onOpen!();
+                      setToast(null);
+                    }}
+                  >
+                    Lihat
+                  </Button>
+                ) : undefined
+              }
+            />
+          )
+        }
       >
         {content}
       </StageShell>

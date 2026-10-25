@@ -18,6 +18,8 @@ export type StageScenario<T extends string> = {
   system?: "error" | "404";
   /** Show the incoming toast for the seeded signal straight away. */
   toast?: boolean;
+  /** Performance: treat the latest question picked by the MC as just arrived. */
+  newPick?: boolean;
 };
 
 const ago = (m: number) => Date.now() - m * 60_000;
@@ -69,6 +71,7 @@ export const PERF_LINKS: Record<string, StageScenario<PerfTab>> = {
   "pembicara-bantuan": { seed: live(), sheet: "bantuan" },
   "pembicara-bantuan-terkirim": { seed: live({ speaker: "bantuan", speakerHelp: "mic" }) },
   "pembicara-pertanyaan": { seed: live(), tab: "pertanyaan" },
+  "pembicara-pertanyaan-baru": { seed: live(), newPick: true },
   "pembicara-baca": { seed: live(), tab: "pertanyaan", readMode: true },
   "pembicara-selesai": { seed: live({ liveId: "pengenalan", doneIds: ["pembukaan", "talkshow"], speaker: "selesai", startedAt: ago(5) }), tab: "hasil" },
   "pembicara-offline": { seed: live(), offline: true },

@@ -188,6 +188,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "pembicara-bantuan", label: "Butuh bantuan", note: "Mic, slide, lainnya" },
       { token: "pembicara-bantuan-terkirim", label: "Bantuan terkirim", note: "Status di kartu" },
       { token: "pembicara-pertanyaan", label: "Pertanyaan pilihan MC", note: "Sudah dijawab" },
+      { token: "pembicara-pertanyaan-baru", label: "MC memilih pertanyaan", note: "Toast + tombol Lihat ke mode baca" },
       { token: "pembicara-baca", label: "Mode baca", note: "Teks besar" },
       { token: "pembicara-selesai", label: "Hasil sesi", note: "Rating + komentar" },
       { token: "pembicara-offline", label: "Offline", note: "Banner" },
