@@ -138,7 +138,12 @@ export function nextSession(state: StageState) {
 /** Scheduled clock minute "now" maps to, for display ("09.50"). */
 export function clockMinute(state: StageState, now: number) {
   const s = SESSIONS.find((x) => x.id === state.liveId);
-  if (!s) return state.phase === "ended" ? 13 * 60 + 50 : 8 * 60 + 45;
+  if (!s) {
+    if (state.phase === "ended") return 13 * 60 + 50;
+    // Between sessions: right after the last one that finished (not a fixed morning time)
+    const done = SESSIONS.filter((x) => state.doneIds.includes(x.id));
+    return done.length ? Math.max(...done.map((x) => x.end)) : 8 * 60 + 45;
+  }
   return s.start + Math.floor((now - state.startedAt) / 60_000);
 }
 

@@ -141,6 +141,8 @@ export const MC_SIGNALS: Record<McSignal, { title: string; body: string; icon: "
 /** What the speaker can send back. */
 export type SpeakerHelp = "mic" | "slide" | "lainnya";
 export const HELP_LABEL: Record<SpeakerHelp, string> = { mic: "Mic bermasalah", slide: "Slide / layar", lainnya: "Butuh bantuan lain" };
+/** Short form for the one-line status tag. */
+export const HELP_SHORT: Record<SpeakerHelp, string> = { mic: "Mic", slide: "Slide", lainnya: "Lainnya" };
 
 /** Feedback guests left for the talkshow (shown to the speaker after the session). */
 export const TALKSHOW_FEEDBACK = {

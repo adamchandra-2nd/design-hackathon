@@ -7,12 +7,12 @@ import { Toast, ToastIcon } from "../components/Toast";
 import { EVENT } from "../config";
 import { formatTime } from "../data/agenda";
 import { ROOMS, roomIndexById } from "../data/rooms";
-import { HELP_LABEL, MC_SIGNALS, PANITIA_CONTACT, PEOPLE, SESSIONS, TALKSHOW_FEEDBACK, type SpeakerHelp, type StageQuestionState } from "./data";
+import { HELP_LABEL, MC_SIGNALS, PANITIA_CONTACT, PEOPLE, QUESTION_GROUPS, SESSIONS, TALKSHOW_FEEDBACK, type SpeakerHelp, type StageQuestionState } from "./data";
 import { PERF_LINKS, type PerfTab } from "./links";
 import { BigTimer, StageCard, StageShell, TimerStrip } from "./StageShell";
 import { StageLogin } from "./StageLogin";
 import { remainingS, useNow, useStage, useWakeLock, type StageState } from "./store";
-import { QCard, ReadMode, Sheet, StageSystem } from "./ui";
+import { ContactButton, InkOption, MetaTags, QCard, ReadMode, Sheet, SpeakerRow, StageSystem } from "./ui";
 import { Welcome } from "./Welcome";
 
 const ME = PEOPLE.find((p) => p.role === "pembicara")!;
@@ -102,30 +102,18 @@ function PerfMain({ token }: { token: string }) {
             )}
           </span>
           <h2 className="now-card__title">{MY.title}</h2>
-          <span className="now-card__meta t-p-h5">
-            <span>
-              <Icon name="Clock" size={16} />
-              {formatTime(MY.start)}–{formatTime(MY.end)}
-            </span>
-            <span>
-              <Icon name="MapPin" size={16} />
-              {roomName(MY.roomId)}
-            </span>
-          </span>
+          <MetaTags
+            items={[
+              { icon: "Clock", text: `${formatTime(MY.start)}–${formatTime(MY.end)}` },
+              { icon: "MapPin", text: roomName(MY.roomId) },
+            ]}
+          />
           {onStage ? (
             <>
               <BigTimer secs={secs} total={(MY.end - MY.start) * 60} />
-              {state.speaker === "bantuan" && (
-                <div className="speaker-chip speaker-chip--bantuan">
-                  <Icon name="Bell" size={20} />
-                  <span className="speaker-chip__text">
-                    <span className="t-p-h4-bold">Bantuan sedang menuju</span>
-                    <span className="t-p-h5">{HELP_LABEL[state.speakerHelp ?? "lainnya"]}</span>
-                  </span>
-                </div>
-              )}
+              {state.speaker === "bantuan" && <SpeakerRow icon="Headset" name="Tim datang" status="bantuan" help={state.speakerHelp} />}
               <div className="stack-actions">
-                <Button style="tertiary" icon="Bell" onClick={() => setSheet("bantuan")}>
+                <Button style="tertiary" icon="Headset" onClick={() => setSheet("bantuan")}>
                   Butuh bantuan
                 </Button>
                 <Button style="secondary" icon="ArrowRight" onClick={() => setConfirmBack(true)}>
@@ -198,6 +186,7 @@ function PerfMain({ token }: { token: string }) {
             <dd className="t-p-h4-bold">{roomName(MY.roomId)}</dd>
           </div>
         </dl>
+        <ContactButton />
       </StageCard>
     </>
   );
@@ -350,7 +339,9 @@ function PerfMain({ token }: { token: string }) {
       {reading && (
         <ReadMode
           list={picked}
-          note="Dipilih MC. Setelah kamu jawab, tamu melihat statusnya jadi Terjawab."
+          strip={strip}
+          groupLabel={(q) => QUESTION_GROUPS.find((g) => g.id === q.groupId)?.label}
+          note="Dipilih MC · tamu melihatnya jadi Terjawab"
           doneLabel="Sudah dijawab"
           onDone={(id) => setQ(id, "dijawab")}
           onSkip={(id) => setQ(id, "dilewati")}
@@ -358,20 +349,18 @@ function PerfMain({ token }: { token: string }) {
         />
       )}
       {sheet === "bantuan" && (
-        <Sheet icon="Bell" tone="red" title="Butuh bantuan?" onClose={() => setSheet(undefined)}>
+        <Sheet icon="Headset" tone="ink" title="Butuh bantuan?" onClose={() => setSheet(undefined)}>
           <span className="t-p-h4 stage-muted">MC dan panitia langsung dapat notifikasi. Kamu bisa tetap lanjut bicara.</span>
           <div className="tpl-list">
             {(["mic", "slide", "lainnya"] as SpeakerHelp[]).map((h) => (
-              <button key={h} type="button" className="tpl clay clay-light" onClick={() => ask(h)}>
-                <span className="icon-badge icon-badge--red icon-badge--S clay clay-accent">
-                  <Icon name={h === "mic" ? "Megaphone" : h === "slide" ? "Computer" : "Message"} size={16} />
-                </span>
-                <span className="tpl__text">
-                  <span className="t-p-h4-bold">{HELP_LABEL[h]}</span>
-                  <span className="t-p-h5 stage-muted">{h === "mic" ? "Suara putus atau tidak terdengar" : h === "slide" ? "Layar atau clicker tidak jalan" : "Panitia akan menghampirimu"}</span>
-                </span>
-                <Icon name="ChevronRight" size={20} />
-              </button>
+              <InkOption
+                key={h}
+                urgent
+                icon={h === "mic" ? "Megaphone" : h === "slide" ? "Computer" : "Message"}
+                title={HELP_LABEL[h]}
+                body={h === "mic" ? "Suara putus atau tidak terdengar" : h === "slide" ? "Layar atau clicker tidak jalan" : "Panitia akan menghampirimu"}
+                onClick={() => ask(h)}
+              />
             ))}
           </div>
         </Sheet>

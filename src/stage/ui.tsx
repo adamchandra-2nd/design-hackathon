@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Avatar } from "../components/Avatar";
+import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
 import { Icon } from "../components/Icon";
@@ -6,7 +8,7 @@ import { IconBadge, type IconTone } from "../components/IconBadge";
 import type { IconName } from "../components/iconPaths";
 import { formatTime } from "../data/agenda";
 import { ROOMS } from "../data/rooms";
-import type { StageQuestion } from "./data";
+import { HELP_SHORT, PANITIA_CONTACT, type SpeakerHelp, type StageQuestion } from "./data";
 import "./stage.css";
 
 /** Bottom sheet (phone pattern), centered on tablets. */
@@ -118,9 +120,11 @@ export function QCard({
   );
 }
 
-/** Full-screen read mode: one question at a time, big text. */
+/** Full-screen read mode: one question at a time on a centered card, the queue peeking behind it. */
 export function ReadMode({
   list,
+  strip,
+  groupLabel,
   note,
   doneLabel,
   onDone,
@@ -128,50 +132,214 @@ export function ReadMode({
   onClose,
 }: {
   list: StageQuestion[];
-  note?: string;
+  /** Timer strip, so the MC keeps track of time while reading. */
+  strip?: ReactNode;
+  groupLabel: (q: StageQuestion) => string | undefined;
+  note: string;
   doneLabel: string;
   onDone: (id: string) => void;
   onSkip: (id: string) => void;
   onClose: () => void;
 }) {
+  const [total] = useState(list.length);
+  const [dx, setDx] = useState(0);
+  const start = useRef<number | null>(null);
   const q = list[0];
+  const next = list[1];
+  const index = total - list.length + 1;
+  const group = q ? groupLabel(q) : undefined;
+  const size = q ? (q.text.length > 110 ? "is-long" : q.text.length > 60 ? "is-mid" : "") : "";
+
   return (
     <div className="read-mode screen-enter" role="dialog" aria-modal="true" aria-label="Mode baca">
+      {strip}
       <div className="read-mode__top">
-        <span className="t-p-h4-bold">{q ? `Pertanyaan · sisa ${list.length}` : "Mode baca"}</span>
+        <span className="read-mode__progress">
+          <span className="t-p-h4-bold">{q ? `Pertanyaan ${index} dari ${total}` : "Selesai"}</span>
+          <span className="read-mode__bars" aria-hidden="true">
+            {Array.from({ length: total }).map((_, k) => (
+              <span key={k} className={k < index - (q ? 1 : 0) ? "is-done" : k === index - 1 && q ? "is-now" : ""} />
+            ))}
+          </span>
+        </span>
         <button type="button" className="icon-btn clay clay-dark" aria-label="Tutup mode baca" onClick={onClose}>
           <Icon name="Close" />
         </button>
       </div>
+
       <div className="read-mode__body">
         {q ? (
           <>
-            <span className="t-p-h4 read-mode__who">
-              {q.author ?? "Anonim"} · {formatTime(q.at)}
-            </span>
-            <p className="read-mode__text">{q.text}</p>
-            {note && <span className="t-p-h5 read-mode__who">{note}</span>}
+            <div className={`read-stack${next ? " has-next" : ""}${list.length > 2 ? " has-more" : ""}`}>
+              <article
+                className={`read-card clay clay-light${dx > 60 ? " is-done" : dx < -60 ? " is-skip" : ""}`}
+                style={{ transform: dx ? `translateX(${dx}px) rotate(${dx / 40}deg)` : undefined }}
+                onPointerDown={(e) => {
+                  if ((e.target as HTMLElement).closest("button")) return;
+                  start.current = e.clientX;
+                }}
+                onPointerMove={(e) => start.current !== null && setDx(Math.max(-140, Math.min(140, e.clientX - start.current)))}
+                onPointerUp={() => {
+                  if (dx > 90) onDone(q.id);
+                  else if (dx < -90) onSkip(q.id);
+                  start.current = null;
+                  setDx(0);
+                }}
+                onPointerCancel={() => {
+                  start.current = null;
+                  setDx(0);
+                }}
+              >
+                <span className="read-card__who">
+                  <Avatar initial={(q.author ?? "?").charAt(0)} size="S" />
+                  <span className="t-p-h5-bold">{q.author ?? "Anonim"}</span>
+                  <span className="t-p-h5 stage-muted">· {formatTime(q.at)}</span>
+                </span>
+                {group && (
+                  <span className="claude-tag t-p-h5-bold">
+                    <Icon name="Sparkle" size={16} />
+                    {group}
+                  </span>
+                )}
+                <p className={`read-card__text ${size}`}>{q.text}</p>
+                <span className="read-card__note t-p-h5">
+                  <Icon name="Eye" size={16} />
+                  {note}
+                </span>
+              </article>
+            </div>
+            <span className="t-p-h5 read-mode__next one-line">{next ? `Berikutnya: ${next.text}` : "Ini pertanyaan terakhir"}</span>
           </>
         ) : (
-          <p className="read-mode__text">Semua pertanyaan pilihan sudah selesai 🎉</p>
+          <div className="read-done">
+            <div className="read-done__char">
+              <Character say="Mantap!" />
+            </div>
+            <p className="read-mode__done-title">Semua pertanyaan pilihan sudah selesai</p>
+          </div>
         )}
       </div>
+
       <div className="read-mode__actions">
         {q ? (
           <>
-            <Button block icon="Check" onClick={() => onDone(q.id)}>
-              {doneLabel}
-            </Button>
-            <Button block style="tertiary" onClick={() => onSkip(q.id)}>
+            <Button style="tertiary" onClick={() => onSkip(q.id)}>
               Lewati
+            </Button>
+            <Button icon="Check" onClick={() => onDone(q.id)}>
+              {doneLabel}
             </Button>
           </>
         ) : (
-          <Button block style="tertiary" onClick={onClose}>
-            Tutup
+          <Button block icon="ArrowLeft" onClick={onClose}>
+            Kembali ke Pertanyaan
           </Button>
         )}
       </div>
     </div>
+  );
+}
+
+/** "Hubungi panitia": a real button that opens the committee's contact (copy number / open WhatsApp). */
+export function ContactButton({ block, label = "Hubungi panitia", onCopied }: { block?: boolean; label?: string; onCopied?: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const wa = `https://wa.me/62${PANITIA_CONTACT.phone.replace(/\D/g, "").replace(/^0/, "")}`;
+  return (
+    <>
+      <Button size="small" style="tertiary" icon="Headset" block={block} onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      {open && (
+        <Sheet icon="Headset" tone="ink" title="Kontak panitia" onClose={() => setOpen(false)}>
+          <div className="contact-card">
+            <Avatar initial={PANITIA_CONTACT.name.charAt(0)} size="M" />
+            <span className="contact-card__text">
+              <span className="t-p-h4-bold">{PANITIA_CONTACT.name}</span>
+              <span className="t-p-h4 contact-card__phone">{PANITIA_CONTACT.phone}</span>
+            </span>
+          </div>
+          <div className="stack-actions">
+            <Button
+              block
+              icon={copied ? "Check" : "Copy"}
+              onClick={() => {
+                navigator.clipboard?.writeText(PANITIA_CONTACT.phone.replace(/\s/g, "")).catch(() => undefined);
+                setCopied(true);
+                onCopied?.();
+              }}
+            >
+              {copied ? "Nomor disalin" : "Salin nomor"}
+            </Button>
+            <a className="btn btn--tertiary btn--large btn--block clay clay-light t-p-h4-bold" href={wa} target="_blank" rel="noreferrer">
+              <span>Buka WhatsApp</span>
+              <Icon name="Message" size={20} />
+            </a>
+          </div>
+        </Sheet>
+      )}
+    </>
+  );
+}
+
+/** Speaker status on one line: avatar · name · status tag (· action). */
+export function SpeakerRow({ name, status, help, icon, onResolve }: { name: string | null; icon?: IconName; status: "belum" | "siap" | "live" | "bantuan" | "selesai" | "mc"; help?: SpeakerHelp; onResolve?: () => void }) {
+  return (
+    <div className={`speaker-row${status === "bantuan" ? " is-alert" : ""}`}>
+      {icon ? (
+        <span className="speaker-row__mc clay clay-light">
+          <Icon name={icon} size={16} />
+        </span>
+      ) : name ? (
+        <Avatar initial={name.charAt(0)} size="S" />
+      ) : (
+        <span className="speaker-row__mc clay clay-light">
+          <Icon name="Megaphone" size={16} />
+        </span>
+      )}
+      <span className="t-p-h4-bold speaker-row__name">{status === "bantuan" && onResolve && name ? name.split(" ")[0] : (name ?? "Tanpa pembicara")}</span>
+      {status === "live" && <Badge type="now">Sedang bicara</Badge>}
+      {status === "siap" && <Badge type="claimed" icon="Check">Siap</Badge>}
+      {status === "belum" && <Badge type="warn" icon="Clock">Belum siap</Badge>}
+      {status === "selesai" && <Badge type="done">Selesai</Badge>}
+      {status === "mc" && <Badge type="ready" icon="Megaphone">Dipandu MC</Badge>}
+      {status === "bantuan" && <Badge type="danger" icon="Bell">{`Bantuan: ${HELP_SHORT[help ?? "lainnya"]}`}</Badge>}
+      {status === "bantuan" && onResolve && (
+        <button type="button" className="speaker-row__ok clay clay-light" aria-label="Tandai beres" title="Tandai beres" onClick={onResolve}>
+          <Icon name="Check" size={18} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Room / PIC / time as soft tags on the orange card. */
+export function MetaTags({ items }: { items: { icon: IconName; text: string }[] }) {
+  return (
+    <span className="meta-tags">
+      {items.map((m) => (
+        <span key={m.text} className="meta-tag t-p-h5-bold">
+          <Icon name={m.icon} size={16} />
+          {m.text}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** Option card in the help sheets: ink card, cream icon. */
+export function InkOption({ icon, title, body, urgent, onClick }: { icon: IconName; title: string; body: string; urgent?: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className="tpl tpl--ink clay clay-dark" onClick={onClick}>
+      <span className="tpl__icon">
+        <Icon name={icon} size={18} />
+        {urgent && <span className="tpl__dot" />}
+      </span>
+      <span className="tpl__text">
+        <span className="t-p-h4-bold">{title}</span>
+        <span className="t-p-h5 tpl__sub">{body}</span>
+      </span>
+      <Icon name="ChevronRight" size={20} />
+    </button>
   );
 }

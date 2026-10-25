@@ -4,7 +4,9 @@ import { Icon } from "../components/Icon";
 import { EVENT } from "../config";
 import { formatTime } from "../data/agenda";
 import { ROOMS, roomIndexById } from "../data/rooms";
+import { roomStyle } from "../admin/hooks";
 import { PANITIA_CONTACT, type Person, type Session } from "./data";
+import { ContactButton } from "./ui";
 
 /** Short intro for MC / speakers who don't know Potara yet. Skippable. */
 export function Welcome({ person, sessions, onDone }: { person: Person; sessions: Session[]; onDone: () => void }) {
@@ -19,17 +21,20 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
             {EVENT.name} · {EVENT.dateLabel} · {EVENT.place}.{" "}
             {isMc ? "Kamu memandu acara dari awal sampai akhir." : "Terima kasih sudah mau berbagi di rumah baru Potara."}
           </p>
-          <dl className="info-rows">
+          <ol className="welcome__list">
             {sessions.map((s) => (
-              <div key={s.id} className="info-row">
-                <Icon name="Calendar" size={16} />
-                <dt className="t-p-h5">{formatTime(s.start)}</dt>
-                <dd className="t-p-h4-bold one-line">
-                  {s.title} · {ROOMS[roomIndexById(s.roomId)].name}
-                </dd>
-              </div>
+              <li key={s.id} className="welcome__item">
+                <span className="t-p-h5-bold stage-muted">{formatTime(s.start)}</span>
+                <span className="welcome__item-body">
+                  <span className="t-p-h4-bold">{s.title}</span>
+                  <span className="t-p-h5 welcome__room-line" style={roomStyle(s.roomId)}>
+                    <span className="st-room-dot" />
+                    {ROOMS[roomIndexById(s.roomId)].name}
+                  </span>
+                </span>
+              </li>
             ))}
-          </dl>
+          </ol>
         </>
       ),
     },
@@ -70,6 +75,7 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
               <dd className="t-p-h4-bold">{PANITIA_CONTACT.phone}</dd>
             </div>
           </dl>
+          <ContactButton />
         </>
       ),
     },

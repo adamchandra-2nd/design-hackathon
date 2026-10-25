@@ -5,6 +5,7 @@ import { Icon } from "../components/Icon";
 import potaraLogo from "../assets/potara-logo.png";
 import { ROOMS } from "../data/rooms";
 import { PANITIA_CONTACT, type Person } from "./data";
+import { ContactButton } from "./ui";
 import "./stage.css";
 
 /** Prototype code "sent" to WhatsApp. */
@@ -74,12 +75,7 @@ export function StageLogin({ person, eventLabel, initial, onDone }: { person: Pe
               <h1 className="stage-login__title">Link ini sudah tidak berlaku</h1>
               <p className="t-p-h4 stage-login__body">Aksesmu sudah dicabut panitia, atau acaranya sudah selesai. Kalau ini keliru, hubungi panitia.</p>
             </div>
-            <div className="stage-login__note">
-              <Icon name="Lock" size={20} />
-              <span className="t-p-h5-bold">
-                {PANITIA_CONTACT.name} · {PANITIA_CONTACT.phone}
-              </span>
-            </div>
+            <ContactButton block label={`Hubungi ${PANITIA_CONTACT.name}`} />
           </>
         ) : step === "link" ? (
           <>
@@ -108,7 +104,10 @@ export function StageLogin({ person, eventLabel, initial, onDone }: { person: Pe
             >
               {sending ? "Mengirim kode…" : "Kirim kode ke WhatsApp"}
             </Button>
-            <span className="t-p-h5 stage-muted">Bukan nomormu? Hubungi {PANITIA_CONTACT.name}.</span>
+            <div className="login-help">
+              <span className="t-p-h5 stage-muted">Bukan nomormu, atau tidak dapat kode?</span>
+              <ContactButton />
+            </div>
           </>
         ) : (
           <>

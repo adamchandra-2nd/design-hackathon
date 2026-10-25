@@ -4,6 +4,7 @@ import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
+import { IconBadge, type IconTone } from "../components/IconBadge";
 import type { IconName } from "../components/iconPaths";
 import { TextField } from "../components/TextField";
 import { Toast, ToastIcon } from "../components/Toast";
@@ -30,7 +31,7 @@ import { MC_LINKS, type McTab } from "./links";
 import { BigTimer, StageCard, StageShell, TimerStrip } from "./StageShell";
 import { StageLogin } from "./StageLogin";
 import { clockMinute, nextSession, remainingS, sortedSessions, useNow, useStage, useWakeLock, type StageState } from "./store";
-import { QCard, ReadMode, Sheet, StageSystem } from "./ui";
+import { InkOption, MetaTags, QCard, ReadMode, Sheet, SpeakerRow, StageSystem } from "./ui";
 import { Welcome } from "./Welcome";
 
 const MC = PEOPLE.find((p) => p.role === "mc")!;
@@ -143,20 +144,22 @@ function McMain({ token }: { token: string }) {
         </div>
       )}
       {state.rundownChanged && (
-        <div className="offline-bar" style={{ background: "var(--tag-amber-bg)", color: "var(--tag-amber)" }}>
-          <Icon name="Calendar" size={20} />
-          <span className="t-p-h5-bold" style={{ flex: 1 }}>
-            Rundown diubah panitia: Makan siang mundur 15 menit.
+        <div className="notice-card">
+          <span className="notice-card__row">
+            <Icon name="Calendar" size={20} />
+            <span className="t-p-h5-bold notice-card__text">Rundown diubah panitia: Makan siang mundur 15 menit.</span>
           </span>
           <Button
+            block
             size="small"
             style="tertiary"
+            icon="ArrowRight"
             onClick={() => {
               update((s) => ({ ...s, rundownChanged: false }));
               setSheet("rundown");
             }}
           >
-            Lihat
+            Lihat rundown
           </Button>
         </div>
       )}
@@ -246,7 +249,9 @@ function McMain({ token }: { token: string }) {
       {reading && (
         <ReadMode
           list={picked}
-          note={live?.speakerId ? `Juga tampil di layar ${firstName(personById(live.speakerId)?.name ?? "")}.` : undefined}
+          strip={strip}
+          groupLabel={(q) => QUESTION_GROUPS.find((g) => g.id === q.groupId)?.label}
+          note={live?.speakerId ? `Juga tampil di layar ${firstName(personById(live.speakerId)?.name ?? "")}` : "Tamu melihat statusnya jadi Terjawab"}
           doneLabel="Sudah dibacakan"
           onDone={(id) => setQ(id, "dibacakan")}
           onSkip={(id) => setQ(id, "dilewati")}
@@ -260,7 +265,7 @@ function McMain({ token }: { token: string }) {
         </Sheet>
       )}
       {sheet === "panitia" && (
-        <Sheet icon="Users" tone="ink" title="Hubungi panitia" onClose={() => setSheet(undefined)}>
+        <Sheet icon="Headset" tone="ink" title="Hubungi panitia" onClose={() => setSheet(undefined)}>
           <span className="t-p-h4 stage-muted">Panitia langsung dapat notifikasi di dashboard. Pilih yang paling sesuai:</span>
           <div className="tpl-list">
             {[
@@ -269,25 +274,17 @@ function McMain({ token }: { token: string }) {
               { icon: "Clock" as const, title: "Jadwal perlu digeser", body: "Sesi molor atau perlu dipercepat" },
               { icon: "Message" as const, title: "Lainnya", body: "Panitia akan menghubungimu" },
             ].map((o) => (
-              <button
+              <InkOption
                 key={o.title}
-                type="button"
-                className="tpl clay clay-light"
+                icon={o.icon}
+                title={o.title}
+                body={o.body}
                 onClick={() => {
                   setSheet(undefined);
                   update((s) => ({ ...s, panitiaCalled: true, panitiaCall: { reason: o.title, at: Date.now() } }));
-                  notify({ icon: "Users", title: "Panitia sudah dikabari", sub: `${o.title}. Tunggu sebentar ya.` });
+                  notify({ icon: "Headset", title: "Panitia sudah dikabari", sub: `${o.title}. Tunggu sebentar ya.` });
                 }}
-              >
-                <span className="icon-badge icon-badge--ink icon-badge--S clay clay-accent">
-                  <Icon name={o.icon} size={16} />
-                </span>
-                <span className="tpl__text">
-                  <span className="t-p-h4-bold">{o.title}</span>
-                  <span className="t-p-h5 stage-muted">{o.body}</span>
-                </span>
-                <Icon name="ChevronRight" size={20} />
-              </button>
+              />
             ))}
           </div>
         </Sheet>
@@ -343,15 +340,15 @@ function Panggung({
             {daysLeft ? `${EVENT.dateLabel} · ${daysLeft} hari lagi` : `Minggu, 8 Nov · ${formatTime(clockMinute(state, now))}`}
           </p>
         </div>
-        <div className="stage-card__aside">
-          <button type="button" className="icon-btn clay clay-light" aria-label="Rundown" onClick={() => onSheet("rundown")}>
-            <Icon name="Calendar" size={20} />
-          </button>
-          <button type="button" className="icon-btn clay clay-light" aria-label="Hubungi panitia" onClick={() => onSheet("panitia")}>
-            <Icon name="Users" size={20} />
-          </button>
-        </div>
       </header>
+      <div className="stage-head__actions">
+        <Button size="small" style="tertiary" icon="Calendar" onClick={() => onSheet("rundown")}>
+          Rundown
+        </Button>
+        <Button size="small" style="tertiary" icon="Headset" onClick={() => onSheet("panitia")}>
+          Hubungi panitia
+        </Button>
+      </div>
 
       {/* One orange card: what's on stage now, "Berikutnya" in a light container inside */}
       <section className="now-card clay clay-accent">
@@ -362,32 +359,17 @@ function Panggung({
                 <Badge type="now">Sekarang</Badge>
               </span>
               <h2 className="now-card__title">{live.title}</h2>
-              <span className="now-card__meta t-p-h5">
-                <span>
-                  <Icon name="MapPin" size={16} />
-                  {roomName(live.roomId)}
-                </span>
-                <span>
-                  <Icon name="Users" size={16} />
-                  PIC {live.pic}
-                </span>
-              </span>
+              <MetaTags
+                items={[
+                  { icon: "MapPin", text: roomName(live.roomId) },
+                  { icon: "Users", text: `PIC ${live.pic}` },
+                ]}
+              />
               <BigTimer secs={secs} total={(live.end - live.start) * 60} />
-              {speaker && (
-                <div className={`speaker-chip speaker-chip--${state.speaker}`}>
-                  <Avatar initial={speaker.name.charAt(0)} size="S" />
-                  <span className="speaker-chip__text">
-                    <span className="t-p-h4-bold one-line">{speaker.name}</span>
-                    <span className="t-p-h5 speaker-chip__state">
-                      {state.speaker === "bantuan" ? `Butuh bantuan: ${HELP_LABEL[state.speakerHelp ?? "lainnya"]}` : state.speaker === "live" ? "Sedang bicara" : state.speaker === "siap" ? "Siap" : "Selesai"}
-                    </span>
-                  </span>
-                  {state.speaker === "bantuan" && (
-                    <Button size="small" style="tertiary" onClick={onResolveHelp}>
-                      Beres
-                    </Button>
-                  )}
-                </div>
+              {speaker ? (
+                <SpeakerRow name={speaker.name} status={state.speaker === "belum" ? "live" : state.speaker} help={state.speakerHelp} onResolve={onResolveHelp} />
+              ) : (
+                <SpeakerRow name={MC.name} icon="Megaphone" status="mc" />
               )}
               <Button block style="secondary" icon="Check" onClick={() => setConfirmEnd(true)}>
                 Selesaikan sesi
@@ -416,29 +398,14 @@ function Panggung({
                   <Badge type="next" icon="Clock">{state.phase === "pre" ? "Belum mulai" : "Jeda"}</Badge>
                 </span>
                 <h2 className="now-card__title">{next.title}</h2>
-                <span className="now-card__meta t-p-h5">
-                  <span>
-                    <Icon name="Clock" size={16} />
-                    {formatTime(next.start)}–{formatTime(next.end)}
-                  </span>
-                  <span>
-                    <Icon name="MapPin" size={16} />
-                    {roomName(next.roomId)}
-                  </span>
-                  <span>
-                    <Icon name="Users" size={16} />
-                    PIC {next.pic}
-                  </span>
-                </span>
-                {speaker && (
-                  <div className={`speaker-chip speaker-chip--${state.speaker}`}>
-                    <Avatar initial={speaker.name.charAt(0)} size="S" />
-                    <span className="speaker-chip__text">
-                      <span className="t-p-h4-bold one-line">{speaker.name}</span>
-                      <span className="t-p-h5 speaker-chip__state">{state.speaker === "siap" ? "Sudah siap di ruangan" : "Belum konfirmasi siap"}</span>
-                    </span>
-                  </div>
-                )}
+                <MetaTags
+                  items={[
+                    { icon: "Clock", text: `${formatTime(next.start)}–${formatTime(next.end)}` },
+                    { icon: "MapPin", text: roomName(next.roomId) },
+                    { icon: "Users", text: `PIC ${next.pic}` },
+                  ]}
+                />
+                {speaker ? <SpeakerRow name={speaker.name} status={state.speaker === "siap" ? "siap" : "belum"} /> : <SpeakerRow name={MC.name} icon="Megaphone" status="mc" />}
                 <Button block style="secondary" icon="ArrowRight" onClick={() => onStart(next.id)}>
                   Mulai {next.title}
                 </Button>
@@ -743,21 +710,9 @@ function Sorotan({ state, onCopied }: { state: StageState; onCopied: () => void 
       </header>
 
       <div className="mini-stats">
-        <div className="mini-stat">
-          <span className="t-p-h5 stage-muted">Hadir</span>
-          <span className="mini-stat__value">{here.length}</span>
-          <span className="t-p-h5 stage-muted">dari {yes}</span>
-        </div>
-        <div className="mini-stat">
-          <span className="t-p-h5 stage-muted">Hadiah</span>
-          <span className="mini-stat__value">{rewards.length + 2}</span>
-          <span className="t-p-h5 stage-muted">kartu lengkap</span>
-        </div>
-        <div className="mini-stat">
-          <span className="t-p-h5 stage-muted">Rating</span>
-          <span className="mini-stat__value">{avg.toFixed(1).replace(".", ",")}</span>
-          <span className="t-p-h5 stage-muted">Pembukaan</span>
-        </div>
+        <MiniStat icon="Users" tone="green" label="Hadir" value={String(here.length)} note={`dari ${yes} RSVP`} />
+        <MiniStat icon="Gift" tone="amber" label="Hadiah" value={String(rewards.length + 2)} note="kartu lengkap" />
+        <MiniStat icon="Star" tone="pink" label="Rating" value={avg.toFixed(1).replace(".", ",")} note="rata-rata sesi Pembukaan" />
       </div>
 
       <StageCard
@@ -928,5 +883,19 @@ function Umumkan({ state, compose: startCompose, onSend }: { state: StageState; 
         </Dialog>
       )}
     </>
+  );
+}
+
+/** Stat tile, same as the admin stat strip: clay icon + label, big value, one-line note. */
+export function MiniStat({ icon, tone, label, value, note }: { icon: IconName; tone: IconTone; label: string; value: string; note: string }) {
+  return (
+    <div className="mini-stat">
+      <span className="mini-stat__top">
+        <IconBadge icon={icon} tone={tone} size="S" />
+        <span className="t-p-h5-bold stage-muted">{label}</span>
+      </span>
+      <span className="mini-stat__value">{value}</span>
+      <span className="t-p-h5 stage-muted one-line">{note}</span>
+    </div>
   );
 }
