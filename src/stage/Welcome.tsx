@@ -75,7 +75,7 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
               <dd className="t-p-h4-bold">{PANITIA_CONTACT.phone}</dd>
             </div>
           </dl>
-          <ContactButton />
+          <ContactButton block />
         </>
       ),
     },

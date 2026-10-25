@@ -348,7 +348,7 @@
 .contact-card__text { display: flex; flex-direction: column; gap: 4px; }
 .contact-card__phone { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 a.btn { text-decoration: none; }
-.login-help { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-extra-small); padding-top: var(--padding-mid-medium); border-top: 1px solid var(--border); }
+.login-help { display: flex; flex-direction: column; align-items: stretch; gap: var(--spacing-extra-small); padding-top: var(--padding-mid-medium); border-top: 1px solid var(--border); }
 
 /* ---------- Speaker row: one line, status as a tag ---------- */
 .speaker-row { display: flex; align-items: center; gap: var(--spacing-small); min-height: 48px; padding: var(--padding-small) var(--padding-small) var(--padding-small) var(--padding-small); border-radius: var(--radius-infinite); background: rgba(255, 255, 255, 0.18); }

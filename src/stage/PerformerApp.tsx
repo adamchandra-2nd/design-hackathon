@@ -186,7 +186,7 @@ function PerfMain({ token }: { token: string }) {
             <dd className="t-p-h4-bold">{roomName(MY.roomId)}</dd>
           </div>
         </dl>
-        <ContactButton />
+        <ContactButton block />
       </StageCard>
     </>
   );

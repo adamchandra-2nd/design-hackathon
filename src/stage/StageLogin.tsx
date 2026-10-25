@@ -106,7 +106,7 @@ export function StageLogin({ person, eventLabel, initial, onDone }: { person: Pe
             </Button>
             <div className="login-help">
               <span className="t-p-h5 stage-muted">Bukan nomormu, atau tidak dapat kode?</span>
-              <ContactButton />
+              <ContactButton block />
             </div>
           </>
         ) : (
