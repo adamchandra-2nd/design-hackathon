@@ -4,7 +4,11 @@
   justify-content: center;
   min-height: 100vh;
   padding: var(--padding-extra-large);
-  background: var(--background-primary);
+  /* Potara's main workroom behind the card, with a light warm veil so the card stays the focus */
+  background:
+    linear-gradient(rgba(252, 242, 227, 0.35), rgba(252, 242, 227, 0.55)),
+    var(--login-bg) center / cover no-repeat,
+    var(--background-primary);
 }
 .admin-login__card {
   display: grid;
@@ -15,6 +19,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   overflow: hidden;
+  box-shadow: 0 24px 60px rgba(60, 36, 14, 0.22);
 }
 /* Character side: same yard as the guest app, so both sides feel like one family */
 .admin-login__art {

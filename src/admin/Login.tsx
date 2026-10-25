@@ -6,6 +6,7 @@ import { TextField } from "../components/TextField";
 import { ADMIN_EMAIL, ADMIN_PIN } from "./data";
 import "./Login.css";
 import potaraLogo from "../assets/potara-logo.png";
+import workroom from "../assets/rooms/ruang-kerja-utama.webp";
 
 const PIN_LENGTH = 6;
 const RESEND_S = 30;
@@ -43,7 +44,10 @@ export function Login({ scenario, onSignedIn }: Props) {
   };
 
   return (
-    <main className="admin-login">
+    <main
+      className="admin-login"
+      style={{ "--login-bg": `url(${workroom})` } as React.CSSProperties}
+    >
       <section className="admin-login__card clay clay-light">
         <div className="admin-login__art">
           <Character
