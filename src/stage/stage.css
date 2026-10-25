@@ -402,8 +402,7 @@ a.btn { text-decoration: none; }
 
 /* Person tag (speaker / MC status): cream pill, distinct from the session status tag */
 .person-tag { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 var(--padding-medium) 0 var(--padding-small); border-radius: var(--radius-infinite); border: 1.5px solid rgba(255, 255, 255, 0.85); background: transparent; color: var(--text-on-accent); white-space: nowrap; flex: none; }
-.person-tag.clay::after { display: none; }
-.person-tag.clay { box-shadow: none; }
+.person-tag.clay { box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.35), inset 0 -3px 5px rgba(64, 20, 0, 0.22); }
 .person-tag__dot { width: 8px; height: 8px; margin-left: 4px; border-radius: 50%; border: 1.5px solid currentColor; }
 .now-card__next .person-tag, .stage-card .person-tag { border-color: var(--border); color: var(--text-primary); }
 
@@ -416,3 +415,17 @@ a.btn { text-decoration: none; }
 .mini-dist__bar { height: 6px; border-radius: var(--radius-infinite); background: var(--background-texture); overflow: hidden; }
 .mini-dist__bar span { display: block; height: 100%; border-radius: inherit; }
 .mini-dist__n { text-align: right; color: var(--text-grey-300); }
+
+/* Clay on the orange card: tags, timer state, speaker row get the same highlight + shade + grain */
+.now-card .meta-tag.clay, .now-card .big-timer__state.clay, .now-card .speaker-row.clay { box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.35), inset 0 -3px 5px rgba(64, 20, 0, 0.2); }
+.now-card .speaker-row.clay { box-shadow: inset 0 3px 5px rgba(255, 255, 255, 0.3), inset 0 -4px 8px rgba(64, 20, 0, 0.2); }
+.big-timer--warn .big-timer__state.clay, .big-timer--over .big-timer__state.clay { box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.6), inset 0 -3px 5px rgba(64, 20, 0, 0.18); }
+.claude-tag.clay { box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(138, 86, 0, 0.14); }
+
+/* Content → separator → actions */
+.card-actions { display: flex; gap: var(--spacing-extra-small); margin-top: var(--spacing-extra-small); padding-top: var(--padding-mid-medium); border-top: 1px solid var(--border); }
+.card-actions.q-card__actions { display: grid; }
+
+/* Rating distribution in its own container */
+.mini-dist--box { padding: var(--padding-medium); border-radius: var(--radius-large); background: var(--background-primary); gap: 6px; }
+.mini-dist__head { padding-bottom: var(--padding-small); margin-bottom: 2px; border-bottom: 1px solid var(--border); }

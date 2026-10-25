@@ -472,7 +472,7 @@ function Panggung({
             edited ? (
               <Badge type="neutral" icon="Pencil">Diedit panitia</Badge>
             ) : (
-              <span className="claude-tag t-p-h5-bold">
+              <span className="claude-tag clay clay-light t-p-h5-bold">
                 <Icon name="Sparkle" size={16} />
                 Claude
               </span>
@@ -496,9 +496,11 @@ function Panggung({
             })}
           </ol>
           {!edited && (SCRIPTS[focus.id]?.length ?? 0) > 1 && (
-            <Button size="small" style="tertiary" icon="Sparkle" onClick={() => onVariant(focus.id)}>
-              Saran lain
-            </Button>
+            <div className="card-actions">
+              <Button size="small" style="tertiary" icon="Sparkle" onClick={() => onVariant(focus.id)}>
+                Saran lain
+              </Button>
+            </div>
           )}
           <span className="t-p-h5 stage-muted">{edited ? "Diperbarui panitia dari dashboard." : "Disusun Claude dari rundown. Panitia bisa mengubahnya di dashboard."}</span>
         </StageCard>
@@ -602,7 +604,7 @@ function Pertanyaan({ state, onSet, onRead }: { state: StageState; onSet: (id: s
         ) : (
           <>
             <span className="q-hint">
-              <span className="claude-tag t-p-h5-bold">
+              <span className="claude-tag clay clay-light t-p-h5-bold">
                 <Icon name="Sparkle" size={16} />
                 Dikelompokkan Claude
               </span>
@@ -720,7 +722,7 @@ function Sorotan({ state, onCopied }: { state: StageState; onCopied: () => void 
         tone="green"
         title="Sapaan siap baca"
         aside={
-          <span className="claude-tag t-p-h5-bold">
+          <span className="claude-tag clay clay-light t-p-h5-bold">
             <Icon name="Sparkle" size={16} />
             Claude
           </span>
@@ -729,7 +731,7 @@ function Sorotan({ state, onCopied }: { state: StageState; onCopied: () => void 
         <div className="say-box">
           <p className="say-box__line">“{SAY[i]}”</p>
         </div>
-        <div className="q-card__actions">
+        <div className="q-card__actions card-actions">
           <Button size="small" style="tertiary" icon="Sparkle" onClick={() => setI((i + 1) % SAY.length)}>
             Saran lain
           </Button>
@@ -916,8 +918,8 @@ function RatingStat({ ratings, avg }: { ratings: number[]; avg: number }) {
         <span className="mini-stat__value">{avg.toFixed(1).replace(".", ",")}</span>
         <span className="t-p-h5 stage-muted one-line">Pembukaan · {ratings.length} tamu</span>
       </span>
-      <span className="mini-dist" aria-label={`Rata-rata ${avg.toFixed(1)} dari 5`}>
-        <span className="mini-dist__stars">
+      <span className="mini-dist mini-dist--box" aria-label={`Rata-rata ${avg.toFixed(1)} dari 5`}>
+        <span className="mini-dist__stars mini-dist__head">
           {[1, 2, 3, 4, 5].map((i) => (
             <Icon key={i} name={i <= Math.round(avg) ? "StarFill" : "Star"} size={16} />
           ))}

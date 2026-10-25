@@ -196,7 +196,7 @@ export function ReadMode({
                   <span className="t-p-h5 stage-muted">· {formatTime(q.at)}</span>
                 </span>
                 {group && (
-                  <span className="claude-tag t-p-h5-bold">
+                  <span className="claude-tag clay clay-light t-p-h5-bold">
                     <Icon name="Sparkle" size={16} />
                     {group}
                   </span>
@@ -285,7 +285,7 @@ export function ContactButton({ block, label = "Hubungi panitia", onCopied }: { 
 /** Speaker status on one line: avatar · name · status tag (· action). */
 export function SpeakerRow({ name, status, help, icon, onResolve }: { name: string | null; icon?: IconName; status: "belum" | "siap" | "live" | "bantuan" | "selesai" | "mc"; help?: SpeakerHelp; onResolve?: () => void }) {
   return (
-    <div className={`speaker-row${status === "bantuan" ? " is-alert" : ""}`}>
+    <div className={`speaker-row clay clay-accent${status === "bantuan" ? " is-alert" : ""}`}>
       {icon ? (
         <span className="speaker-row__mc clay clay-light">
           <Icon name={icon} size={16} />
@@ -329,7 +329,7 @@ export function MetaTags({ items }: { items: { icon: IconName; text: string }[] 
   return (
     <span className="meta-tags">
       {items.map((m) => (
-        <span key={m.text} className="meta-tag t-p-h5-bold">
+        <span key={m.text} className="meta-tag clay clay-accent t-p-h5-bold">
           <Icon name={m.icon} size={16} />
           {m.text}
         </span>

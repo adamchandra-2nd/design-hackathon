@@ -77,7 +77,7 @@ export function BigTimer({ secs, total }: { secs: number; total: number }) {
   return (
     <div className={`big-timer big-timer--${tone}`}>
       <span className="big-timer__time">{fmtClock(secs)}</span>
-      <span className="t-p-h5-bold big-timer__state">{secs < 0 ? "Lewat waktu" : secs <= 300 ? "Hampir habis" : "Sesuai jadwal"}</span>
+      <span className="t-p-h5-bold big-timer__state clay clay-accent">{secs < 0 ? "Lewat waktu" : secs <= 300 ? "Hampir habis" : "Sesuai jadwal"}</span>
       <span className="big-timer__bar">
         <span style={{ width: `${pct}%` }} />
       </span>
