@@ -22,6 +22,15 @@ Prototype codes (replace with backend checks): door code `1108`, committee PIN `
 
 Set `COUNTDOWN_ENABLED = false` in `src/config.ts` for Test Day ("Ya" goes straight to "Mulai masuk Potara").
 
+## MC & Performance sides (phone + tablet)
+
+For the people on stage, who may come from outside Potara. The admin sends each one a personal WhatsApp link (Admin → Pengisi acara); the first open is confirmed with a 6-digit code sent to the same number (demo code `246810`).
+
+- **MC** (`#mc-…`): Panggung (now/next, big timer, PIC, Claude-assisted script, cues to the speaker, call the committee, read-only rundown), Pertanyaan (guest questions grouped by Claude, swipe to pick/skip, full-screen read mode), Sorotan (greeting lines, who just arrived, rewards), Umumkan (one-tap templates or write your own).
+- **Performance / speaker** (`#pembicara-…`): Sesiku (Saya siap, timer, Butuh bantuan, Kembali ke MC), MC cues take over the screen, questions picked by the MC, and the session's feedback afterwards.
+- Layout follows the guest app on phones (bottom nav) and the admin panels on tablet landscape (nav rail + two columns).
+- In the prototype both sides share state through localStorage, so `#mc` and `#pembicara` open in two tabs talk to each other.
+
 ## Admin side (desktop)
 
 Open `#admin-login` (email `admin@potara.id`, PIN `123456`) or `#admin` to skip sign-in. Same design system as the guest app; layout is an Ink sidebar + top bar + panels for 1440×900. Screens: Dashboard, Rundown (5 room columns, drag to move, drag the bottom edge to resize, click to edit), Pengumuman (with phone preview), Undangan WA (send RSVP links one by one or in bulk, CSV import with a review step before anything is added, editable message template; delivery is simulated here and goes through the WhatsApp Business API in production), Daftar tamu (manual check-in), Hadiah (committee PIN), Feedback (per event + final, anonymous), Pengaturan. Panels fill the screen and scroll inside; the bell opens notifications, and items that need action also pop up as a toast. Every admin case is listed under "Admin (desktop)" in `#review`. CSV export lives in `src/admin/csv.ts` so it's easy to remove.

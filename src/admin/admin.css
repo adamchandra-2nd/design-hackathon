@@ -738,3 +738,13 @@
   border-color: var(--orange-splash);
   box-shadow: var(--field-clay), 0 0 0 3px rgba(249, 91, 0, 0.12);
 }
+
+/* Pengisi acara */
+.pengisi-fill { grid-template-columns: minmax(0, 1fr) 320px; }
+.pengisi-actions { display: inline-flex; gap: var(--spacing-extra-small); }
+.naskah-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.naskah-item { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--spacing-small); padding: var(--padding-medium) 0; border-bottom: 1px solid var(--border); }
+.naskah-item:first-child { padding-top: 0; }
+.naskah-item:last-child { border-bottom: 0; }
+.naskah-item__text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.setting-box--note a { color: var(--orange-splash); font-weight: 700; }

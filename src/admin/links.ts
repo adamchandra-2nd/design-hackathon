@@ -67,6 +67,7 @@ export const ADMIN_LINKS: Record<string, Scenario> = {
   "admin-rundown-bentrok": live("rundown", {
     rundownDraft: (ev) => ev.map((e) => (e.id === "makan" ? { ...e, start: 12 * 60 + 15, end: 13 * 60 + 15, roomId: "halaman-depan" } : e)),
   }),
+  "admin-pengisi": live("pengisi"),
   "admin-pengumuman": live("pengumuman"),
   "admin-pengumuman-gagal": live("pengumuman", { failAnnouncement: true }),
   "admin-hadiah": live("hadiah"),

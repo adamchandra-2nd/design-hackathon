@@ -55,7 +55,7 @@ export function Login({ scenario, onSignedIn }: Props) {
           />
         </div>
         <div className="admin-login__form">
-          <span className="admin-brand__mark clay clay-accent">
+          <span className="admin-brand__mark">
             <img src={potaraLogo} alt="Potara" />
           </span>
           {step === "email" ? (

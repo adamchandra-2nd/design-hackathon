@@ -12,6 +12,7 @@ export type AdminPage =
   | "tamu"
   | "rundown"
   | "pengumuman"
+  | "pengisi"
   | "hadiah"
   | "feedback"
   | "pengaturan";
@@ -26,6 +27,7 @@ const NAV: {
       { id: "dashboard", label: "Dashboard", icon: "Grid" },
       { id: "rundown", label: "Rundown", icon: "Calendar" },
       { id: "pengumuman", label: "Pengumuman", icon: "Megaphone" },
+      { id: "pengisi", label: "Pengisi acara", icon: "Sparkle" },
     ],
   },
   {
@@ -77,7 +79,7 @@ export function AdminShell({
     <div className="admin">
       <aside className="admin-sidebar clay clay-dark">
         <div className="admin-brand">
-          <span className="admin-brand__mark clay clay-accent">
+          <span className="admin-brand__mark">
             <img src={potaraLogo} alt="Potara" />
           </span>
           <span className="admin-brand__text">

@@ -11,6 +11,9 @@ import type { AdminEvent } from "./data";
 import type { Phase } from "./Dashboard";
 import { RoomPicker, TimePicker } from "./pickers";
 import { roomStyle, useHeight } from "./hooks";
+import { SESSIONS } from "../stage/data";
+
+const picOf = (id: string) => SESSIONS.find((s) => s.id === id)?.pic;
 
 const SNAP = 5;
 const MIN_DURATION = 15;
@@ -226,6 +229,7 @@ export function Rundown({ events, now, phase, initialDraft, initialEditId, onSav
                   {size === "is-l" && (
                     <span className="t-p-h5 rundown__event-time">
                       {formatTime(e.start)}–{formatTime(e.end)}
+                      {picOf(e.id) ? ` · PIC ${picOf(e.id)}` : ""}
                     </span>
                   )}
                   {lock ? (

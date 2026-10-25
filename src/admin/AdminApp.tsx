@@ -33,6 +33,7 @@ import { Rewards } from "./Rewards";
 import { Rundown } from "./Rundown";
 import { Settings, type AdminSettings } from "./Settings";
 import { Undangan } from "./Undangan";
+import { Pengisi, type Access } from "./Pengisi";
 
 const NOW: Record<Phase, number> = { pre: 8 * 60, live: DEMO_NOW.live, ended: DEMO_NOW.ended };
 const TODAY = new Date(2026, 9, 25);
@@ -116,6 +117,7 @@ export function AdminApp({ token }: { token: string }) {
     codesChangedAt: 7 * 60 + 45,
   });
   const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
+  const [access, setAccess] = useState<Record<string, Access>>({ nadia: "masuk", ardi: "terkirim" });
   const [notices, setNotices] = useState<AdminNotice[]>(() => SAMPLE_NOTICES(sc.phase));
   const [search, setSearch] = useState(sc.search ?? "");
   const [selected, setSelected] = useState<string | null>(sc.selected ?? null);
@@ -240,6 +242,19 @@ export function AdminApp({ token }: { token: string }) {
             else if (sent) notify("Send", `${sent} undangan terkirim`, "Status berubah jadi Dibaca begitu tamu membuka pesannya.");
           }}
           onToast={(title, sub) => notify("Send", title, sub)}
+        />
+      )}
+      {page === "pengisi" && (
+        <Pengisi
+          access={access}
+          onSend={(id) => {
+            setAccess((a) => ({ ...a, [id]: "terkirim" }));
+            notify("Send", "Link terkirim lewat WhatsApp", "Statusnya jadi Sudah masuk begitu kodenya dipakai.");
+          }}
+          onRevoke={(id) => {
+            setAccess((a) => ({ ...a, [id]: "dicabut" }));
+            notify("Lock", "Akses dicabut", "Link lama sudah tidak berlaku.");
+          }}
         />
       )}
       {page === "tamu" && (
