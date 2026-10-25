@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
@@ -11,14 +12,14 @@ import { ROOMS } from "../data/rooms";
 import { HELP_SHORT, PANITIA_CONTACT, type SpeakerHelp, type StageQuestion } from "./data";
 import "./stage.css";
 
-/** Bottom sheet (phone pattern), centered on tablets. */
+/** Bottom sheet (phone pattern), floating at the bottom on tablets. Portaled to <body> so a clipped or masked parent (e.g. the Kenalan card) can't trap it. */
 export function Sheet({ icon, tone, title, children, onClose }: { icon: IconName; tone: IconTone; title: string; children: ReactNode; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-  return (
+  return createPortal(
     <div className="sheet-scrim" onClick={onClose}>
       <section className="sheet" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <span className="sheet__grip" />
@@ -31,7 +32,8 @@ export function Sheet({ icon, tone, title, children, onClose }: { icon: IconName
         </header>
         <div className="sheet__body">{children}</div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

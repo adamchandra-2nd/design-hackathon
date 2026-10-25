@@ -112,7 +112,7 @@ function PerfMain({ token }: { token: string }) {
         </div>
       </header>
 
-      <section className="now-card clay clay-accent">
+      <section className="now-card now-card--perf clay clay-accent">
         <div className="now-card__main">
           <span className="agenda-card__tags">
             {onStage ? (

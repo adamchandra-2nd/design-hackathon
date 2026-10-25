@@ -442,3 +442,12 @@ a.btn { text-decoration: none; }
 
 /* Centered contexts keep their tags centered */
 .read-card > .claude-tag, .read-card > .badge { align-self: center; }
+
+/* Performance tablet: the Sesiku card gets more air between its groups */
+@media (min-width: 768px) {
+  .now-card--perf .now-card__main { gap: var(--spacing-medium); padding: var(--spacing-largest); }
+  .now-card--perf .big-timer { gap: var(--spacing-small); }
+  .now-card--perf .big-timer__bar { margin-top: 4px; }
+  .now-card--perf .now-card__main > :is(.stack-actions, .btn) { margin-top: var(--spacing-extra-small); }
+  .now-card--perf .stack-actions { gap: var(--spacing-small); }
+}
