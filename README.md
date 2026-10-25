@@ -28,7 +28,7 @@ For the people on stage, who may come from outside Potara. The admin sends each 
 
 - **MC** (`#mc-…`): Panggung (now/next, big timer, PIC, Claude-assisted script, cues to the speaker, call the committee, read-only rundown), Pertanyaan (guest questions grouped by Claude, swipe to pick/skip, full-screen read mode), Sorotan (greeting lines, who just arrived, rewards), Umumkan (one-tap templates or write your own).
 - **Performance / speaker** (`#pembicara-…`): Sesiku (Saya siap, timer, Butuh bantuan, Kembali ke MC), MC cues take over the screen, questions picked by the MC, and the session's feedback afterwards.
-- Layout follows the guest app on phones (bottom nav) and the admin panels on tablet landscape (nav rail + two columns).
+- Layout follows the guest app (one column, floating bottom nav) on phones and tablets; tablets are portrait-only, with a 24px gutter, full-width toasts and floating dialogs.
 - In the prototype both sides share state through localStorage, so `#mc` and `#pembicara` open in two tabs talk to each other.
 
 ## Admin side (desktop)

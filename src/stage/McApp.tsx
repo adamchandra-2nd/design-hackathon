@@ -201,8 +201,6 @@ function McMain({ token }: { token: string }) {
         }}
       />
     );
-  // Tablet landscape: the other key panel sits next to the current tab
-  const aside = tab === "panggung" ? pertanyaan : panggung;
   const picked = state.questions.filter((q) => q.state === "dipilih");
 
   return (
@@ -218,7 +216,6 @@ function McMain({ token }: { token: string }) {
         onNav={setTab}
         strip={strip}
         banner={banner}
-        aside={aside}
         toast={
           toast && (
             <Toast

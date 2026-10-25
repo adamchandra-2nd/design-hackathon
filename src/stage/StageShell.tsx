@@ -16,17 +16,15 @@ type Props<T extends string> = {
   banner?: ReactNode;
   toast?: ReactNode;
   children: ReactNode;
-  /** Tablet landscape only: second column next to the main one. */
-  aside?: ReactNode;
 };
 
 /**
- * MC / speaker layout. Phone: one column + floating bottom nav (like the guest app).
- * Tablet portrait: same, roomier. Tablet landscape: nav becomes a rail and two panels sit side by side (like admin).
+ * MC / speaker layout: one column + floating bottom nav (like the guest app), on phones and tablets.
+ * Tablets get a 24px gutter, full-width toasts and floating dialogs; a rotated tablet keeps the same layout.
  */
-export function StageShell<T extends string>({ nav, active, onNav, strip, banner, toast, children, aside }: Props<T>) {
+export function StageShell<T extends string>({ nav, active, onNav, strip, banner, toast, children }: Props<T>) {
   return (
-    <div className={`stage${aside ? " has-aside" : ""}`}>
+    <div className="stage">
       <nav className="stage-nav clay clay-dark" aria-label="Navigasi">
         {nav.map((n) => {
           const on = n.id === active;
@@ -51,7 +49,6 @@ export function StageShell<T extends string>({ nav, active, onNav, strip, banner
         {banner}
         <div className="stage-scroll">{children}</div>
       </div>
-      {aside && <div className="stage-col stage-col--aside">{aside}</div>}
       {toast && <div className="stage-toast">{toast}</div>}
     </div>
   );

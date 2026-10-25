@@ -297,7 +297,6 @@ function PerfMain({ token }: { token: string }) {
   );
 
   const content = tab === "sesi" ? sesi : tab === "pertanyaan" ? pertanyaan : hasil;
-  const aside = tab === "sesi" ? pertanyaan : sesi;
 
   return (
     <>
@@ -318,7 +317,6 @@ function PerfMain({ token }: { token: string }) {
             </div>
           ) : undefined
         }
-        aside={aside}
         toast={toast && <Toast lead={<ToastIcon icon="Check" tone="accent" />} title={toast.title} sub={toast.sub} />}
       >
         {content}
