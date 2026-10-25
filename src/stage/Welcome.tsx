@@ -47,7 +47,10 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
             {ROOMS.map((r) => (
               <span key={r.id} className="welcome__room">
                 <img src={r.image} alt="" />
-                <span className="t-p-h5">{r.name}</span>
+                <span className="t-p-h5-bold welcome__room-line one-line" style={roomStyle(r.id)}>
+                  <span className="st-room-dot" />
+                  {r.name}
+                </span>
               </span>
             ))}
           </div>

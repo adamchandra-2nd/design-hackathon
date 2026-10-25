@@ -19,6 +19,7 @@ import {
   MC_SIGNALS,
   PEOPLE,
   QUESTION_GROUPS,
+  SIGNAL_TONE,
   SCRIPTS,
   SESSIONS,
   personById,
@@ -450,12 +451,15 @@ function Panggung({
       )}
 
       {live && speaker && (
-        <StageCard icon="Send" tone="sky" title={`Kode ke ${firstName(speaker.name)}`} aside={sent ? <Badge type="neutral" icon="Check">Terkirim</Badge> : undefined}>
+        <StageCard icon="Send" tone="sky" title={`Kode ke ${firstName(speaker.name)}`}>
           <span className="t-p-h5 stage-muted">Muncul besar di layar pembicara, jadi kamu tidak perlu memberi isyarat dari jauh.</span>
           <div className="signal-grid">
             {(["5-menit", "tanya-jawab", "akhiri", "terima-kasih"] as McSignal[]).map((k) => (
               <button key={k} type="button" className={`signal-btn clay clay-light${sent?.kind === k ? " is-sent" : ""}`} onClick={() => onSignal(k)}>
-                <Icon name={MC_SIGNALS[k].icon} size={20} />
+                <span className="signal-btn__top">
+                  <IconBadge icon={MC_SIGNALS[k].icon} tone={SIGNAL_TONE[k]} size="S" />
+                  {sent?.kind === k && <Badge type="neutral" icon="Check">Terkirim</Badge>}
+                </span>
                 <span className="t-p-h4-bold">{MC_SIGNALS[k].title}</span>
               </button>
             ))}
@@ -817,9 +821,11 @@ function Umumkan({ state, compose: startCompose, onSend }: { state: StageState; 
             <TextField label="Judul" value={title} onChange={setTitle} placeholder="Foto bersama 5 menit lagi" maxLength={40} hint={`${title.length}/40`} />
             <TextField label="Isi" value={body} onChange={setBody} placeholder="Kumpul di Halaman Depan ya!" multiline maxLength={120} hint={`${body.length}/120`} />
             <RoomPicker label="Ruangan tujuan (opsional)" value={roomId} onChange={setRoomId} optional hint="Kalau dipilih, notifikasinya punya tombol “Ke sana”." />
+            <div className="card-actions card-actions--block">
             <Button block icon="Megaphone" disabled={!title.trim() || !body.trim()} onClick={() => setConfirm({ title: title.trim(), body: body.trim(), roomId })}>
               Kirim ke {here} tamu
             </Button>
+            </div>
           </>
         ) : (
           <Button block style="tertiary" icon="Plus" onClick={() => setCompose(true)}>

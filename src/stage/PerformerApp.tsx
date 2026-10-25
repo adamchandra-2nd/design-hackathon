@@ -3,11 +3,12 @@ import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
+import { IconBadge } from "../components/IconBadge";
 import { Toast, ToastIcon } from "../components/Toast";
 import { EVENT } from "../config";
 import { formatTime } from "../data/agenda";
 import { ROOMS, roomIndexById } from "../data/rooms";
-import { HELP_LABEL, MC_SIGNALS, PANITIA_CONTACT, PEOPLE, QUESTION_GROUPS, SESSIONS, TALKSHOW_FEEDBACK, type SpeakerHelp, type StageQuestionState } from "./data";
+import { HELP_LABEL, MC_SIGNALS, SIGNAL_TONE, PANITIA_CONTACT, PEOPLE, QUESTION_GROUPS, SESSIONS, TALKSHOW_FEEDBACK, type SpeakerHelp, type StageQuestionState } from "./data";
 import { PERF_LINKS, type PerfTab } from "./links";
 import { BigTimer, StageCard, StageShell, TimerStrip } from "./StageShell";
 import { StageLogin } from "./StageLogin";
@@ -152,9 +153,7 @@ function PerfMain({ token }: { token: string }) {
       <StageCard icon="Send" tone="sky" title="Kode dari MC">
         {state.mcSignal ? (
           <div className="hl-item" style={{ padding: 0 }}>
-            <span className="icon-badge icon-badge--sky icon-badge--S clay clay-accent">
-              <Icon name={MC_SIGNALS[state.mcSignal.kind].icon} size={16} />
-            </span>
+            <IconBadge icon={MC_SIGNALS[state.mcSignal.kind].icon} tone={SIGNAL_TONE[state.mcSignal.kind]} size="S" />
             <span className="hl-item__text">
               <span className="t-p-h4-bold">{MC_SIGNALS[state.mcSignal.kind].title}</span>
               <span className="t-p-h5 stage-muted">{MC_SIGNALS[state.mcSignal.kind].body}</span>
@@ -186,7 +185,9 @@ function PerfMain({ token }: { token: string }) {
             <dd className="t-p-h4-bold">{roomName(MY.roomId)}</dd>
           </div>
         </dl>
-        <ContactButton block />
+        <div className="card-actions card-actions--block">
+          <ContactButton block />
+        </div>
       </StageCard>
     </>
   );

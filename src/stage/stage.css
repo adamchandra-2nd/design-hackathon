@@ -139,9 +139,9 @@
 .speaker-chip--bantuan { background: var(--error); }
 
 /* Signals */
-.signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-extra-small); }
-.signal-btn { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-extra-small); min-height: 72px; padding: var(--padding-medium); border-radius: var(--radius-large); background: var(--surface); border: 1px solid var(--border); text-align: left; color: var(--text-primary); }
-.signal-btn svg { color: var(--orange-splash); }
+.signal-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: var(--spacing-small); }
+.signal-btn { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-small); min-height: 112px; padding: var(--padding-mid-medium); border-radius: var(--radius-large); background: var(--surface); border: 1px solid var(--border); text-align: left; color: var(--text-primary); }
+.signal-btn__top { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-extra-small); align-self: stretch; }
 .signal-btn.is-sent { border-color: var(--orange-splash); background: rgba(249, 91, 0, 0.06); }
 
 /* Script (Claude-assisted) */
@@ -250,9 +250,13 @@
 .welcome__dots { display: flex; gap: 6px; }
 .welcome__dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
 .welcome__dots span.is-on { width: 24px; border-radius: 8px; background: var(--orange-splash); }
-.welcome__rooms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--spacing-extra-small); }
-.welcome__room { display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
-.welcome__room img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-medium); }
+.welcome__rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-small); }
+.welcome__room:last-child { grid-column: 1 / -1; }
+.welcome__room:last-child img { aspect-ratio: 16 / 7; }
+.welcome__room { display: flex; flex-direction: column; gap: 6px; align-items: stretch; text-align: left; min-width: 0; }
+.welcome__room img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-medium); }
+.welcome__room .welcome__room-line { color: var(--text-primary); }
+.welcome__card { max-height: calc(100dvh - 120px); overflow-y: auto; }
 .welcome__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-extra-small); }
 .welcome__top { position: absolute; top: max(var(--padding-mid-medium), env(safe-area-inset-top)); right: var(--padding-mid-medium); }
 
@@ -429,3 +433,24 @@ a.btn { text-decoration: none; }
 /* Rating distribution in its own container */
 .mini-dist--box { padding: var(--padding-medium); border-radius: var(--radius-large); background: var(--background-primary); gap: 6px; }
 .mini-dist__head { padding-bottom: var(--padding-small); margin-bottom: 2px; border-bottom: 1px solid var(--border); }
+
+/* ---------- Tag sizing: roomier, never stretched ---------- */
+:is(.stage, .read-mode, .sheet-scrim, .welcome) :is(.badge, .claude-tag, .meta-tag, .person-tag) { height: 32px; padding: 0 var(--padding-mid-medium) 0 var(--padding-medium); gap: 6px; }
+:is(.q-card, .stage-card__body, .read-card, .hl-item, .now-card__main) > :is(.badge, .claude-tag) { align-self: flex-start; justify-self: start; }
+.q-card > .badge { width: max-content; }
+
+/* ---------- High contrast on the orange card ---------- */
+.now-card .meta-tag { background: var(--cream); color: var(--ink); }
+.now-card .meta-tag svg { color: var(--ink); }
+.now-card .big-timer--ok .big-timer__state { background: var(--cream); color: var(--ink); }
+.now-card .speaker-row { background: #b34200; }
+.now-card .speaker-row .avatar { box-shadow: 0 0 0 2px var(--white); }
+.now-card .speaker-row__name { color: var(--white); }
+.now-card .person-tag { background: var(--white); border: 0; color: #a83e00; }
+.now-card .person-tag--ok { color: #2e6a24; }
+.now-card .person-tag__dot { border-color: #a83e00; }
+.now-card .speaker-row.is-alert { background: #8f1d14; }
+.now-card .speaker-row__mc { color: #a83e00; }
+
+/* Actions at the end of a card or form: separator first */
+.card-actions--block { display: block; }

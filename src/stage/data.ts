@@ -131,6 +131,7 @@ export const ANNOUNCE_TEMPLATES: { title: string; body: string; roomId: string |
 
 /** Signals the MC sends to the speaker's screen. */
 export type McSignal = "5-menit" | "tanya-jawab" | "akhiri" | "terima-kasih";
+export const SIGNAL_TONE: Record<McSignal, "amber" | "pink" | "red" | "green"> = { "5-menit": "amber", "tanya-jawab": "pink", akhiri: "red", "terima-kasih": "green" };
 export const MC_SIGNALS: Record<McSignal, { title: string; body: string; icon: "Clock" | "Message" | "Close" | "Check" }> = {
   "5-menit": { title: "5 menit lagi", body: "Mulai arahkan ke penutup ya.", icon: "Clock" },
   "tanya-jawab": { title: "Waktunya tanya jawab", body: "Pertanyaan pilihan MC sudah ada di tab Pertanyaan.", icon: "Message" },
