@@ -93,6 +93,7 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
         </Button>
       </div>
       <section className="welcome__card">
+        <div className="welcome__body scroll-fade">
         <span className="welcome__dots" aria-label={`Langkah ${i + 1} dari ${slides.length}`}>
           {slides.map((_, k) => (
             <span key={k} className={k === i ? "is-on" : ""} />
@@ -100,6 +101,7 @@ export function Welcome({ person, sessions, onDone }: { person: Person; sessions
         </span>
         <h1 className="stage-login__title">{slides[i].title}</h1>
         {slides[i].body}
+        </div>
         <div className="welcome__actions">
           <Button style="tertiary" icon="ArrowLeft" disabled={i === 0} onClick={() => setI(i - 1)}>
             Kembali

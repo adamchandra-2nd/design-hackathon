@@ -251,11 +251,15 @@
 .welcome__dots span.is-on { width: 24px; border-radius: 8px; background: var(--orange-splash); }
 .welcome__rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-small); }
 .welcome__room:last-child { grid-column: 1 / -1; }
-.welcome__room:last-child img { aspect-ratio: 16 / 7; }
+.welcome__room:last-child img { aspect-ratio: 16 / 6; }
 .welcome__room { display: flex; flex-direction: column; gap: 6px; align-items: stretch; text-align: left; min-width: 0; }
-.welcome__room img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-medium); }
+.welcome__room img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-medium); }
 .welcome__room .welcome__room-line { color: var(--text-primary); }
-.welcome__card { max-height: calc(100dvh - 120px); overflow-y: auto; }
+/* Body scrolls inside the card; the buttons stay pinned at the bottom with a separator */
+.welcome__card { max-height: calc(100dvh - 104px); padding: 0; gap: 0; overflow: hidden; }
+.welcome__body { display: flex; flex-direction: column; gap: var(--spacing-medium); min-height: 0; overflow-y: auto; padding: var(--padding-large) var(--padding-large) var(--padding-mid-medium); }
+.welcome__body.scroll-fade { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent); }
+.welcome__actions { flex: none; padding: var(--padding-mid-medium) var(--padding-large) var(--padding-large); border-top: 1px solid var(--border); }
 .welcome__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-extra-small); }
 .welcome__top { position: absolute; top: max(var(--padding-mid-medium), env(safe-area-inset-top)); right: var(--padding-mid-medium); }
 
