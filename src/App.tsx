@@ -16,7 +16,7 @@ import { PerformerApp } from "./stage/PerformerApp";
 import { AskScreen } from "./screens/AskScreen";
 import { EventFeedback } from "./screens/EventFeedback";
 import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
-import { SAMPLE_PHOTOS, SAMPLE_PICKS, type GalleryPhoto, type PickedPhoto } from "./data/gallery";
+import { SAMPLE_PHOTOS, SAMPLE_PICKS, firstName, type GalleryPhoto, type PickedPhoto } from "./data/gallery";
 import { EMPTY_OUTFIT, type Outfit } from "./data/outfits";
 import { AgendaScreen } from "./screens/AgendaScreen";
 import { CheckIn, type CheckInScenario } from "./screens/CheckIn";
@@ -408,7 +408,7 @@ function Flow() {
   const downloadPhoto = (p: GalleryPhoto) => {
     const a = document.createElement("a");
     a.href = p.src;
-    a.download = `hmd-foto-${p.author.toLowerCase()}-${p.id}.jpg`;
+    a.download = `hmd-foto-${firstName(p.author).toLowerCase()}-${p.id}.jpg`;
     a.click();
     showPageToast({ icon: "Download", title: "Foto diunduh", sub: "Cek folder unduhan atau galeri HP-mu." });
   };

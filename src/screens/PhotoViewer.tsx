@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { formatTime } from "../data/agenda";
-import type { GalleryPhoto } from "../data/gallery";
+import { firstName, type GalleryPhoto } from "../data/gallery";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import "./Gallery.css";
 
@@ -62,7 +62,7 @@ export function PhotoViewer({ photos, startId, confirmDelete, onClose, onDownloa
           touch.current = null;
         }}
       >
-        <img key={photo.id} src={photo.src} alt={photo.caption ?? `Foto dari ${photo.author}`} />
+        <img key={photo.id} src={photo.src} alt={photo.caption ?? `Foto dari ${firstName(photo.author)}`} />
         {index > 0 && (
           <button type="button" className="viewer__nav viewer__nav--prev clay clay-light" onClick={() => go(-1)} aria-label="Foto sebelumnya">
             <Icon name="ChevronLeft" />
@@ -79,7 +79,7 @@ export function PhotoViewer({ photos, startId, confirmDelete, onClose, onDownloa
         <div className="viewer__who">
           <Avatar initial={photo.author.charAt(0)} size="S" character={photo.mine} />
           <span className="viewer__who-text">
-            <span className="t-p-h4-bold">{photo.mine ? "Kamu" : photo.author}</span>
+            <span className="t-p-h4-bold">{photo.mine ? "Kamu" : firstName(photo.author)}</span>
             <span className="t-p-h5 viewer__meta">
               {formatTime(photo.at)} · {room}
             </span>

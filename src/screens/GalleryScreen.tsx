@@ -1,8 +1,9 @@
+import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
 import { OfflineBanner } from "../components/SystemState";
 import { formatTime } from "../data/agenda";
-import type { GalleryPhoto } from "../data/gallery";
+import { firstName, type GalleryPhoto } from "../data/gallery";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import "./Gallery.css";
 
@@ -85,13 +86,14 @@ export function GalleryScreen({ photos, filter, loading, offline, onFilter, onUp
       ) : (
         <div className="gallery__grid">
           {shown.map((p) => (
-            <button key={p.id} type="button" className="gallery__tile" onClick={() => onOpen(p)} aria-label={`Foto dari ${p.author}`}>
+            <button key={p.id} type="button" className="gallery__tile" onClick={() => onOpen(p)} aria-label={`Foto dari ${p.mine ? "kamu" : firstName(p.author)}`}>
               <img src={p.src} alt="" loading="lazy" />
+              <span className="gallery__tile-tag">
+                <Badge type="room">{ROOMS[roomIndexById(p.roomId)].name}</Badge>
+              </span>
               <span className="gallery__tile-meta">
-                <span className="t-p-h5-bold one-line">{p.mine ? "Kamu" : p.author}</span>
-                <span className="t-p-h5 one-line">
-                  {formatTime(p.at)} · {ROOMS[roomIndexById(p.roomId)].name}
-                </span>
+                <span className="t-p-h5-bold one-line">{p.mine ? "Kamu" : firstName(p.author)}</span>
+                <span className="t-p-h5">{formatTime(p.at)}</span>
               </span>
             </button>
           ))}
