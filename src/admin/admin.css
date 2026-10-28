@@ -782,3 +782,32 @@
 .script-edit__label.is-active { border-color: var(--orange-splash); background: rgba(249, 91, 0, 0.08); color: var(--orange-splash); }
 .script-edit__del { width: 32px; height: 32px; margin-left: auto; }
 .script-edit textarea { min-height: 64px; }
+
+/* ---------- Galeri ---------- */
+.admin-gallery__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-medium); flex: none; }
+.admin-gallery__search { flex: 0 1 320px; height: 40px; }
+.admin-gallery__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: var(--spacing-small); }
+.admin-gallery__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-extra-small);
+  padding: var(--padding-small);
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border);
+  background: var(--background-primary);
+  text-align: left;
+  transition: border-color 120ms ease;
+}
+.admin-gallery__card:hover { border-color: var(--text-grey-500); }
+.admin-gallery__card.is-selected { border-color: var(--orange-splash); box-shadow: 0 0 0 2px var(--orange-splash); }
+.admin-gallery__thumb { position: relative; display: block; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-small); background: var(--ink); }
+.admin-gallery__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.admin-gallery__thumb.is-censored img { filter: blur(14px) saturate(0.6); transform: scale(1.1); }
+.admin-gallery__flags { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+.admin-gallery__info { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 4px 4px; }
+.admin-gallery__name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.admin-gallery__preview { display: flex; align-items: center; justify-content: center; height: 180px; flex: none; overflow: hidden; border-radius: var(--radius-medium); background: var(--ink); }
+.admin-gallery__preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.admin-gallery__note { display: flex; gap: var(--spacing-extra-small); margin: 0; padding: var(--padding-medium); border-radius: var(--radius-medium); background: var(--tag-red-bg); color: var(--tag-red); line-height: 1.45; }
+.admin-gallery__note svg { flex: none; }
+.admin-gallery__caption dd { line-height: 1.5; }

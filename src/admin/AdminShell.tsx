@@ -14,6 +14,7 @@ export type AdminPage =
   | "pengumuman"
   | "pengisi"
   | "hadiah"
+  | "galeri"
   | "feedback"
   | "pengaturan";
 
@@ -36,6 +37,7 @@ const NAV: {
       { id: "undangan", label: "Undangan", icon: "Mail" },
       { id: "tamu", label: "Daftar tamu", icon: "Users" },
       { id: "hadiah", label: "Hadiah", icon: "Gift" },
+      { id: "galeri", label: "Galeri", icon: "Image" },
     ],
   },
   {

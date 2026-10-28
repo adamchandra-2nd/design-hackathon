@@ -3,6 +3,9 @@ import type { Phase } from "./Dashboard";
 import type { AdminEvent } from "./data";
 import type { LoginScenario } from "./Login";
 import type { UndanganDialog } from "./Undangan";
+import type { GalleryDialog, GalleryTab } from "./Gallery";
+import { SAMPLE_PHOTOS } from "../data/gallery";
+import { GALLERY_BASE, censor, type GalleryState } from "../data/galleryStore";
 
 export type Scenario = {
   signedIn: boolean;
@@ -24,6 +27,11 @@ export type Scenario = {
   system?: "error" | "404";
   notifOpen?: boolean;
   actionToast?: boolean;
+  /** Galeri: start the shared gallery from a known state (otherwise it picks up what guests left). */
+  gallery?: GalleryState;
+  galleryTab?: GalleryTab;
+  galleryPhoto?: string;
+  galleryDialog?: GalleryDialog;
   undangan?: { tab?: "semua" | "belum" | "gagal" | "terkirim" | "dibaca" | "rsvp"; selected?: string[]; dialog?: UndanganDialog; single?: string };
 };
 
@@ -76,6 +84,13 @@ export const ADMIN_LINKS: Record<string, Scenario> = {
   "admin-pengumuman-gagal": live("pengumuman", { failAnnouncement: true }),
   "admin-hadiah": live("hadiah"),
   "admin-hadiah-kosong": live("hadiah", { phase: "pre" }),
+  "admin-galeri": live("galeri"),
+  "admin-galeri-belum-dicek": live("galeri", { gallery: GALLERY_BASE(), galleryTab: "belum" }),
+  "admin-galeri-disensor": live("galeri", { gallery: GALLERY_BASE(censor(SAMPLE_PHOTOS, ["p3", "p5"])), galleryTab: "disensor" }),
+  "admin-galeri-kosong": live("galeri", { gallery: GALLERY_BASE([]) }),
+  "admin-galeri-detail": live("galeri", { gallery: GALLERY_BASE(), galleryPhoto: "p1" }),
+  "admin-galeri-sensor": live("galeri", { gallery: GALLERY_BASE(), galleryPhoto: "p1", galleryDialog: "sensor" }),
+  "admin-galeri-buka-sensor": live("galeri", { gallery: GALLERY_BASE(censor(SAMPLE_PHOTOS, ["p3"])), galleryPhoto: "p3", galleryDialog: "buka" }),
   "admin-feedback": live("feedback"),
   "admin-feedback-semua-rating": live("feedback", { feedbackAll: true }),
   "admin-feedback-akhir": live("feedback", { phase: "ended", feedbackTab: "akhir" }),

@@ -1,6 +1,7 @@
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
+import { Icon } from "../components/Icon";
 import { OfflineBanner } from "../components/SystemState";
 import { formatTime } from "../data/agenda";
 import { firstName, type GalleryPhoto } from "../data/gallery";
@@ -85,18 +86,43 @@ export function GalleryScreen({ photos, filter, loading, offline, onFilter, onUp
         </section>
       ) : (
         <div className="gallery__grid">
-          {shown.map((p) => (
-            <button key={p.id} type="button" className="gallery__tile" onClick={() => onOpen(p)} aria-label={`Foto dari ${p.mine ? "kamu" : firstName(p.author)}`}>
-              <img src={p.src} alt="" loading="lazy" />
-              <span className="gallery__tile-tag">
-                <Badge type="room">{ROOMS[roomIndexById(p.roomId)].name}</Badge>
-              </span>
-              <span className="gallery__tile-meta">
-                <span className="t-p-h5-bold one-line">{p.mine ? "Kamu" : firstName(p.author)}</span>
-                <span className="t-p-h5">{formatTime(p.at)}</span>
-              </span>
-            </button>
-          ))}
+          {shown.map((p) => {
+            const who = p.mine ? "Kamu" : firstName(p.author);
+            const inner = (
+              <>
+                <img src={p.src} alt="" loading="lazy" />
+                {p.censored && (
+                  <span className="gallery__censored t-p-h5-bold">
+                    <Icon name="Lock" size={16} />
+                    Disensor panitia
+                  </span>
+                )}
+                <span className="gallery__tile-tag">
+                  <Badge type="room">{ROOMS[roomIndexById(p.roomId)].name}</Badge>
+                </span>
+                <span className="gallery__tile-meta">
+                  <span className="t-p-h5-bold one-line">{who}</span>
+                  <span className="t-p-h5">{formatTime(p.at)}</span>
+                </span>
+              </>
+            );
+            // Other guests' censored photos stay blurred and can't be opened.
+            return p.censored && !p.mine ? (
+              <div key={p.id} className="gallery__tile is-censored" role="img" aria-label={`Foto dari ${who}, disensor panitia`}>
+                {inner}
+              </div>
+            ) : (
+              <button
+                key={p.id}
+                type="button"
+                className={`gallery__tile${p.censored ? " is-censored" : ""}`}
+                onClick={() => onOpen(p)}
+                aria-label={`Foto dari ${p.mine ? "kamu" : who}${p.censored ? ", disensor panitia" : ""}`}
+              >
+                {inner}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

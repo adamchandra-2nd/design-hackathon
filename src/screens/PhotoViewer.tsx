@@ -62,7 +62,7 @@ export function PhotoViewer({ photos, startId, confirmDelete, onClose, onDownloa
           touch.current = null;
         }}
       >
-        <img key={photo.id} src={photo.src} alt={photo.caption ?? `Foto dari ${firstName(photo.author)}`} />
+        <img key={photo.id} className={photo.censored ? "is-censored" : undefined} src={photo.src} alt={photo.caption ?? `Foto dari ${firstName(photo.author)}`} />
         {index > 0 && (
           <button type="button" className="viewer__nav viewer__nav--prev clay clay-light" onClick={() => go(-1)} aria-label="Foto sebelumnya">
             <Icon name="ChevronLeft" />
@@ -86,10 +86,18 @@ export function PhotoViewer({ photos, startId, confirmDelete, onClose, onDownloa
           </span>
         </div>
         {photo.caption && <p className="t-p-h4 viewer__caption">{photo.caption}</p>}
-        <div className={`viewer__actions${photo.mine ? "" : " is-single"}`}>
-          <Button block style="secondary" icon="Download" onClick={() => onDownload(photo)}>
-            Unduh
-          </Button>
+        {photo.censored && (
+          <p className="t-p-h5 viewer__censored" role="status">
+            <Icon name="Lock" size={16} />
+            Fotomu disensor panitia. Tamu lain melihatnya buram dan tidak bisa membuka atau mengunduhnya.
+          </p>
+        )}
+        <div className={`viewer__actions${photo.mine && !photo.censored ? "" : " is-single"}`}>
+          {!photo.censored && (
+            <Button block style="secondary" icon="Download" onClick={() => onDownload(photo)}>
+              Unduh
+            </Button>
+          )}
           {photo.mine && (
             <Button block style="danger" icon="Trash" onClick={() => setDeleting(true)}>
               Hapus

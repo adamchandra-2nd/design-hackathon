@@ -17,6 +17,7 @@ import { AskScreen } from "./screens/AskScreen";
 import { EventFeedback } from "./screens/EventFeedback";
 import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
 import { SAMPLE_PHOTOS, SAMPLE_PICKS, firstName, type GalleryPhoto, type PickedPhoto } from "./data/gallery";
+import { GALLERY_BASE, censor, useGallery, type GalleryState } from "./data/galleryStore";
 import { EMPTY_OUTFIT, type Outfit } from "./data/outfits";
 import { AgendaScreen } from "./screens/AgendaScreen";
 import { CheckIn, type CheckInScenario } from "./screens/CheckIn";
@@ -78,8 +79,6 @@ type AppState = {
   askOffline: boolean;
   /** Review case: the MC reads the question while the guest is editing it. */
   askRace: boolean;
-  /** Shared gallery (sample feed + this guest's uploads). */
-  photos: GalleryPhoto[];
   galleryFilter: GalleryFilter;
   /** Unseen photos from other guests: dot on the Galeri tab. */
   newPhotos: boolean;
@@ -113,7 +112,6 @@ const INITIAL: AppState = {
   askClosed: false,
   askOffline: false,
   askRace: false,
-  photos: SAMPLE_PHOTOS,
   galleryFilter: "semua",
   newPhotos: false,
   galleryLoading: false,
@@ -136,6 +134,18 @@ const APP: Partial<AppState> = {
 const TALKSHOW_DONE = 10 * 60 + 31;
 const FOUR = { ...SAMPLE_COLLECTED, raka: "Kucing oren, katanya." };
 const FIVE = { ...FOUR, laras: "Kopi pagi yang pas." };
+
+/**
+ * The gallery is shared with the admin (src/data/galleryStore). These review cases start it from a known state;
+ * every other link (and the real flow) picks up whatever is there, so #galeri and #admin-galeri stay in sync.
+ */
+const GALLERY_SEEDS: Record<string, GalleryState> = {
+  "galeri-kosong": GALLERY_BASE([]),
+  "galeri-fotoku-kosong": GALLERY_BASE(SAMPLE_PHOTOS.filter((p) => !p.mine)),
+  "galeri-disensor": GALLERY_BASE(censor(SAMPLE_PHOTOS, ["p3"])),
+  "galeri-fotoku-disensor": GALLERY_BASE(censor(SAMPLE_PHOTOS, ["p2"])),
+  "galeri-foto-disensor": GALLERY_BASE(censor(SAMPLE_PHOTOS, ["p2"])),
+};
 
 /** Review cases for the upload screen: n photos "picked" from the gallery. */
 const picked = (n: number): PickResult => ({ picks: SAMPLE_PICKS(n), notImage: 0, tooBig: 0, overLimit: 0 });
@@ -182,9 +192,12 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   "tanya-gagal": { ...APP, askOffline: true, overlay: { type: "ask", eventId: "talkshow" } },
   "tanya-keburu-dibaca": { ...APP, askRace: true, overlay: { type: "ask", eventId: "talkshow" } },
   galeri: { ...APP, tab: "galeri" },
-  "galeri-kosong": { ...APP, tab: "galeri", photos: [] },
+  "galeri-kosong": { ...APP, tab: "galeri" },
   "galeri-fotoku": { ...APP, tab: "galeri", galleryFilter: "fotoku" },
-  "galeri-fotoku-kosong": { ...APP, tab: "galeri", galleryFilter: "fotoku", photos: SAMPLE_PHOTOS.filter((p) => !p.mine) },
+  "galeri-fotoku-kosong": { ...APP, tab: "galeri", galleryFilter: "fotoku" },
+  "galeri-disensor": { ...APP, tab: "galeri" },
+  "galeri-fotoku-disensor": { ...APP, tab: "galeri", galleryFilter: "fotoku" },
+  "galeri-foto-disensor": { ...APP, tab: "galeri", overlay: { type: "photo", id: "p2" } },
   "galeri-memuat": { ...APP, tab: "galeri", galleryLoading: true },
   "galeri-offline": { ...APP, tab: "galeri", offline: true },
   "galeri-foto": { ...APP, tab: "galeri", overlay: { type: "photo", id: "p1" } },
@@ -258,6 +271,7 @@ function Flow() {
     toastTimer.current = window.setTimeout(() => setPageToast(null), 3500);
   };
 
+  const [gallery, updateGallery] = useGallery(GALLERY_SEEDS[window.location.hash.slice(1)]);
   // Galeri: photos come from the phone's photo library only (no in-app camera).
   const photoPicker = usePhotoPicker((files) => {
     const r = readPicked(files);
@@ -402,7 +416,8 @@ function Flow() {
   const sharePhotos = (picks: PickedPhoto[]) => {
     const room = ROOMS[state.roomIndex].id;
     const added = picks.map((p, i) => ({ id: `mine-${Date.now()}-${i}`, src: p.src, author: state.name, mine: true, at: state.now, roomId: room, caption: p.caption.trim() || undefined }));
-    set({ photos: [...added, ...state.photos], overlay: null, tab: "galeri" });
+    updateGallery((g) => ({ ...g, photos: [...added, ...g.photos] }));
+    set({ overlay: null, tab: "galeri" });
     showPageToast({ icon: "Check", title: `${picks.length} foto dibagikan`, sub: "Semua tamu yang hadir sekarang bisa melihatnya." });
   };
   const downloadPhoto = (p: GalleryPhoto) => {
@@ -413,11 +428,12 @@ function Flow() {
     showPageToast({ icon: "Download", title: "Foto diunduh", sub: "Cek folder unduhan atau galeri HP-mu." });
   };
   const deletePhoto = (p: GalleryPhoto) => {
-    set({ photos: state.photos.filter((x) => x.id !== p.id), overlay: null });
+    updateGallery((g) => ({ ...g, photos: g.photos.filter((x) => x.id !== p.id) }));
+    set({ overlay: null });
     showPageToast({ icon: "Trash", title: "Foto dihapus", sub: "Tamu lain tidak bisa melihatnya lagi." });
   };
-  // The viewer pages through the same list the grid shows.
-  const viewerPhotos = [...state.photos].sort((a, b) => b.at - a.at).filter((p) => state.galleryFilter === "semua" || p.mine);
+  // The viewer pages through the same list the grid shows, minus other guests' censored photos (those can't be opened).
+  const viewerPhotos = [...gallery.photos].sort((a, b) => b.at - a.at).filter((p) => (state.galleryFilter === "semua" || p.mine) && (p.mine || !p.censored));
 
   const overlay = state.overlay;
   const guest = overlay?.type === "guest" ? GUESTS.find((g) => g.id === overlay.id) : undefined;
@@ -448,7 +464,7 @@ function Flow() {
       )}
       {state.tab === "galeri" && (
         <GalleryScreen
-          photos={state.photos}
+          photos={gallery.photos}
           filter={state.galleryFilter}
           loading={state.galleryLoading}
           offline={state.offline}

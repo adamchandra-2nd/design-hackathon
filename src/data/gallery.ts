@@ -14,6 +14,8 @@ export type GalleryPhoto = {
   at: number;
   roomId: string;
   caption?: string;
+  /** Blurred by the committee: other guests can't open or download it. */
+  censored?: boolean;
 };
 
 /** Guests are shown by first name only, so tiles and toasts stay short. */
@@ -31,7 +33,7 @@ export const SAMPLE_PHOTOS: GalleryPhoto[] = [
   { id: "p3", src: room(3).image, author: "Sinta Maharani", mine: false, at: 9 * 60 + 36, roomId: room(3).id },
   { id: "p4", src: room(0).image, author: "Azwar", mine: false, at: 9 * 60 + 22, roomId: room(0).id, caption: "Pintu keycard-nya keren." },
   { id: "p5", src: room(2).image, author: "Raka Pratama", mine: false, at: 9 * 60 + 18, roomId: room(2).id },
-  { id: "p6", src: room(4).image, author: "Laras", mine: false, at: 9 * 60 + 12, roomId: room(4).id, caption: "Omakase corner!" },
+  { id: "p6", src: room(4).image, author: "Laras Ayuningtyas", mine: false, at: 9 * 60 + 12, roomId: room(4).id, caption: "Omakase corner!" },
 ];
 
 /** Review cases: photos "picked" from the gallery without a real file dialog. */

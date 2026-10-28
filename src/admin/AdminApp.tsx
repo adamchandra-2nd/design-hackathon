@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Toast, ToastIcon } from "../components/Toast";
@@ -24,6 +24,9 @@ import {
   type Announcement,
 } from "./data";
 import { Feedback } from "./Feedback";
+import { AdminGallery } from "./Gallery";
+import { firstName, type GalleryPhoto } from "../data/gallery";
+import { useGallery } from "../data/galleryStore";
 import { Guests } from "./Guests";
 import { DEFAULT_TEMPLATE } from "./invite";
 import { Login } from "./Login";
@@ -93,6 +96,7 @@ const SAMPLE_NOTICES = (phase: Phase): AdminNotice[] =>
         { id: "n-hadiah", kind: "action", icon: "Gift", tone: "amber", title: "Sinta siap ambil hadiah", body: "5/5 kartu kenalan. Siapkan voucher di meja panitia.", at: NOW[phase] - 4, read: false, page: "hadiah" },
         { id: "n-gagal", kind: "action", icon: "Close", tone: "red", title: "1 undangan gagal terkirim", body: "Nomor tidak terdaftar di WhatsApp. Cek lalu kirim ulang.", at: NOW[phase] - 20, read: false, page: "undangan" },
         { id: "n-bentrok", kind: "info", icon: "Calendar", tone: "teal", title: "Talkshow mulai 10 menit lagi", body: "Ruang Omakase. Tamu otomatis dapat notifikasi.", at: NOW[phase] - 10, read: false, page: "rundown" },
+        { id: "n-galeri", kind: "info", icon: "Image", tone: "pink", title: "3 foto baru di Galeri", body: "Nanda, David, dan Sinta. Cek sebelum ramai dilihat tamu.", at: NOW[phase] - 2, read: false, page: "galeri" },
         { id: "n-feedback", kind: "info", icon: "Star", tone: "pink", title: "5 feedback baru untuk Pembukaan", body: "Rata-rata 4,2 dari 5.", at: NOW[phase] - 45, read: true, page: "feedback" },
       ];
 
@@ -165,6 +169,23 @@ export function AdminApp({ token }: { token: string }) {
   }, []);
   useStageWatch(onStage);
 
+  // Galeri is shared with the guests' phones (see src/data/galleryStore).
+  const [gallery, updateGallery] = useGallery(sc.gallery);
+  const [galleryPhoto, setGalleryPhoto] = useState<string | null>(sc.galleryPhoto ?? null);
+  const knownPhotos = useRef(new Set(gallery.photos.map((p) => p.id)));
+  useEffect(() => {
+    const fresh = gallery.photos.filter((p) => !knownPhotos.current.has(p.id));
+    gallery.photos.forEach((p) => knownPhotos.current.add(p.id));
+    if (!fresh.length) return;
+    const who = firstName(fresh[0].author);
+    pushRef.current({ kind: "info", icon: "Image", tone: "pink", title: `${who} membagikan ${fresh.length} foto`, body: "Cek di Galeri sebelum ramai dilihat tamu.", page: "galeri" });
+  }, [gallery.photos]);
+  // Opening a photo counts as checked.
+  const selectPhoto = (id: string | null) => {
+    setGalleryPhoto(id);
+    if (id && !gallery.checked.includes(id)) updateGallery((g) => ({ ...g, checked: [...g.checked, id] }));
+  };
+
   if (system)
     return (
       <AdminSystem
@@ -197,7 +218,7 @@ export function AdminApp({ token }: { token: string }) {
         setSearch(q);
         if (q && page !== "tamu") setPage("tamu");
       }}
-      counts={{ hadiah: guests.filter((g) => g.reward === "siap").length, undangan: guests.filter((g) => g.rsvp === "belum" && g.invite === "gagal").length }}
+      counts={{ galeri: gallery.photos.filter((p) => !gallery.checked.includes(p.id)).length, hadiah: guests.filter((g) => g.reward === "siap").length, undangan: guests.filter((g) => g.rsvp === "belum" && g.invite === "gagal").length }}
       email={ADMIN_EMAIL}
       onLogout={() => setSignedIn(false)}
       banner={sc.offline ? <AdminOfflineBanner /> : undefined}
@@ -362,6 +383,29 @@ export function AdminApp({ token }: { token: string }) {
           onChangePin={(pin) => {
             setSettings({ ...settings, panitiaPin: pin, codesChangedAt: now });
             notify("Lock", "PIN panitia diganti", "Kabari panitia di meja hadiah.");
+          }}
+        />
+      )}
+      {page === "galeri" && (
+        <AdminGallery
+          gallery={gallery}
+          initialTab={sc.galleryTab}
+          selectedId={galleryPhoto}
+          initialDialog={sc.galleryDialog}
+          onSelect={selectPhoto}
+          onCensor={(p: GalleryPhoto, censored) => {
+            updateGallery((g) => ({ ...g, photos: g.photos.map((x) => (x.id === p.id ? { ...x, censored } : x)) }));
+            notify(censored ? "Lock" : "Eye", censored ? "Foto disensor" : "Sensor dibuka", censored ? `Foto ${firstName(p.author)} sekarang buram di HP tamu.` : `Foto ${firstName(p.author)} tampil normal lagi.`);
+          }}
+          onCheckAll={(ids) => {
+            updateGallery((g) => ({ ...g, checked: [...new Set([...g.checked, ...ids])] }));
+            notify("Check", "Semua foto sudah dicek", `${ids.length} foto ditandai sudah dicek.`);
+          }}
+          onDownload={(p) => {
+            const a = document.createElement("a");
+            a.href = p.src;
+            a.download = `hmd-foto-${firstName(p.author).toLowerCase()}-${p.id}.jpg`;
+            a.click();
           }}
         />
       )}
