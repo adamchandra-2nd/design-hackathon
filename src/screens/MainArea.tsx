@@ -20,7 +20,7 @@ const TOAST_CLOSE_MS = 200;
 const MOVE_COUNTDOWN_S = 5;
 
 /** Which notification story to play when the main area opens (first visit or a review link). */
-export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "none";
+export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "foto-baru" | "none";
 
 type ToastSpec = { key: string; lead: ReactNode; title: string; sub: string; action?: ReactNode; actions?: ReactNode };
 
@@ -39,6 +39,8 @@ type MainAreaProps = {
   onScenarioPlayed: () => void;
   onOpenReward: () => void;
   onAsk: () => void;
+  /** Unseen photos in Galeri: orange dot on its tab. */
+  newPhotos: boolean;
 };
 
 /** Main area: the character stands in the middle of a Potara room; every action floats on top. */
@@ -56,6 +58,7 @@ export function MainArea({
   onScenarioPlayed,
   onOpenReward,
   onAsk,
+  newPhotos,
 }: MainAreaProps) {
   const [toast, setToast] = useState<ToastSpec | null>(null);
   const [toastClosing, setToastClosing] = useState(false);
@@ -148,6 +151,22 @@ export function MainArea({
       );
       // Then the usual heads-up before moving to the event that's on now.
       if (live && liveRoom !== roomIndex) timers.push(at(3800, () => startMoveNotice(live.title, liveRoom)));
+    }
+    if (scenario === "foto-baru") {
+      timers.push(
+        at(1200, () =>
+          showToast(
+            {
+              key: "photos",
+              lead: <Avatar initial="N" />,
+              title: "Nanda membagikan 2 foto",
+              sub: "Lihat dan unduh di Galeri.",
+              action: <Button size="small" style="secondary" icon="Image" onClick={() => onTab("galeri")}>Lihat</Button>,
+            },
+            6000,
+          ),
+        ),
+      );
     }
     if (scenario === "ramai") {
       timers.push(
@@ -325,6 +344,7 @@ export function MainArea({
         <BottomNav
           active="ruangan"
           feedbackLocked={!ended}
+          dots={{ galeri: newPhotos }}
           onChange={onTab}
           onLockedTap={() =>
             showToast(

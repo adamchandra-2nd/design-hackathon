@@ -33,6 +33,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "ruangan-hadiah", label: "Pengingat hadiah", note: "5 kartu, hadiah belum ditukar" },
       { token: "ruangan-selesai", label: "Acara selesai", note: "Feedback terbuka" },
       { token: "ruangan-offline", label: "Offline", note: "Banner offline" },
+      { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tab Galeri" },
     ],
   },
   {
@@ -71,6 +72,24 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "kenalan-hadiah", label: "Hadiah menunggu", note: "Tukar nanti" },
       { token: "voucher", label: "Voucher", note: "PIN panitia: 2026" },
       { token: "kenalan-selesai", label: "Hadiah sudah diambil", note: "Status akhir" },
+    ],
+  },
+  {
+    title: "Galeri",
+    links: [
+      { token: "galeri", label: "Galeri", note: "Grid foto semua tamu, filter Semua / Fotoku" },
+      { token: "galeri-fotoku", label: "Fotoku", note: "Foto yang kamu unggah" },
+      { token: "galeri-kosong", label: "Belum ada foto", note: "Empty state + ajakan unggah" },
+      { token: "galeri-fotoku-kosong", label: "Fotoku kosong", note: "Belum pernah unggah" },
+      { token: "galeri-memuat", label: "Memuat", note: "Skeleton" },
+      { token: "galeri-offline", label: "Offline", note: "Foto tetap tampil, unggah butuh internet" },
+      { token: "galeri-foto", label: "Lihat foto tamu lain", note: "Geser, Unduh" },
+      { token: "galeri-foto-milikku", label: "Lihat fotoku", note: "Unduh + Hapus" },
+      { token: "galeri-hapus", label: "Hapus foto", note: "Konfirmasi" },
+      { token: "galeri-unggah", label: "Unggah: pratinjau", note: "3 foto, caption per foto, tag ruangan" },
+      { token: "galeri-unggah-batas", label: "Unggah: lebih dari 5", note: "Hanya 5 pertama yang ikut" },
+      { token: "galeri-unggah-file-salah", label: "Unggah: file dilewati", note: "Bukan gambar / lebih dari 10 MB" },
+      { token: "galeri-unggah-gagal", label: "Unggah gagal", note: "Offline saat membagikan, Coba lagi" },
     ],
   },
   {

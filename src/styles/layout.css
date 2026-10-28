@@ -156,7 +156,8 @@
   top: max(var(--padding-mid-medium), env(safe-area-inset-top));
   left: var(--padding-mid-medium);
   right: var(--padding-mid-medium);
-  z-index: 4;
+  /* Above full-screen overlays (photo viewer), below dialogs' scrim */
+  z-index: 18;
 }
 
 /* Screen-to-screen transition */
