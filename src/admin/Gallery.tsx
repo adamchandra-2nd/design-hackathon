@@ -4,8 +4,9 @@ import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
+import { TextField } from "../components/TextField";
 import { formatTime } from "../data/agenda";
-import type { GalleryPhoto } from "../data/gallery";
+import { CENSOR_REASONS, CENSOR_REASON_MAX, type GalleryPhoto } from "../data/gallery";
 import type { GalleryState } from "../data/galleryStore";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import { Empty, Panel, Stat } from "./ui";
@@ -19,7 +20,8 @@ type Props = {
   selectedId: string | null;
   initialDialog?: GalleryDialog;
   onSelect: (id: string | null) => void;
-  onCensor: (photo: GalleryPhoto, censored: boolean) => void;
+  /** `reason` is optional and stays internal (guests never see it). */
+  onCensor: (photo: GalleryPhoto, censored: boolean, reason?: string) => void;
   onCheckAll: (ids: string[]) => void;
   onDownload: (photo: GalleryPhoto) => void;
 };
@@ -31,6 +33,11 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
   const [tab, setTab] = useState<GalleryTab>(initialTab ?? "semua");
   const [query, setQuery] = useState("");
   const [dialog, setDialog] = useState<GalleryDialog>(initialDialog ?? null);
+  const [reason, setReason] = useState("");
+  const openDialog = (d: GalleryDialog) => {
+    setReason("");
+    setDialog(d);
+  };
 
   const photos = [...gallery.photos].sort((a, b) => b.at - a.at);
   const isNew = (p: GalleryPhoto) => !gallery.checked.includes(p.id);
@@ -140,11 +147,11 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
             footer={
               <>
                 {selected.censored ? (
-                  <Button block style="secondary" icon="Eye" onClick={() => setDialog("buka")}>
+                  <Button block style="secondary" icon="Eye" onClick={() => openDialog("buka")}>
                     Buka sensor
                   </Button>
                 ) : (
-                  <Button block style="danger" icon="Lock" onClick={() => setDialog("sensor")}>
+                  <Button block style="danger" icon="Lock" onClick={() => openDialog("sensor")}>
                     Sensor foto
                   </Button>
                 )}
@@ -181,6 +188,12 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
                 <dt className="t-p-h5 admin-muted">Status</dt>
                 <dd>{selected.censored ? <Badge type="danger" icon="Lock">Disensor</Badge> : <Badge type="claimed">Tampil</Badge>}</dd>
               </div>
+              {selected.censored && (
+                <div className="guest-detail__row admin-gallery__caption">
+                  <dt className="t-p-h5 admin-muted">Alasan sensor</dt>
+                  <dd className="t-p-h4">{selected.censorReason ?? "–"}</dd>
+                </div>
+              )}
               <div className="guest-detail__row admin-gallery__caption">
                 <dt className="t-p-h5 admin-muted">Caption</dt>
                 <dd className="t-p-h4">{selected.caption ?? "–"}</dd>
@@ -196,6 +209,7 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
 
       {dialog && selected && (
         <Dialog
+          form={dialog === "sensor"}
           icon={dialog === "sensor" ? "Lock" : "Eye"}
           iconTone={dialog === "sensor" ? "red" : "green"}
           title={dialog === "sensor" ? "Sensor foto ini?" : "Buka sensor foto ini?"}
@@ -210,7 +224,7 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
               <Button
                 style={dialog === "sensor" ? "danger" : "primary"}
                 onClick={() => {
-                  onCensor(selected, dialog === "sensor");
+                  onCensor(selected, dialog === "sensor", reason.trim() || undefined);
                   setDialog(null);
                 }}
               >
@@ -221,7 +235,34 @@ export function AdminGallery({ gallery, initialTab, selectedId, initialDialog, o
               </Button>
             </>
           }
-        />
+        >
+          {dialog === "sensor" && (
+            <div className="admin-gallery__reason">
+              <span className="t-p-h5-bold field__label">Alasan cepat</span>
+              <div className="pill-tabs" role="group" aria-label="Alasan cepat">
+                {CENSOR_REASONS.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    aria-pressed={reason === r}
+                    className={`pill-tab t-p-h5-bold${reason === r ? " is-active clay clay-dark" : ""}`}
+                    onClick={() => setReason(reason === r ? "" : r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              <TextField
+                label="Alasan sensor (opsional)"
+                value={reason}
+                onChange={(v) => setReason(v.slice(0, CENSOR_REASON_MAX))}
+                placeholder="Contoh: menampilkan data pribadi tamu lain"
+                maxLength={CENSOR_REASON_MAX}
+                hint={`Hanya terlihat oleh panitia · ${reason.length}/${CENSOR_REASON_MAX}`}
+              />
+            </div>
+          )}
+        </Dialog>
       )}
     </div>
   );

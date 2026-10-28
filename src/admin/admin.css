@@ -811,3 +811,4 @@
 .admin-gallery__note { display: flex; gap: var(--spacing-extra-small); margin: 0; padding: var(--padding-medium); border-radius: var(--radius-medium); background: var(--tag-red-bg); color: var(--tag-red); line-height: 1.45; }
 .admin-gallery__note svg { flex: none; }
 .admin-gallery__caption dd { line-height: 1.5; }
+.admin-gallery__reason { display: flex; flex-direction: column; gap: var(--spacing-small); }

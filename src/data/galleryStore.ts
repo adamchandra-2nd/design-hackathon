@@ -62,4 +62,5 @@ export function useGallery(seed?: GalleryState) {
   return [state, update] as const;
 }
 
-export const censor = (photos: GalleryPhoto[], ids: string[]) => photos.map((p) => (ids.includes(p.id) ? { ...p, censored: true } : p));
+export const censor = (photos: GalleryPhoto[], ids: string[], censorReason?: string) =>
+  photos.map((p) => (ids.includes(p.id) ? { ...p, censored: true, censorReason } : p));

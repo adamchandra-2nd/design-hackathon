@@ -16,7 +16,13 @@ export type GalleryPhoto = {
   caption?: string;
   /** Blurred by the committee: other guests can't open or download it. */
   censored?: boolean;
+  /** Optional note for the committee only; never shown to guests. */
+  censorReason?: string;
 };
+
+/** Quick picks for the censor reason (admin). */
+export const CENSOR_REASONS = ["Tidak pantas", "Privasi tamu lain", "Tidak terkait acara"];
+export const CENSOR_REASON_MAX = 100;
 
 /** Guests are shown by first name only, so tiles and toasts stay short. */
 export const firstName = (name: string) => name.trim().split(/\s+/)[0];

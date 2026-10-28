@@ -393,8 +393,8 @@ export function AdminApp({ token }: { token: string }) {
           selectedId={galleryPhoto}
           initialDialog={sc.galleryDialog}
           onSelect={selectPhoto}
-          onCensor={(p: GalleryPhoto, censored) => {
-            updateGallery((g) => ({ ...g, photos: g.photos.map((x) => (x.id === p.id ? { ...x, censored } : x)) }));
+          onCensor={(p: GalleryPhoto, censored, censorReason) => {
+            updateGallery((g) => ({ ...g, photos: g.photos.map((x) => (x.id === p.id ? { ...x, censored, censorReason: censored ? censorReason : undefined } : x)) }));
             notify(censored ? "Lock" : "Eye", censored ? "Foto disensor" : "Sensor dibuka", censored ? `Foto ${firstName(p.author)} sekarang buram di HP tamu.` : `Foto ${firstName(p.author)} tampil normal lagi.`);
           }}
           onCheckAll={(ids) => {
