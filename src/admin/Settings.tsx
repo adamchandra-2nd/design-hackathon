@@ -8,7 +8,7 @@ import { Toggle } from "../components/Toggle";
 import { formatTime } from "../data/agenda";
 import { DatePicker, PlacePicker, TimePicker, type Place } from "./pickers";
 import { CodeBoxes } from "./Rewards";
-import { Panel } from "./ui";
+import { CopyAction, IconAction, Panel } from "./ui";
 
 export type AdminSettings = {
   eventName: string;
@@ -83,12 +83,8 @@ export function Settings({ settings, today, onSave, onCopied }: Props) {
                 </span>
                 <CodeBoxes code={s[c.key]} hidden={!c.shown} />
                 <div className="akses-hero__actions">
-                  <Button size="small" style="tertiary" icon="Eye" onClick={c.toggle}>
-                    {c.shown ? "Sembunyi" : "Tampilkan"}
-                  </Button>
-                  <Button size="small" style="tertiary" icon="Copy" onClick={() => copy(s[c.key], c.label)}>
-                    Salin
-                  </Button>
+                  <IconAction icon={c.shown ? "EyeOff" : "Eye"} label={c.shown ? `Sembunyikan ${c.label.toLowerCase()}` : `Tampilkan ${c.label.toLowerCase()}`} tip={c.shown ? "Sembunyikan" : "Tampilkan"} onClick={c.toggle} />
+                  <CopyAction label={`Salin ${c.label.toLowerCase()}`} onCopy={() => copy(s[c.key], c.label)} />
                   <Button
                     size="small"
                     icon="Pencil"
