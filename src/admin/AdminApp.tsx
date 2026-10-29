@@ -1,3 +1,4 @@
+import { broadcastAnnouncement } from "../data/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
@@ -362,11 +363,15 @@ export function AdminApp({ token }: { token: string }) {
           now={now}
           failSend={!!sc.failAnnouncement}
           onSend={(a) => {
-            setAnnouncements((list) => [...list, { ...a, id: `a${Date.now()}`, at: now, recipients: present, read: 0 }]);
+            const id = `a${Date.now()}`;
+            setAnnouncements((list) => [...list, { ...a, id, at: now, recipients: present, read: 0 }]);
+            broadcastAnnouncement({ ...a, id, at: now });
             notify("Megaphone", "Pengumuman terkirim", `Muncul di HP ${present} tamu.`);
           }}
           onResend={(id) => {
+            const a = announcements.find((x) => x.id === id);
             setAnnouncements((list) => list.map((a) => (a.id === id ? { ...a, failed: false, at: now, recipients: present, read: 0 } : a)));
+            if (a) broadcastAnnouncement({ id, title: a.title, body: a.body, roomId: a.roomId, at: now });
             notify("Megaphone", "Pengumuman terkirim ulang", `Muncul di HP ${present} tamu.`);
           }}
         />

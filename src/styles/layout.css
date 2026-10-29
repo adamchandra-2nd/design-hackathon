@@ -97,6 +97,13 @@
   overflow: hidden;
   background: var(--background-primary);
 }
+/* Ruangan + the pages that open over it (Galeri, Notifikasi): keeps the page toast in the phone column */
+.page--room {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+}
 .page__scroll {
   height: 100%;
   overflow-y: auto;

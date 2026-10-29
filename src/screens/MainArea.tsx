@@ -4,12 +4,14 @@ import { Avatar } from "../components/Avatar";
 import { BottomNav, type NavTab } from "../components/BottomNav";
 import { Button } from "../components/Button";
 import { Character } from "../components/Character";
+import { Icon } from "../components/Icon";
 import { RoomHeader, type RewardState } from "../components/RoomHeader";
 import { RoomIndicator } from "../components/RoomIndicator";
 import { OfflineBanner } from "../components/SystemState";
 import { Toast, ToastIcon } from "../components/Toast";
 import { KENALAN_TARGET } from "../config";
 import { currentItem, nextItem } from "../data/agenda";
+import type { GuestNotice } from "../data/notifications";
 import { ROOMS, roomIndexById } from "../data/rooms";
 import "./MainArea.css";
 
@@ -20,7 +22,7 @@ const TOAST_CLOSE_MS = 200;
 const MOVE_COUNTDOWN_S = 5;
 
 /** Which notification story to play when the main area opens (first visit or a review link). */
-export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "foto-baru" | "none";
+export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "foto-baru" | "pengumuman" | "none";
 
 type ToastSpec = { key: string; lead: ReactNode; title: string; sub: string; action?: ReactNode; actions?: ReactNode };
 
@@ -39,8 +41,15 @@ type MainAreaProps = {
   onScenarioPlayed: () => void;
   onOpenReward: () => void;
   onAsk: () => void;
-  /** Unseen photos in Galeri: orange dot on its tab. */
+  /** Unseen photos in Galeri: orange dot on the floating Galeri button. */
   newPhotos: boolean;
+  onGallery: () => void;
+  unread: number;
+  onNotifications: () => void;
+  /** Log a notice in Notifikasi (story toasts worth reading again). */
+  onNotice: (n: Omit<GuestNotice, "read">) => void;
+  /** A committee announcement that just arrived: shown as a toast. */
+  incoming?: GuestNotice;
 };
 
 /** Main area: the character stands in the middle of a Potara room; every action floats on top. */
@@ -59,6 +68,11 @@ export function MainArea({
   onOpenReward,
   onAsk,
   newPhotos,
+  onGallery,
+  unread,
+  onNotifications,
+  onNotice,
+  incoming,
 }: MainAreaProps) {
   const [toast, setToast] = useState<ToastSpec | null>(null);
   const [toastClosing, setToastClosing] = useState(false);
@@ -99,6 +113,14 @@ export function MainArea({
     clearToastTimers();
     setToastClosing(false);
     setMoveLeft(MOVE_COUNTDOWN_S);
+    onNotice({
+      id: `n-mulai-${event}`,
+      kind: "jadwal",
+      title: `${event} dimulai di ${ROOMS[target].name}`,
+      body: "Kamu dipindahkan ke sana saat acara mulai.",
+      at: now,
+      target: { to: "ruangan", roomId: ROOMS[target].id },
+    });
     setToast({
       key: "move",
       lead: <ToastIcon icon="MapPin" tone="accent" />,
@@ -120,13 +142,42 @@ export function MainArea({
     }
   };
 
+  // Committee announcement: same toast as event notices, plus "Ke sana" when it points to a room.
+  const announce = (n: Pick<GuestNotice, "id" | "title" | "body" | "target">) => {
+    const t = n.target;
+    const go = () => {
+      if (t?.to === "ruangan") goTo(roomIndexById(t.roomId));
+      closeToast();
+    };
+    showToast(
+      {
+        key: n.id,
+        lead: <ToastIcon icon="Megaphone" tone="accent" />,
+        title: n.title,
+        sub: n.body,
+        action:
+          t?.to === "ruangan" ? (
+            <Button size="small" style="secondary" icon="MapPin" onClick={go}>
+              Ke sana
+            </Button>
+          ) : undefined,
+      },
+      8000,
+    );
+  };
+
   const greet = <Button size="small" style="secondary" onClick={() => onTab("kenalan")}>Sapa</Button>;
 
   // Notification stories. Each runs once; the parent then sets the scenario back to "none".
   useEffect(() => {
     if (scenario === "none") return;
     onScenarioPlayed();
-    const at = (ms: number, fn: () => void) => window.setTimeout(fn, ms);
+    // `notice` also lands in Notifikasi when the toast shows.
+    const at = (ms: number, fn: () => void, notice?: Omit<GuestNotice, "read">) =>
+      window.setTimeout(() => {
+        fn();
+        if (notice) onNotice(notice);
+      }, ms);
     const timers: number[] = [];
     if (scenario === "intro") {
       timers.push(
@@ -161,12 +212,24 @@ export function MainArea({
               lead: <Avatar initial="N" />,
               title: "Nanda membagikan 2 foto",
               sub: "Lihat dan unduh di Galeri.",
-              action: <Button size="small" style="secondary" icon="Image" onClick={() => onTab("galeri")}>Lihat</Button>,
+              action: <Button size="small" style="secondary" icon="Image" onClick={onGallery}>Lihat</Button>,
             },
             6000,
           ),
+          { id: "n-foto-baru", kind: "galeri", title: "Nanda membagikan 2 foto", body: "Lihat dan unduh di Galeri.", at: now, target: { to: "galeri" } },
         ),
       );
+    }
+    if (scenario === "pengumuman") {
+      const n = {
+        id: "ann-makan",
+        kind: "pengumuman" as const,
+        title: "Makan siang siap",
+        body: "Silakan ke Ruang Omakase, prasmanan sudah dibuka.",
+        at: now,
+        target: { to: "ruangan" as const, roomId: "ruang-omakase" },
+      };
+      timers.push(at(1200, () => announce(n), n));
     }
     if (scenario === "ramai") {
       timers.push(
@@ -214,6 +277,14 @@ export function MainArea({
             },
             7000,
           ),
+          {
+            id: `n-segera-${upcoming.id}`,
+            kind: "jadwal",
+            title: `${upcoming.title} dimulai ${upcoming.start - now} menit lagi`,
+            body: `Di ${ROOMS[target].name}.`,
+            at: now,
+            target: { to: "agenda" },
+          },
         ),
       );
     }
@@ -230,6 +301,7 @@ export function MainArea({
             },
             7000,
           ),
+          { id: "n-berubah", kind: "jadwal", title: "Rundown berubah", body: "Pengenalan kantor diundur 15 menit.", at: now, target: { to: "agenda" } },
         ),
       );
     }
@@ -246,6 +318,7 @@ export function MainArea({
             },
             8000,
           ),
+          { id: "n-hadiah", kind: "hadiah", title: "Hadiahmu siap ditukar", body: "Tukar di meja panitia sebelum pulang.", at: now, target: { to: "voucher" } },
         ),
       );
     }
@@ -255,6 +328,11 @@ export function MainArea({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (incoming) announce(incoming);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incoming?.id]);
 
   const room = ROOMS[roomIndex];
   const atEdge = (dx: number) => (dx > 0 && roomIndex === 0) || (dx < 0 && roomIndex === ROOMS.length - 1);
@@ -318,7 +396,15 @@ export function MainArea({
 
       {/* Layer 2: floating actions */}
       <div className="main-area__top">
-        <RoomHeader name={name} kenalanCount={kenalanCount} kenalanTarget={KENALAN_TARGET} reward={reward} onKenalan={() => onTab("kenalan")} />
+        <RoomHeader
+          name={name}
+          kenalanCount={kenalanCount}
+          kenalanTarget={KENALAN_TARGET}
+          reward={reward}
+          onKenalan={() => onTab("kenalan")}
+          unread={unread}
+          onNotifications={onNotifications}
+        />
         {offline && <OfflineBanner />}
         {agenda}
         {/* Notifications grow out from under the agenda card, clear of the character */}
@@ -339,12 +425,24 @@ export function MainArea({
         <Character />
       </div>
 
+      {/* Galeri floats on the right edge, mid-screen: always in reach, clear of the character and the bell up top */}
+      <button
+        type="button"
+        className="main-area__gallery clay clay-light"
+        onClick={onGallery}
+        onPointerDown={(e) => e.stopPropagation()}
+        aria-label={newPhotos ? "Galeri, ada foto baru" : "Galeri"}
+      >
+        <Icon name="Image" />
+        <span className="t-p-h5-bold">Galeri</span>
+        {newPhotos && <span className="main-area__gallery-dot" />}
+      </button>
+
       <div className="main-area__bottom">
         <RoomIndicator name={room.name} index={roomIndex} total={ROOMS.length} live={roomIndex === liveRoom} />
         <BottomNav
           active="ruangan"
           feedbackLocked={!ended}
-          dots={{ galeri: newPhotos }}
           onChange={onTab}
           onLockedTap={() =>
             showToast(

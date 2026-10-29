@@ -542,8 +542,9 @@
 
 /* Announcements */
 .ann-fill { grid-template-columns: minmax(0, 1fr) 360px minmax(0, 1fr); }
-.ann-preview { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: var(--padding-mid-medium); }
-.ann-phone { height: 100%; max-height: 600px; aspect-ratio: 9 / 18; padding: var(--padding-small); border-radius: 40px; background: var(--ink); }
+.ann-preview { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-small); padding: var(--padding-mid-medium); }
+.ann-preview__note { display: flex; align-items: center; gap: var(--spacing-extra-small); margin: 0; text-align: center; }
+.ann-phone { flex: 1; min-height: 0; max-height: 600px; aspect-ratio: 9 / 18; padding: var(--padding-small); border-radius: 40px; background: var(--ink); }
 .ann-phone__screen { position: relative; height: 100%; border-radius: 32px; background-size: cover; background-position: center bottom; overflow: hidden; }
 .ann-phone__toast { position: absolute; top: var(--padding-mid-medium); left: var(--padding-small); right: var(--padding-small); z-index: 2; }
 .ann-phone__toast .toast { animation: none; padding: var(--padding-medium); }

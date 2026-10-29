@@ -33,7 +33,16 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "ruangan-hadiah", label: "Pengingat hadiah", note: "5 kartu, hadiah belum ditukar" },
       { token: "ruangan-selesai", label: "Acara selesai", note: "Feedback terbuka" },
       { token: "ruangan-offline", label: "Offline", note: "Banner offline" },
-      { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tab Galeri" },
+      { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tombol Galeri (kanan tengah)" },
+      { token: "ruangan-pengumuman", label: "Pengumuman panitia masuk", note: "Toast + tersimpan di Notifikasi" },
+    ],
+  },
+  {
+    title: "Notifikasi",
+    links: [
+      { token: "notifikasi", label: "Notifikasi", note: "Dari lonceng di Ruangan, 2 belum dibaca" },
+      { token: "notifikasi-semua-dibaca", label: "Semua sudah dibaca", note: "Tanpa titik oranye" },
+      { token: "notifikasi-kosong", label: "Belum ada notifikasi", note: "Empty state" },
     ],
   },
   {
@@ -77,7 +86,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
   {
     title: "Galeri",
     links: [
-      { token: "galeri", label: "Galeri", note: "Grid foto semua tamu, filter Semua / Fotoku" },
+      { token: "galeri", label: "Galeri", note: "Dari tombol Galeri di Ruangan; grid foto, filter Semua / Fotoku" },
       { token: "galeri-fotoku", label: "Fotoku", note: "Foto yang kamu unggah" },
       { token: "galeri-kosong", label: "Belum ada foto", note: "Empty state + ajakan unggah" },
       { token: "galeri-fotoku-kosong", label: "Fotoku kosong", note: "Belum pernah unggah" },
@@ -86,7 +95,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "galeri-foto", label: "Lihat foto tamu lain", note: "Geser, Unduh" },
       { token: "galeri-foto-milikku", label: "Lihat fotoku", note: "Unduh + Hapus" },
       { token: "galeri-hapus", label: "Hapus foto", note: "Konfirmasi" },
-      { token: "galeri-unggah", label: "Unggah: pratinjau", note: "3 foto, caption per foto, tag ruangan" },
+      { token: "galeri-unggah", label: "Unggah: pratinjau", note: "3 foto, caption per foto" },
       { token: "galeri-unggah-batas", label: "Unggah: lebih dari 5", note: "Hanya 5 pertama yang ikut" },
       { token: "galeri-unggah-file-salah", label: "Unggah: file dilewati", note: "Bukan gambar / lebih dari 10 MB" },
       { token: "galeri-disensor", label: "Foto tamu lain disensor", note: "Buram, tidak bisa dibuka" },
@@ -148,7 +157,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "admin-pengisi", label: "Pengisi acara", note: "MC & pembicara: kirim link WA, cabut akses, naskah Claude" },
       { token: "admin-notifikasi-panggung", label: "Notifikasi dari panggung", note: "Pembicara butuh bantuan, MC panggil panitia" },
       { token: "admin-pengisi-naskah", label: "Edit naskah MC", note: "Ubah baris, tambah, pakai saran Claude" },
-      { token: "admin-pengumuman", label: "Pengumuman", note: "Form, pratinjau HP, riwayat" },
+      { token: "admin-pengumuman", label: "Pengumuman", note: "Form, pratinjau HP, riwayat. Sinkron ke Notifikasi tamu di tab lain" },
       { token: "admin-pengumuman-gagal", label: "Pengumuman gagal", note: "Gagal kirim" },
       { token: "admin-hadiah", label: "Hadiah", note: "Tandai diambil, PIN panitia" },
       { token: "admin-hadiah-kosong", label: "Hadiah kosong", note: "Sebelum hari H" },

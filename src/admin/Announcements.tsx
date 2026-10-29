@@ -132,6 +132,10 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
                 </div>
               </div>
             </div>
+            <p className="t-p-h5 admin-muted ann-preview__note">
+              <Icon name="Bell" size={16} />
+              Tersimpan juga di Notifikasi tamu.
+            </p>
           </div>
         </Panel>
 
