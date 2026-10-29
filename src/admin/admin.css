@@ -573,7 +573,11 @@
 .ann-meta__extra .stat__bar { flex: 1; }
 .ann-read { display: flex; flex-direction: column; gap: var(--spacing-extra-small); }
 .ann-history__item .btn { align-self: flex-start; }
-.ann-confirm { align-items: flex-start; }
+.ann-confirm { align-items: flex-start; padding: var(--padding-mid-medium) var(--padding-large); }
+.ann-confirm .admin-cell-name__text { gap: 10px; }
+/* The admin reads the whole message before sending or deleting: wrap up to 3 lines */
+.ann-confirm .admin-cell-name__text > * { white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
+.ann-confirm .admin-cell-name__text > :last-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
 
 /* Rewards + Akses hero (ink panel, codes as digit boxes) */
 .rewards-fill { grid-template-columns: minmax(0, 1fr) 380px; }
