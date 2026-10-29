@@ -6,13 +6,14 @@
 import { useEffect, useRef } from "react";
 import type { IconName } from "../components/iconPaths";
 
-export type NoticeKind = "pengumuman" | "jadwal" | "galeri" | "hadiah" | "tanya";
+export type NoticeKind = "pengumuman" | "jadwal" | "galeri" | "hadiah" | "tanya" | "kenalan";
 
 /** Where tapping the notification takes the guest. */
 export type NoticeTarget =
   | { to: "agenda" }
   | { to: "galeri" }
   | { to: "voucher" }
+  | { to: "kartu"; guestId: string }
   | { to: "tanya"; eventId: string }
   | { to: "ruangan"; roomId: string };
 
@@ -33,6 +34,7 @@ export const NOTICE_KIND: Record<NoticeKind, { label: string; icon: IconName }> 
   galeri: { label: "Galeri", icon: "Image" },
   hadiah: { label: "Hadiah", icon: "Gift" },
   tanya: { label: "Tanya pembicara", icon: "Message" },
+  kenalan: { label: "Kenalan", icon: "UserPlus" },
 };
 
 /** What a guest who's been here since the opening has received so far (sample). */

@@ -86,6 +86,8 @@ type AppState = {
   notices: GuestNotice[];
   /** Latest committee announcement, shown as a toast once (not saved). */
   incoming?: GuestNotice;
+  /** Kenalan invites you sent (guest id → when, ms). */
+  invited: Record<string, number>;
   galleryFilter: GalleryFilter;
   /** Unseen photos from other guests: dot on the floating Galeri button. */
   newPhotos: boolean;
@@ -121,6 +123,7 @@ const INITIAL: AppState = {
   askRace: false,
   screen: null,
   notices: [],
+  invited: {},
   galleryFilter: "semua",
   newPhotos: false,
   galleryLoading: false,
@@ -189,6 +192,8 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
   kenalan: { ...APP, tab: "kenalan" },
   "kenalan-kosong": { ...APP, tab: "kenalan", collected: {}, guestsPresent: false },
   "kenalan-kartu": { ...APP, tab: "kenalan", overlay: { type: "guest", id: "nanda" } },
+  "kenalan-ajakan-terkirim": { ...APP, tab: "kenalan", invited: { raka: Date.now() - 2 * 60 * 1000 }, overlay: { type: "guest", id: "raka" } },
+  "ruangan-diajak-kenalan": { ...APP, mainScenario: "diajak-kenalan", roomIndex: 2 },
   "kenalan-qr": { ...APP, tab: "kenalan", overlay: { type: "myqr" } },
   "kenalan-hampir": { ...APP, tab: "kenalan", collected: FOUR },
   "kenalan-hadiah": { ...APP, tab: "kenalan", collected: FIVE },
@@ -231,7 +236,7 @@ const DEEP_LINKS: Record<string, Partial<AppState>> = {
 
 const STORAGE_KEY = "hmd-progress-v2";
 /** Only real progress is saved, so reopening the app resumes where the guest left off. */
-const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent", "questions", "hadirAt", "eventFeedback", "notices"];
+const PERSISTED: (keyof AppState)[] = ["stage", "tab", "name", "outfit", "roomIndex", "visited", "collected", "rewardClaimed", "feedbackSent", "questions", "hadirAt", "eventFeedback", "notices", "invited"];
 
 function load(): AppState {
   const token = window.location.hash.slice(1);
@@ -265,7 +270,7 @@ export default function App() {
 
 function Flow() {
   const [state, setState] = useState<AppState>(load);
-  const [pageToast, setPageToast] = useState<{ icon: "Lock" | "Share" | "Check" | "Download" | "Trash" | "WifiOff" | "Image" | "Megaphone"; title: string; sub: string } | null>(null);
+  const [pageToast, setPageToast] = useState<{ icon: "Lock" | "Share" | "Check" | "Download" | "Trash" | "WifiOff" | "Image" | "Megaphone" | "UserPlus"; title: string; sub: string } | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
   const set = useCallback((patch: Partial<AppState>) => setState((s) => ({ ...s, ...patch })), []);
@@ -453,6 +458,7 @@ function Flow() {
     if (t.to === "agenda") return set({ notices, tab: "agenda", screen: null, overlay: null });
     if (t.to === "galeri") return set({ notices, screen: "galeri", newPhotos: false });
     if (t.to === "voucher") return set({ notices, tab: "kenalan", screen: null, overlay: { type: "voucher" } });
+    if (t.to === "kartu") return set({ notices, screen: null, overlay: { type: "guest", id: t.guestId } });
     if (t.to === "tanya") return set({ notices, screen: null, overlay: { type: "ask", eventId: t.eventId } });
     const roomIndex = roomIndexById(t.roomId);
     set({ notices, tab: "ruangan", screen: null, overlay: null, roomIndex, visited: [...new Set([...state.visited, roomIndex])] });
@@ -491,6 +497,11 @@ function Flow() {
           savedNote={state.collected[guest.id]}
           onBack={() => set({ overlay: null })}
           onCollected={(note) => collect(guest.id, note)}
+          invitedAt={state.invited[guest.id]}
+          onInvite={() => {
+            set({ invited: { ...state.invited, [guest.id]: Date.now() } });
+            showPageToast({ icon: "UserPlus", title: `Ajakan terkirim ke ${guest.name}`, sub: `Cari ${guest.name}, lalu tanyakan pertanyaan di kartunya.` });
+          }}
         />
       )}
       {overlay?.type === "voucher" && (
@@ -544,7 +555,7 @@ function Flow() {
       {pageToast && (
         <div className="page__toast">
           <Toast
-            lead={<ToastIcon icon={pageToast.icon} tone={pageToast.icon === "Check" || pageToast.icon === "Megaphone" ? "accent" : "neutral"} />}
+            lead={<ToastIcon icon={pageToast.icon} tone={pageToast.icon === "Check" || pageToast.icon === "Megaphone" || pageToast.icon === "UserPlus" ? "accent" : "neutral"} />}
             title={pageToast.title}
             sub={pageToast.sub}
           />
@@ -569,6 +580,7 @@ function Flow() {
           onScenarioPlayed={onScenarioPlayed}
           onOpenReward={openReward}
           onAsk={openAsk}
+          onOpenGuest={(id) => set({ overlay: { type: "guest", id } })}
           newPhotos={state.newPhotos}
           onGallery={openGallery}
           unread={unread}

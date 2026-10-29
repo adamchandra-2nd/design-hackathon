@@ -22,7 +22,7 @@ const TOAST_CLOSE_MS = 200;
 const MOVE_COUNTDOWN_S = 5;
 
 /** Which notification story to play when the main area opens (first visit or a review link). */
-export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "foto-baru" | "pengumuman" | "none";
+export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" | "setelah-feedback" | "foto-baru" | "pengumuman" | "diajak-kenalan" | "none";
 
 type ToastSpec = { key: string; lead: ReactNode; title: string; sub: string; action?: ReactNode; actions?: ReactNode };
 
@@ -40,6 +40,8 @@ type MainAreaProps = {
   onScenarioPlayed: () => void;
   onOpenReward: () => void;
   onAsk: () => void;
+  /** Open a guest's Kenalan card (e.g. from "Lihat kartu" on an invite). */
+  onOpenGuest: (guestId: string) => void;
   /** Unseen photos in Galeri: orange dot on the floating Galeri button. */
   newPhotos: boolean;
   onGallery: () => void;
@@ -65,6 +67,7 @@ export function MainArea({
   onScenarioPlayed,
   onOpenReward,
   onAsk,
+  onOpenGuest,
   newPhotos,
   onGallery,
   unread,
@@ -215,6 +218,30 @@ export function MainArea({
             6000,
           ),
           { id: "n-foto-baru", kind: "galeri", title: "Nanda membagikan 2 foto", body: "Lihat dan unduh di Galeri.", at: now, target: { to: "galeri" } },
+        ),
+      );
+    }
+    // Another guest invited you to meet. No location: the app room may not be where they really are.
+    if (scenario === "diajak-kenalan") {
+      timers.push(
+        at(
+          1200,
+          () =>
+            showToast(
+              {
+                key: "invite",
+                lead: <Avatar initial="R" />,
+                title: "Raka ngajak kenalan!",
+                sub: "Cari Raka, lalu kalian bisa saling tanya.",
+                action: (
+                  <Button size="small" style="secondary" icon="UserPlus" onClick={() => (closeToast(), onOpenGuest("raka"))}>
+                    Lihat kartu
+                  </Button>
+                ),
+              },
+              8000,
+            ),
+          { id: "n-ajak-raka", kind: "kenalan", title: "Raka ngajak kenalan!", body: "Cari Raka, lalu kalian bisa saling tanya.", at: now, target: { to: "kartu", guestId: "raka" } },
         ),
       );
     }

@@ -35,6 +35,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "ruangan-offline", label: "Offline", note: "Banner offline" },
       { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tombol Galeri (kiri atas)" },
       { token: "ruangan-pengumuman", label: "Pengumuman panitia masuk", note: "Toast + tersimpan di Notifikasi" },
+      { token: "ruangan-diajak-kenalan", label: "Diajak kenalan", note: "Raka ngajak kenalan: toast + Lihat kartu, tersimpan di Notifikasi" },
     ],
   },
   {
@@ -76,6 +77,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "kenalan", label: "Grid tamu", note: "3/5 kartu" },
       { token: "kenalan-kosong", label: "Belum ada tamu", note: "Empty state" },
       { token: "kenalan-kartu", label: "Kartu pertanyaan", note: "Tanya → scan QR (kode Nanda: 1357)" },
+      { token: "kenalan-ajakan-terkirim", label: "Ajakan terkirim", note: "Kartu Raka setelah diajak; bisa ajak lagi setelah 10 menit" },
       { token: "kenalan-qr", label: "QR-ku", note: "QR + kode untuk discan tamu lain" },
       { token: "kenalan-hampir", label: "4/5 kartu", note: "Simpan 1 kartu lagi → popup hadiah" },
       { token: "kenalan-hadiah", label: "Hadiah menunggu", note: "Tukar nanti" },
