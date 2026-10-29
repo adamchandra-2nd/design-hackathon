@@ -551,7 +551,6 @@ function Flow() {
     return (
       <div className="page--room">
         <MainArea
-          name={state.name}
           kenalanCount={count}
           reward={reward}
           roomIndex={state.roomIndex}

@@ -33,7 +33,7 @@ export const REVIEW_GROUPS: { title: string; links: { token: string; label: stri
       { token: "ruangan-hadiah", label: "Pengingat hadiah", note: "5 kartu, hadiah belum ditukar" },
       { token: "ruangan-selesai", label: "Acara selesai", note: "Feedback terbuka" },
       { token: "ruangan-offline", label: "Offline", note: "Banner offline" },
-      { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tombol Galeri (kanan tengah)" },
+      { token: "ruangan-foto-baru", label: "Foto baru di Galeri", note: "Toast + titik di tombol Galeri (kiri atas)" },
       { token: "ruangan-pengumuman", label: "Pengumuman panitia masuk", note: "Toast + tersimpan di Notifikasi" },
     ],
   },

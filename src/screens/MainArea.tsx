@@ -27,7 +27,6 @@ export type MainScenario = "intro" | "ramai" | "segera" | "berubah" | "hadiah" |
 type ToastSpec = { key: string; lead: ReactNode; title: string; sub: string; action?: ReactNode; actions?: ReactNode };
 
 type MainAreaProps = {
-  name: string;
   kenalanCount: number;
   reward: RewardState;
   roomIndex: number;
@@ -54,7 +53,6 @@ type MainAreaProps = {
 
 /** Main area: the character stands in the middle of a Potara room; every action floats on top. */
 export function MainArea({
-  name,
   kenalanCount,
   reward,
   roomIndex,
@@ -368,6 +366,25 @@ export function MainArea({
     />
   ) : null;
 
+  // Notifikasi + Galeri: an Ink pill with the bottom nav's grey clay circles, top-left where a profile used to be.
+  const quick = (
+    <div className="main-area__quick clay clay-dark">
+      <button
+        type="button"
+        className="main-area__quick-btn clay clay-grey"
+        onClick={onNotifications}
+        aria-label={unread ? `Notifikasi, ${unread} belum dibaca` : "Notifikasi"}
+      >
+        <Icon name="Bell" size={22} />
+        {unread > 0 && <span className="main-area__badge t-p-h5-bold">{unread > 9 ? "9+" : unread}</span>}
+      </button>
+      <button type="button" className="main-area__quick-btn clay clay-grey" onClick={onGallery} aria-label={newPhotos ? "Galeri, ada foto baru" : "Galeri"}>
+        <Icon name="Image" size={22} />
+        {newPhotos && <span className="main-area__dot" />}
+      </button>
+    </div>
+  );
+
   return (
     <main
       className="main-area"
@@ -397,7 +414,7 @@ export function MainArea({
       {/* Layer 2: floating actions */}
       <div className="main-area__top">
         <RoomHeader
-          name={name}
+          start={quick}
           kenalanCount={kenalanCount}
           kenalanTarget={KENALAN_TARGET}
           reward={reward}
@@ -421,28 +438,6 @@ export function MainArea({
 
       <div className="main-area__stage">
         <Character />
-      </div>
-
-      {/* Notifikasi + Galeri: one floating Ink pill on the right edge, like an upright bottom nav */}
-      <div className="main-area__side clay clay-dark" onPointerDown={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          className="main-area__side-btn clay clay-grey"
-          onClick={onNotifications}
-          aria-label={unread ? `Notifikasi, ${unread} belum dibaca` : "Notifikasi"}
-        >
-          <Icon name="Bell" />
-          {unread > 0 && <span className="main-area__badge t-p-h5-bold">{unread > 9 ? "9+" : unread}</span>}
-        </button>
-        <button
-          type="button"
-          className="main-area__side-btn clay clay-grey"
-          onClick={onGallery}
-          aria-label={newPhotos ? "Galeri, ada foto baru" : "Galeri"}
-        >
-          <Icon name="Image" />
-          {newPhotos && <span className="main-area__dot" />}
-        </button>
       </div>
 
       <div className="main-area__bottom">

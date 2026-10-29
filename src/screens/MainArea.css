@@ -75,34 +75,28 @@
 .avatar-stack { display: inline-flex; flex: none; }
 .avatar-stack > * + * { margin-left: calc(var(--spacing-small) * -1); }
 
-/* Notifikasi + Galeri: one Ink pill on the right edge with the bottom nav's grey clay circles inside */
-.main-area__side {
-  position: absolute;
-  /* A little below centre so a tall toast under the agenda card never covers it */
-  top: 58%;
-  right: max(var(--padding-mid-medium), env(safe-area-inset-right));
-  transform: translateY(-50%);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-small);
-  padding: var(--padding-medium);
+/* Notifikasi + Galeri: Ink pill at the top-left, same height as the Kenalan chip */
+.main-area__quick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small);
+  padding: 4px;
   border-radius: var(--radius-infinite);
   background: var(--ink);
 }
-.main-area__side-btn {
+.main-area__quick-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-infinite);
   background: var(--text-grey-100);
   color: var(--text-inverse);
   transition: transform 120ms ease;
 }
-.main-area__side-btn:active { transform: scale(0.94); }
+.main-area__quick-btn:active { transform: scale(0.94); }
 .main-area__badge {
   position: absolute;
   top: -4px;
