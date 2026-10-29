@@ -75,17 +75,20 @@
 .avatar-stack { display: inline-flex; flex: none; }
 .avatar-stack > * + * { margin-left: calc(var(--spacing-small) * -1); }
 
-/* Notifikasi + Galeri: right edge, vertically centred; same grey clay circles as the bottom nav's icons */
+/* Notifikasi + Galeri: one Ink pill on the right edge with the bottom nav's grey clay circles inside */
 .main-area__side {
   position: absolute;
   /* A little below centre so a tall toast under the agenda card never covers it */
-  top: 56%;
+  top: 58%;
   right: max(var(--padding-mid-medium), env(safe-area-inset-right));
   transform: translateY(-50%);
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-small);
+  padding: var(--padding-medium);
+  border-radius: var(--radius-infinite);
+  background: var(--ink);
 }
 .main-area__side-btn {
   position: relative;
@@ -115,7 +118,7 @@
   color: var(--text-on-accent);
   font-size: 11px;
   line-height: 1;
-  box-shadow: 0 0 0 2px var(--cream);
+  box-shadow: 0 0 0 2px var(--ink);
 }
 .main-area__dot {
   position: absolute;
@@ -125,5 +128,5 @@
   height: 12px;
   border-radius: var(--radius-infinite);
   background: var(--orange-splash);
-  box-shadow: 0 0 0 2px var(--cream);
+  box-shadow: 0 0 0 2px var(--text-grey-100);
 }

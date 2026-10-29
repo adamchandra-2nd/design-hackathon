@@ -423,8 +423,8 @@ export function MainArea({
         <Character />
       </div>
 
-      {/* Notifikasi + Galeri float together on the right edge, mid-screen: icon buttons styled like the nav's */}
-      <div className="main-area__side" onPointerDown={(e) => e.stopPropagation()}>
+      {/* Notifikasi + Galeri: one floating Ink pill on the right edge, like an upright bottom nav */}
+      <div className="main-area__side clay clay-dark" onPointerDown={(e) => e.stopPropagation()}>
         <button
           type="button"
           className="main-area__side-btn clay clay-grey"
