@@ -58,7 +58,7 @@ export function NotificationsScreen({ notices, onBack, onReadAll, onOpen }: Prop
                     onClick={() => onOpen(n)}
                     aria-label={`${n.read ? "" : "Belum dibaca. "}${kind.label}: ${n.title}`}
                   >
-                    <span className={`notif__icon clay ${n.kind === "pengumuman" ? "clay-accent is-accent" : "clay-light"}`}>
+                    <span className={`notif__icon clay ${n.kind === "pengumuman" ? "clay-accent is-accent" : "clay-dark"}`}>
                       <Icon name={kind.icon} size={20} />
                     </span>
                     <span className="notif__text">

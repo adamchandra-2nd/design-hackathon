@@ -35,8 +35,8 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-infinite);
-  background: var(--white);
-  color: var(--text-primary);
+  background: var(--ink);
+  color: var(--text-inverse);
 }
 .notif__icon.is-accent {
   background: var(--orange-splash);

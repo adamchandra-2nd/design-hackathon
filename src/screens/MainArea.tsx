@@ -402,8 +402,6 @@ export function MainArea({
           kenalanTarget={KENALAN_TARGET}
           reward={reward}
           onKenalan={() => onTab("kenalan")}
-          unread={unread}
-          onNotifications={onNotifications}
         />
         {offline && <OfflineBanner />}
         {agenda}
@@ -425,18 +423,27 @@ export function MainArea({
         <Character />
       </div>
 
-      {/* Galeri floats on the right edge, mid-screen: always in reach, clear of the character and the bell up top */}
-      <button
-        type="button"
-        className="main-area__gallery clay clay-light"
-        onClick={onGallery}
-        onPointerDown={(e) => e.stopPropagation()}
-        aria-label={newPhotos ? "Galeri, ada foto baru" : "Galeri"}
-      >
-        <Icon name="Image" />
-        <span className="t-p-h5-bold">Galeri</span>
-        {newPhotos && <span className="main-area__gallery-dot" />}
-      </button>
+      {/* Notifikasi + Galeri float together on the right edge, mid-screen: icon buttons styled like the nav's */}
+      <div className="main-area__side" onPointerDown={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="main-area__side-btn clay clay-grey"
+          onClick={onNotifications}
+          aria-label={unread ? `Notifikasi, ${unread} belum dibaca` : "Notifikasi"}
+        >
+          <Icon name="Bell" />
+          {unread > 0 && <span className="main-area__badge t-p-h5-bold">{unread > 9 ? "9+" : unread}</span>}
+        </button>
+        <button
+          type="button"
+          className="main-area__side-btn clay clay-grey"
+          onClick={onGallery}
+          aria-label={newPhotos ? "Galeri, ada foto baru" : "Galeri"}
+        >
+          <Icon name="Image" />
+          {newPhotos && <span className="main-area__dot" />}
+        </button>
+      </div>
 
       <div className="main-area__bottom">
         <RoomIndicator name={room.name} index={roomIndex} total={ROOMS.length} live={roomIndex === liveRoom} />

@@ -10,40 +10,24 @@ type RoomHeaderProps = {
   kenalanTarget: number;
   reward: RewardState;
   onKenalan?: () => void;
-  /** Unread notifications: count badge on the bell. */
-  unread?: number;
-  onNotifications?: () => void;
 };
 
-/** Figma: Room Header — profile chip on its own. */
+/** Figma: Room Header — profile chip: the guest's character only (the name stays for screen readers). */
 export function ProfileChip({ name, character }: { name: string; character?: boolean }) {
   return (
-    <div className="room-header__chip room-header__profile glass">
+    <div className="room-header__chip room-header__profile glass" role="img" aria-label={`Profil ${name}`}>
       <Avatar initial={name.charAt(0)} size="M" character={character} />
-      <span className="t-p-h4-bold">{name}</span>
     </div>
   );
 }
 
 /** Figma: Room Header (Type=Event) — profile chip + Kenalan progress chip (turns into a reward reminder at 5/5). */
-export function RoomHeader({ name, kenalanCount, kenalanTarget, reward, onKenalan, unread = 0, onNotifications }: RoomHeaderProps) {
+export function RoomHeader({ name, kenalanCount, kenalanTarget, reward, onKenalan }: RoomHeaderProps) {
   const progress = Math.min(kenalanCount / kenalanTarget, 1);
   const label = reward === "ready" ? "Hadiah!" : reward === "claimed" ? "Lengkap" : "Kenalan";
   return (
     <header className="room-header">
       <ProfileChip name={name} character />
-      <span className="room-header__actions">
-      {onNotifications && (
-        <button
-          type="button"
-          className="room-header__bell glass"
-          aria-label={unread ? `Notifikasi, ${unread} belum dibaca` : "Notifikasi"}
-          onClick={onNotifications}
-        >
-          <Icon name="Bell" size={22} />
-          {unread > 0 && <span className="room-header__badge t-p-h5-bold">{unread > 9 ? "9+" : unread}</span>}
-        </button>
-      )}
       <button
         type="button"
         className="room-header__chip room-header__kenalan clay clay-accent"
@@ -65,7 +49,6 @@ export function RoomHeader({ name, kenalanCount, kenalanTarget, reward, onKenala
           </span>
         </span>
       </button>
-      </span>
     </header>
   );
 }
