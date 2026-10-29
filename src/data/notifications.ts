@@ -52,15 +52,19 @@ export const addNotice = (list: GuestNotice[], n: GuestNotice) => (list.some((x)
 export type SharedAnnouncement = { id: string; title: string; body: string; roomId: string | null; at: number };
 
 const KEY = "hmd-announcements-v1";
+/** Ids the committee deleted: they disappear from guests' Notifikasi too. */
+const REMOVED_KEY = "hmd-announcements-removed-v1";
 
-function read(): SharedAnnouncement[] {
+function readList<T>(key: string): T[] {
   try {
-    const s = JSON.parse(localStorage.getItem(KEY) ?? "[]");
+    const s = JSON.parse(localStorage.getItem(key) ?? "[]");
     return Array.isArray(s) ? s : [];
   } catch {
     return [];
   }
 }
+const read = () => readList<SharedAnnouncement>(KEY);
+const readRemoved = () => readList<string>(REMOVED_KEY);
 
 /** Admin side: deliver an announcement to every guest's phone. */
 export function broadcastAnnouncement(a: SharedAnnouncement) {
@@ -71,8 +75,21 @@ export function broadcastAnnouncement(a: SharedAnnouncement) {
   }
 }
 
+/** Admin side: delete an announcement everywhere (guests' Notifikasi included). */
+export function retractAnnouncement(id: string) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(read().filter((x) => x.id !== id)));
+    localStorage.setItem(REMOVED_KEY, JSON.stringify([...new Set([...readRemoved(), id])]));
+  } catch {
+    /* storage blocked: only the admin tab forgets it */
+  }
+}
+
+/** Notice id of an announcement in the guest's Notifikasi. */
+export const announcementNoticeId = (id: string) => `ann-${id}`;
+
 export const announcementNotice = (a: SharedAnnouncement): GuestNotice => ({
-  id: `ann-${a.id}`,
+  id: announcementNoticeId(a.id),
   kind: "pengumuman",
   title: a.title,
   body: a.body,
@@ -82,17 +99,17 @@ export const announcementNotice = (a: SharedAnnouncement): GuestNotice => ({
 });
 
 /**
- * Guest side: `onArrive(list, live)` gets announcements the guest hasn't logged yet: once on open (live = false,
- * no toast) and whenever the admin sends one from another tab (live = true, shown as a toast too).
+ * Guest side: `onArrive(list, live, removed)` gets every announcement plus the ids the committee deleted: once on
+ * open (live = false, no toast) and whenever the admin sends or deletes one from another tab (live = true).
  */
-export function useAnnouncements(onArrive: (list: SharedAnnouncement[], live: boolean) => void) {
+export function useAnnouncements(onArrive: (list: SharedAnnouncement[], live: boolean, removed: string[]) => void) {
   const cb = useRef(onArrive);
   useEffect(() => {
     cb.current = onArrive;
   });
   useEffect(() => {
-    cb.current(read(), false);
-    const onStorage = (e: StorageEvent) => e.key === KEY && cb.current(read(), true);
+    cb.current(read(), false, readRemoved());
+    const onStorage = (e: StorageEvent) => (e.key === KEY || e.key === REMOVED_KEY) && cb.current(read(), true, readRemoved());
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);

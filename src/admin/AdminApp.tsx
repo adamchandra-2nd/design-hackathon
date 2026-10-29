@@ -1,4 +1,4 @@
-import { broadcastAnnouncement } from "../data/notifications";
+import { broadcastAnnouncement, retractAnnouncement } from "../data/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Dialog } from "../components/Dialog";
@@ -373,6 +373,11 @@ export function AdminApp({ token }: { token: string }) {
             setAnnouncements((list) => list.map((a) => (a.id === id ? { ...a, failed: false, at: now, recipients: present, read: 0 } : a)));
             if (a) broadcastAnnouncement({ id, title: a.title, body: a.body, roomId: a.roomId, at: now });
             notify("Megaphone", "Pengumuman terkirim ulang", `Muncul di HP ${present} tamu.`);
+          }}
+          onDelete={(id) => {
+            setAnnouncements((list) => list.filter((a) => a.id !== id));
+            retractAnnouncement(id);
+            notify("Trash", "Pengumuman dihapus", "Hilang juga dari Notifikasi di HP tamu.");
           }}
         />
       )}

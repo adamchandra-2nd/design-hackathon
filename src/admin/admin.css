@@ -557,7 +557,13 @@
 .ann-phone__nav { position: absolute; left: 50%; bottom: calc(32 / 844 * 100cqh); transform: translateX(-50%) scale(0.62); transform-origin: 50% 100%; pointer-events: none; }
 .ann-history { display: flex; flex-direction: column; gap: var(--spacing-small); margin: 0; padding: 0; list-style: none; }
 .ann-history__item { display: flex; flex-direction: column; gap: var(--spacing-extra-small); padding: var(--padding-medium) var(--padding-mid-medium); border-radius: var(--radius-medium); background: var(--background-primary); }
-.ann-history__head { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-small); }
+.ann-history__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-small); }
+.ann-history__head > .t-p-h4-bold { min-width: 0; overflow-wrap: anywhere; padding-top: 4px; }
+.ann-history__tags { display: inline-flex; align-items: center; gap: var(--spacing-extra-small); flex: none; }
+.ann-history__delete { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-infinite); color: var(--text-grey-300); transition: background 120ms ease, color 120ms ease; }
+.ann-history__delete:hover, .ann-history__delete:focus-visible { background: rgba(214, 48, 49, 0.1); color: #c0392b; }
+.ann-search { max-width: none; flex: none; margin-bottom: var(--spacing-small); }
+.ann-search__clear { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-infinite); color: var(--text-grey-300); }
 .ann-meta { display: flex; flex-direction: column; margin: var(--spacing-extra-small) 0 0; border-top: 1px solid var(--border); }
 .ann-meta__row { display: grid; grid-template-columns: 16px auto minmax(0, 1fr); align-items: center; column-gap: var(--spacing-small); row-gap: var(--spacing-extra-small); padding: var(--padding-small) 0; border-bottom: 1px solid var(--border); }
 .ann-meta__row:last-child { border-bottom: 0; padding-bottom: 0; }

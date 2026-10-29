@@ -19,7 +19,7 @@ import { GUESTS, SAMPLE_COLLECTED } from "./data/guests";
 import { SAMPLE_PHOTOS, SAMPLE_PICKS, firstName, type GalleryPhoto, type PickedPhoto } from "./data/gallery";
 import { GALLERY_BASE, censor, useGallery, type GalleryState } from "./data/galleryStore";
 import { EMPTY_OUTFIT, type Outfit } from "./data/outfits";
-import { SAMPLE_NOTICES, addNotice, announcementNotice, useAnnouncements, type GuestNotice, type NoticeTarget } from "./data/notifications";
+import { SAMPLE_NOTICES, addNotice, announcementNotice, announcementNoticeId, useAnnouncements, type GuestNotice, type NoticeTarget } from "./data/notifications";
 import { AgendaScreen } from "./screens/AgendaScreen";
 import { CheckIn, type CheckInScenario } from "./screens/CheckIn";
 import { CountdownScreen } from "./screens/CountdownScreen";
@@ -298,14 +298,20 @@ function Flow() {
   });
 
   // Committee announcements (admin → every guest's phone): logged in Notifikasi; live ones also pop up as a toast.
-  useAnnouncements((list, live) => {
+  // Ones the committee deleted disappear from Notifikasi.
+  useAnnouncements((list, live, removed) => {
     if (state.stage !== "app") return;
-    const fresh = list.map(announcementNotice).filter((n) => !state.notices.some((x) => x.id === n.id));
-    if (!fresh.length) return;
+    const gone = new Set(removed.map(announcementNoticeId));
+    const kept = state.notices.filter((n) => !gone.has(n.id));
+    const fresh = list.map(announcementNotice).filter((n) => !gone.has(n.id) && !kept.some((x) => x.id === n.id));
+    if (!fresh.length) {
+      if (kept.length !== state.notices.length) set({ notices: kept, ...(state.incoming && gone.has(state.incoming.id) ? { incoming: undefined } : {}) });
+      return;
+    }
     const last = fresh[fresh.length - 1];
     // On the bare room it's the room's own toast (with "Ke sana"); anywhere else, the page toast.
     const inRoom = state.tab === "ruangan" && !state.screen && !state.overlay;
-    set({ notices: fresh.reduce(addNotice, state.notices), ...(live && inRoom ? { incoming: last } : {}) });
+    set({ notices: fresh.reduce(addNotice, kept), ...(live && inRoom ? { incoming: last } : {}) });
     if (live && !inRoom) showPageToast({ icon: "Megaphone", title: last.title, sub: last.body });
   });
 

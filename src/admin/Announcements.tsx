@@ -23,6 +23,8 @@ type Props = {
   failSend: boolean;
   onSend: (a: { title: string; body: string; roomId: string | null }) => void;
   onResend: (id: string) => void;
+  /** Removes it from the history and from guests' Notifikasi. */
+  onDelete: (id: string) => void;
 };
 
 const ago = (min: number) => (min < 1 ? "baru saja" : min < 60 ? `${min} menit lalu` : `${Math.floor(min / 60)} jam lalu`);
@@ -43,12 +45,16 @@ function MetaRow({ icon, label, value, children }: { icon: IconName; label: stri
  * Manual announcements from the committee, for things outside the rundown. Guests get them as the
  * same toast they see for event notices, with an optional "Ke sana" button to a room.
  */
-export function Announcements({ history, recipients, now, failSend, onSend, onResend }: Props) {
+export function Announcements({ history, recipients, now, failSend, onSend, onResend, onDelete }: Props) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [roomId, setRoomId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState(false);
+  const [query, setQuery] = useState("");
+  const [deleting, setDeleting] = useState<Announcement | null>(null);
+  const q = query.trim().toLowerCase();
+  const shown = [...history].reverse().filter((a) => !q || a.title.toLowerCase().includes(q) || a.body.toLowerCase().includes(q));
   const ready = title.trim() && body.trim();
   const previewRoom = roomId ? roomIndexById(roomId) : 0;
 
@@ -139,16 +145,39 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
           </div>
         </Panel>
 
-        <Panel icon="Clock" tone="slate" title="Riwayat" aside={<Badge type="neutral">{history.length} pengumuman</Badge>}>
+        <Panel
+          icon="Clock"
+          tone="slate"
+          title="Riwayat"
+          aside={<Badge type="neutral">{q ? `${shown.length} dari ${history.length}` : `${history.length} pengumuman`}</Badge>}
+        >
+          {history.length > 0 && (
+            <label className="admin-search ann-search">
+              <Icon name="Search" size={20} />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari judul atau isi…" aria-label="Cari pengumuman" className="t-p-h4" />
+              {query && (
+                <button type="button" className="ann-search__clear" onClick={() => setQuery("")} aria-label="Hapus pencarian">
+                  <Icon name="Close" size={16} />
+                </button>
+              )}
+            </label>
+          )}
           {history.length === 0 ? (
             <Empty icon="Megaphone" tone="coral" title="Belum ada pengumuman" body="Pengumuman yang terkirim muncul di sini." />
+          ) : shown.length === 0 ? (
+            <Empty icon="Search" tone="slate" title="Tidak ada pengumuman yang cocok" body={`Tidak ada judul atau isi yang memuat "${query.trim()}".`} />
           ) : (
             <ul className="ann-history">
-              {[...history].reverse().map((a) => (
+              {shown.map((a) => (
                 <li key={a.id} className="ann-history__item">
                   <span className="ann-history__head">
                     <span className="t-p-h4-bold">{a.title}</span>
-                    {a.failed ? <Badge type="danger">Gagal</Badge> : <Badge type="read">Terkirim</Badge>}
+                    <span className="ann-history__tags">
+                      {a.failed ? <Badge type="danger">Gagal</Badge> : <Badge type="read">Terkirim</Badge>}
+                      <button type="button" className="ann-history__delete" onClick={() => setDeleting(a)} aria-label={`Hapus pengumuman ${a.title}`}>
+                        <Icon name="Trash" size={18} />
+                      </button>
+                    </span>
                   </span>
                   <span className="t-p-h5 admin-muted">{a.body}</span>
                   <dl className="ann-meta">
@@ -187,6 +216,39 @@ export function Announcements({ history, recipients, now, failSend, onSend, onRe
           )}
         </Panel>
       </div>
+
+      {deleting && (
+        <Dialog
+          icon="Trash"
+          iconTone="red"
+          title="Hapus pengumuman ini?"
+          description="Hilang dari riwayat dan dari Notifikasi di HP tamu. Tidak bisa dibatalkan."
+          onClose={() => setDeleting(null)}
+          actions={
+            <>
+              <Button
+                style="danger"
+                onClick={() => {
+                  onDelete(deleting.id);
+                  setDeleting(null);
+                }}
+              >
+                Ya, hapus
+              </Button>
+              <Button style="tertiary" onClick={() => setDeleting(null)}>
+                Kembali
+              </Button>
+            </>
+          }
+        >
+          <div className="voucher-box ann-confirm">
+            <span className="admin-cell-name__text">
+              <span className="t-p-h4-bold">{deleting.title}</span>
+              <span className="t-p-h5 admin-muted">{deleting.body}</span>
+            </span>
+          </div>
+        </Dialog>
+      )}
 
       {confirm && (
         <Dialog
