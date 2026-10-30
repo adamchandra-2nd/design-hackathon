@@ -3,11 +3,6 @@
  * DUMMY: a made-up but realistic history (Purwokerto, three founders, Perumahan Grand Lavali) so the flow reads
  * well in demos. Replace years, places and milestones with Potara's real history before launch or the final pitch.
  */
-/**
- * `room` picks the background from the new office's illustrations (ROOMS index), matched to each chapter:
- * the small Ruang Kerja Dalam for the kos days, Omakase for the kitchen-turned-meeting-room, Meeting for clients
- * abroad, the busy Ruang Kerja Utama for a bigger team, and the Halaman Depan only once we arrive at the new home.
- */
 export type StoryChapter = { chapter: string; title: string; body: string; say: string; room: number };
 
 export const STORY: StoryChapter[] = [
@@ -16,7 +11,7 @@ export const STORY: StoryChapter[] = [
     title: "Awal mula",
     body: "Potara berawal dari obrolan panjang di sebuah kamar kos di Grendeng, dekat kampus Unsoed: bagaimana kalau karya digital dari Purwokerto bisa dipakai orang di mana saja?",
     say: "Duduk dulu, aku ceritain ya!",
-    room: 2,
+    room: 0,
   },
   {
     chapter: "Bab 2 · 2018",
@@ -30,7 +25,7 @@ export const STORY: StoryChapter[] = [
     title: "Kantor pertama",
     body: "Rumah pertama kami sebuah rumah di Perumahan Grand Lavali. Ruang tamunya jadi ruang kerja, dapurnya jadi ruang rapat.",
     say: "Ruang tamu jadi kantor!",
-    room: 4,
+    room: 1,
   },
   {
     chapter: "Bab 4 · 2021",
@@ -44,7 +39,7 @@ export const STORY: StoryChapter[] = [
     title: "Tumbuh bareng",
     body: "Tim makin besar. Rumah lama di Grand Lavali mulai terasa sesak.",
     say: "Makin rame, makin sempit…",
-    room: 1,
+    room: 4,
   },
   {
     chapter: "Bab 6 · 2026",
